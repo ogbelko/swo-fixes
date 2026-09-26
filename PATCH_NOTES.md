@@ -7,24 +7,27 @@
 - Alt-Tab works smoothly and the setting is saved between sessions
 
 **Night Only**
-- New **Night only** option in *ESC → Settings → System*, under Day and Night
+- Option in *ESC → Settings → System*, under Day and Night
 - Keeps the world at night permanently
+
+**Minimal Mode**
+- Toggle in *ESC → Settings → System*, next to HD Texture (restart to apply)
 
 **FPS & Ping**
 - Live FPS and server ping shown under the minimap
 
 **Mail: Get All**
 - New **Get All** button in the mailbox
-- Claims every attachment on the open page in one click
+- Instantly claims all mail on the current page (safe zones)
 
 **Always-Visible Player HP Bars**
 - Player HP bars can stay visible above heads at all times
-- Turn it on or off with **Show Players Health Bar** in *ESC → Settings → Gameplay*, under Show Companion Names
+- Toggle: **Show Players Health Bar** in *ESC → Settings → Gameplay*
 
 ## Combat
 **Locked Target now works in Action mode**
 - Skills set to **Locked Target** now hit your target instead of the nearest enemy
-- With no target selected, skills still pick one automatically like before
+- With no target, skills still auto-pick like before
 - Set it per skill bar in *ESC → Settings → Control Scheme*
 
 **Action Mode Camera**

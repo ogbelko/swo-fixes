@@ -1,10 +1,10 @@
 {
   "name": "Swordsman Classic client fixes",
-  "version": 2,
+  "version": 3,
   "files": [
     {
       "path": "bin/xajh.exe",
-      "md5": "f93d14186faeee16b54b34de6036cb67",
+      "md5": "3fd6cf529afd98b3c6fcd3ae0fe059e5",
       "packed": "zlib",
       "url": "dl/bin/xajh.exe.z"
     },
@@ -41,7 +41,7 @@
     },
     {
       "path": "package/interfaces/setting_system.xml",
-      "md5": "fa4ff782be0c764897ccc51890a22c84",
+      "md5": "13ac9c87bfb92381d464cbaa8492d083",
       "url": "dl/package/interfaces/setting_system.xml"
     },
     {
