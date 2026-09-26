@@ -1,2 +1,2 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Treat every file as binary: no line-ending conversion (fix.json MD5s must match byte for byte)
+* -text

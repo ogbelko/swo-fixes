@@ -1,0 +1,54 @@
+{
+  "name": "Swordsman Classic client fixes",
+  "version": 2,
+  "files": [
+    {
+      "path": "bin/xajh.exe",
+      "md5": "f93d14186faeee16b54b34de6036cb67",
+      "packed": "zlib",
+      "url": "dl/bin/xajh.exe.z"
+    },
+    {
+      "path": "package/configs/element_client.cfg",
+      "md5": "e9709d24b868b2e95383f549c0d17a45",
+      "url": "dl/package/configs/element_client.cfg"
+    },
+    {
+      "path": "package/data/skills.data",
+      "md5": "7398e63c91367658294401263b1b958b",
+      "packed": "zlib",
+      "url": "dl/package/data/skills.data.z"
+    },
+    {
+      "path": "package/interfaces/facebookprompt.xml",
+      "md5": "04a199290305ed49e1692fff14ee2c01",
+      "url": "dl/package/interfaces/facebookprompt.xml"
+    },
+    {
+      "path": "package/interfaces/maillist.xml",
+      "md5": "8ffa1299a1f515d76653793b0d020f42",
+      "url": "dl/package/interfaces/maillist.xml"
+    },
+    {
+      "path": "package/interfaces/minimap.xml",
+      "md5": "5d8b6f82abef30ee5fb0abb8eb3685b2",
+      "url": "dl/package/interfaces/minimap.xml"
+    },
+    {
+      "path": "package/interfaces/setting_game.xml",
+      "md5": "37f39de9f174d9a0a591a79176154521",
+      "url": "dl/package/interfaces/setting_game.xml"
+    },
+    {
+      "path": "package/interfaces/setting_system.xml",
+      "md5": "fa4ff782be0c764897ccc51890a22c84",
+      "url": "dl/package/interfaces/setting_system.xml"
+    },
+    {
+      "path": "package/script/instance_client.lua",
+      "md5": "80ce5518a68528fda2ea8eee785e8580",
+      "packed": "zlib",
+      "url": "dl/package/script/instance_client.lua.z"
+    }
+  ]
+}
