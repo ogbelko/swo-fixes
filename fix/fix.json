@@ -1,52 +1,61 @@
 {
   "name": "Swordsman Classic client fixes",
-  "version": 3,
+  "version": 4,
   "files": [
     {
       "path": "bin/xajh.exe",
       "md5": "3fd6cf529afd98b3c6fcd3ae0fe059e5",
+      "desc": "Game exe with the code changes: borderless window, Night only, FPS + Ping, always-visible player HP bars, centred Action camera and aim, Locked Target in Action mode, Forced Move blocked, Tab ignore fix, mail Get All. The settings and buttons for these come from the interface files below.",
       "packed": "zlib",
       "url": "dl/bin/xajh.exe.z"
     },
     {
       "path": "package/configs/element_client.cfg",
       "md5": "e9709d24b868b2e95383f549c0d17a45",
+      "desc": "Turns off the debug console.",
       "url": "dl/package/configs/element_client.cfg"
     },
     {
       "path": "package/data/skills.data",
       "md5": "7398e63c91367658294401263b1b958b",
+      "desc": "Forced Move needs more stamina than anyone has, so it can't be used.",
       "packed": "zlib",
       "url": "dl/package/data/skills.data.z"
     },
     {
       "path": "package/interfaces/facebookprompt.xml",
       "md5": "04a199290305ed49e1692fff14ee2c01",
+      "desc": "Hides the target info popup in the middle of the screen.",
       "url": "dl/package/interfaces/facebookprompt.xml"
     },
     {
       "path": "package/interfaces/maillist.xml",
       "md5": "8ffa1299a1f515d76653793b0d020f42",
+      "desc": "Adds the Get All button to the mailbox (works with the game exe).",
       "url": "dl/package/interfaces/maillist.xml"
     },
     {
       "path": "package/interfaces/minimap.xml",
       "md5": "5d8b6f82abef30ee5fb0abb8eb3685b2",
+      "desc": "Adds the FPS + Ping line under the minimap (works with the game exe).",
       "url": "dl/package/interfaces/minimap.xml"
     },
     {
       "path": "package/interfaces/setting_game.xml",
       "md5": "37f39de9f174d9a0a591a79176154521",
+      "desc": "Adds the Show Players Health Bar checkbox (works with the game exe).",
       "url": "dl/package/interfaces/setting_game.xml"
     },
     {
       "path": "package/interfaces/setting_system.xml",
       "md5": "13ac9c87bfb92381d464cbaa8492d083",
+      "desc": "Adds the Borderless window, Night only and Minimal Mode checkboxes (works with the game exe).",
       "url": "dl/package/interfaces/setting_system.xml"
     },
     {
       "path": "package/script/instance_client.lua",
       "md5": "80ce5518a68528fda2ea8eee785e8580",
+      "desc": "Lets you zoom the camera out further on every map.",
       "packed": "zlib",
       "url": "dl/package/script/instance_client.lua.z"
     }

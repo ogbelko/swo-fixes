@@ -29,6 +29,7 @@ import zlib
 
 COMPRESS_OVER = 256 * 1024      # compress files bigger than this (if it actually helps)
 GITHUB_WEB_LIMIT = 25 * 1024 * 1024
+DESCRIPTIONS = "descriptions.json"
 
 
 def main():
@@ -50,6 +51,14 @@ def main():
         except (ValueError, OSError):
             version = 0
 
+    # Optional descriptions.json in the source folder: {"bin/xajh.exe": "what it changes", ...}.
+    # Shown next to each file in the client's Apply Fix window. Not installed itself.
+    descs = {}
+    desc_path = os.path.join(src, DESCRIPTIONS)
+    if os.path.isfile(desc_path):
+        with open(desc_path, encoding="utf-8-sig") as f:
+            descs = {k.replace("\\", "/").lower(): v for k, v in json.load(f).items()}
+
     dl = os.path.join(out, "dl")
     if os.path.isdir(dl):
         shutil.rmtree(dl)
@@ -58,12 +67,16 @@ def main():
         for n in sorted(names):
             full = os.path.join(dirpath, n)
             rel = os.path.relpath(full, src).replace("\\", "/")
+            if rel == DESCRIPTIONS:
+                continue
             with open(full, "rb") as f:
                 data = f.read()
             if rel.endswith(".z"):              # already-compressed source copy (e.g. skills.data.z)
                 rel = rel[:-2]
                 data = zlib.decompress(data)
             entry = {"path": rel, "md5": hashlib.md5(data).hexdigest()}
+            if descs.get(rel.lower()):
+                entry["desc"] = descs[rel.lower()]
             blob, url = data, "dl/" + rel
             if len(data) > COMPRESS_OVER:
                 z = zlib.compress(data, 9)

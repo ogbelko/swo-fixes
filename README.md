@@ -17,6 +17,9 @@ https://github.com/ogbelko/swo-fixes/blob/main/fix/fix.json
 
 1. Keep your custom files in a source folder laid out like the game's element folder
    (e.g. `source\bin\xajh.exe`, `source\package\data\skills.data`).
+   Optional: a `descriptions.json` in the source folder (`{"bin/xajh.exe": "what it changes", ...}`)
+   adds a short description to each file. The client shows it in the Apply Fix window, where
+   players tick which files to install.
 2. Run `python make_fix.py source fix "Swordsman Classic client fixes"`. It rewrites `fix/fix.json` and `fix/dl/` and bumps the version.
 3. Upload the `fix` folder to this repo again.
 
