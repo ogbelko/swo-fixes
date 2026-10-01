@@ -3,8 +3,7 @@
 ## New Features
 **Borderless Window**
 - New option in *ESC → Settings → System*, under Display Mode
-- Pick Windowed Mode, tick **Borderless window** and use your desktop resolution
-- Alt-Tab works smoothly and the setting is saved between sessions
+- Pick Windowed Mode, tick **Borderless window**, use your desktop resolution
 
 **Night Only**
 - Option in *ESC → Settings → System*, under Day and Night
@@ -41,8 +40,8 @@
 - *Tab Target Selection: Ignore Players* and *Ignore Monsters* in *ESC → Settings → Gameplay* now work
 
 ## Interface & Camera
-- **Zoom out further** on every map
-- **Removed the target info popup** that covered the middle of the screen when targeting or hovering over someone
+- **Max Zoom slider** (15–50) under Distance in *ESC → Settings → System*
+- **Removed the target info popup** that covered the screen when targeting someone
 - **Console disabled**: Shift + ö no longer opens the debug console
 
 ## Installation

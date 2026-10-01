@@ -1,11 +1,11 @@
 {
   "name": "Swordsman Classic client fixes",
-  "version": 4,
+  "version": 5,
   "files": [
     {
       "path": "bin/xajh.exe",
-      "md5": "3fd6cf529afd98b3c6fcd3ae0fe059e5",
-      "desc": "Game exe with the code changes: borderless window, Night only, FPS + Ping, always-visible player HP bars, centred Action camera and aim, Locked Target in Action mode, Forced Move blocked, Tab ignore fix, mail Get All. The settings and buttons for these come from the interface files below.",
+      "md5": "a4c019787bf6925b972a951489c1a46c",
+      "desc": "Game exe with the code changes: borderless window, Night only, FPS + Ping, always-visible player HP bars, centred Action camera and aim, Locked Target in Action mode, Forced Move blocked, Tab ignore fix, mail Get All, Max Zoom slider. The settings and buttons for these come from the interface files below.",
       "packed": "zlib",
       "url": "dl/bin/xajh.exe.z"
     },
@@ -48,8 +48,8 @@
     },
     {
       "path": "package/interfaces/setting_system.xml",
-      "md5": "13ac9c87bfb92381d464cbaa8492d083",
-      "desc": "Adds the Borderless window, Night only and Minimal Mode checkboxes (works with the game exe).",
+      "md5": "acae27313af211d8d251d39f13cb9d0d",
+      "desc": "Adds the Borderless window, Night only and Minimal Mode checkboxes and the Max Zoom slider (works with the game exe).",
       "url": "dl/package/interfaces/setting_system.xml"
     },
     {
