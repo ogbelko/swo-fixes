@@ -1,0 +1,1027 @@
+MainInfoFrame.xml          0    8        1      Win_MainInfoFrame
+MainInfoMiddle.xml         0    0        0     	Win_MainInfoMiddle
+MainInfoLeft.xml           0    0        0     	Win_MainInfoLeft
+MainInfoRight.xml          0    0        0     	Win_MainInfoRight
+LineList.xml				       0	  0			   0		  Win_LineList
+PublishNews.xml			     	-1	 -1		     0		  Win_PublishNews
+
+BattleFieldEnter.xml			  0			 0			1				Win_BattleFieldEnter
+BattleFieldServerBack.xml		-1			-1			0				Win_BattleFieldServerBack
+MiniMap.xml									0				0				1				Win_MiniMap
+
+Hits.xml										-2			-250			0			Win_Hits
+Hurt.xml										-2			-166		0				Win_Hurt
+SkillNamePate.xml						-40			-166			0			Win_SkillNamePate
+QuickSkillChain.xml		270		-55	 0		Win_QuickSkillChain	
+
+Loading.xml									-1			-1			0				Win_Loading
+FullScreenVideo.xml					-1			-1			0				Win_FullScreenVideo
+Help_KeyWord.xml						-1			-1			0				Win_KeyWordHelp
+Help_Text.xml								-1			-1			0				Win_HelpText
+BugReport.xml								-1			-1			0				Win_BugReport
+
+Console.xml									0				0				0				Dlg_Console
+LevelDebugInput.xml							-1				-1				0				Win_LevelDebugInput
+LevelDebug.xml								0				-2				0				Win_LevelDebug
+EnterWait.xml								-1			-1			0				Win_EnterWait
+
+Loot.xml										-1			-1			0				Win_Loot
+LootRoll.xml								-50			-120		0				Win_LootRoll
+
+SpeakSingleLine.xml	-1     130        0      Win_SpeakSingleLine
+
+Achievement.xml							-1			-1			0				Win_Achievement
+AchievementSort.xml					-1			-1			0				Win_AchievementSort
+AchievementRecent.xml				-1			-1			0				Win_AchievementRecent
+AchievementNew.xml					-1			-200			0				Win_AchievementNew
+AchievementFrame.xml				-1			-1			0				Win_AchievementFrame
+Badge.xml										-1			-1			0				Win_Badge
+BadgeOthers.xml							-1			-1			0				Win_BadgeOthers
+BadgeInfo.xml								-1			-1			0				Win_BadgeInfo
+BadgeInfoOthers.xml					-1			-1			0				Win_BadgeInfoOthers
+AchienvementInfo.xml        -1			-1			0				Win_AchievementInfo
+BadgeNew.xml    						-1			-310			0				Win_BadgeNew
+EasyBox.xml					-120			-110		0				Win_EasyBox
+
+SocialMain.xml							-1			-1			0				Win_SocialMain
+ActivityRemind.xml					-1			-1			0			  Win_ActivityRemind
+ScheduleListFrame.xml				-1			-1			0			  Win_ScheduleListFrame
+DailyActivity.xml						-1			-1			0				Win_DailyActivity
+InstanceEndlessList.xml			-1			-1			0			  Win_InstanceEndlessList
+ReviveInfo.xml							-1			-1			0				Win_ReviveInfo
+ReviveItem.xml							-1			-1			0				Win_ReviveItem
+HegemonyMain.xml						-1			-1			0				Win_HegemonyMain
+
+GameEventPop.xml						-2			-166		0				Win_GameEventPop
+GameEventMinimize.xml				-2			280		0				Win_GameEventMinimize
+DesignProfGuide.xml					-1			-1			0				Win_DesignProfGuide
+
+Contest.xml									-1			-1			0				Win_Contest
+InfoCard.xml								-1			-1			0				Win_InfoCard
+ExpBar.xml									-1			0				1				Win_ExpBar
+SelfHead.xml								-1			-2			1				Win_SelfHead
+QuickBar.xml								-1			-2			1				Win_QuickBar
+SkillStance.xml							-1			-110		0				Win_SkillStance
+SecurityFrame.xml						-1			-1			0				Win_SecurityFrame
+AutoLock.xml								-1			-1			0				Win_AutoLock
+Trustship.xml								-1			-1			0				Win_Trustship
+Chat.xml										0				-2			1				Win_Chat
+ChatInfo.xml								0				-130			1				Win_ChatInfo
+Chat_Fetion.xml							0				-76			0				Win_ChatFetion
+ChatCommand.xml							-1			-1			0				Win_ChatCommand
+ChannelSetting.xml					-1			-1			0				Win_ChannelSetting
+ChatClose.xml								0				-100			0				Win_ChatClose
+ChangeWordSize.xml					-1			-1			0				Win_ChatWordSize
+ChatSave.xml								-1			-1			0				Win_ChatSave
+TaskLink.xml								280			-1			0				Win_TaskLink
+TaskHint.xml								280			-1			0				Win_TaskHint
+ItemDesc.xml								250			200			0				Win_ItemDesc
+Pop.xml											-156		-222		0				Win_Pop
+Poplist.xml									-1			120			0				Win_Poplist
+Popface.xml									0				0				0				Win_Popface
+QuickAction.xml							-1			-1			0				Win_QuickAction
+Quick2Shield.xml						-1			-1			0				Win_Quick2Shield
+Quick2Watch.xml							-1			-1			0				Win_Quick2Watch
+Quick2Social.xml						-1			-1			0				Win_Quick2Social
+Quick2Others.xml						-1			-1			0				Win_Quick2Others
+Quick2Official.xml						-1			-1			0				Win_Quick2Official
+NPCQuickAction.xml					-1			-1			0				Win_NPCQuickAction
+NPCQuick2Motion.xml					-1			-1			0				Win_NPCQuick2Motion
+QuickModel.xml							-1			-1			0				Win_QuickModel
+MidMap.xml									-1			-1			0				Win_MidMap
+WorldMapFrame.xml						-1			-1			0				Win_WorldMapFrame
+WorldMap.xml								-1			-1			0				Win_WorldMap
+WorldMapMsg.xml							-1			-1			0				Win_WorldMapMsg
+RandomMap.xml								-1			-1			0				Win_RandomMap
+WorldMap2.xml								-1			-1			0				Win_WorldMap2
+GuildMap.xml								-1			-1			0				Win_GuildMap
+GMap_CityList.xml						-1			-1			0				Win_GMapCityList
+GMap_BattleList.xml					-1			-1			0				Win_GMapBattleList
+GMap_ChallengeList.xml			-1			-1			0				Win_GMapChallengeList
+GMapChallenge.xml						-1			-1			0				Win_GMapChallenge
+GMapBid.xml									-1			-1			0				Win_GMapBid
+GMapBidChange.xml						-1			-1			0				Win_GMapBidChange
+GMapBidStatus.xml						-1			-1			0				Win_GMapBidStatus
+GMapJoin.xml								-1			-1			0				Win_GMapJoin
+RadarHelp.xml								-1			-1			0				Win_RadarHelp
+MapMsg.xml									-2			72			0				Win_MapMsg
+MiniMapClose.xml						0				7				0				Win_MiniMapClose
+
+NewMessage.xml							-2		  145			0				Win_NewMessage
+NewMsgDetail.xml						-1			-62			0				Win_NewMsgDetail
+Buff.xml										-180		90			1				Win_Buff
+TargetPlayer.xml						320			0				0				Win_TargetPlayer
+TargetMonsterNPC.xml				320			0				0				Win_TargetMonsterNPC
+TargetPet.xml								320			0				0				Win_TargetPet
+TargetFamousNPC.xml							320			0				0				Win_TargetFamousNPC
+Progress1.xml								-1			-160		0				Win_Prgs1
+Progress2.xml								-1			-160		0				Win_Prgs2
+MagicProgress1.xml					-1			-160		0				MagicProgress1
+MagicProgress2.xml					-1			-160		0				MagicProgress2
+MagicProgress3.xml					-1			-160		0				MagicProgress3
+MagicProgress4.xml					-1			-160		0				MagicProgress4
+MagicProgress5.xml					-1			-160		0				Win_MagicProgress5
+MagicProgress6.xml					-1			-160		0				MagicProgress6
+Popmsg.xml									-1			100			0				Win_Popmsg
+PopWarningMsg.xml						-1			130			0				Win_PopWarningMsg
+PopChatMsg.xml							-1			70			0				Win_PopChatMsg
+Broken.xml									158		60			1				Win_Broken
+AccountTime.xml							-1			100			0				Win_AccountTime
+
+WinMain.xml									-2			-2			1				Win_Main
+WinMain3.xml								-1			-1			0				Win_Main3
+Exit.xml							-1			-1				0				Win_Exit
+
+FightOperationChoose.xml		-1			-1			0				Win_FightOperationChoose
+FightModeMinimize.xml				-50			-100			0				Win_FightModeMinimize
+
+Setting_System.xml					-1			-1			0				Win_SettingSystem
+Setting_Game.xml						-1			-1			0				Win_SettingGame
+Setting_HotKeys.xml					-1			-1			0				Win_SettingHotKeys
+Setting_Keyboard.xml				-1			-1 			0				Win_SettingKeyboard
+SettingConfirm.xml					-1			-1			0				Win_SettingConfirm
+Setting_FightOperation.xml			-1			-1			0		Win_SettingFightOperation
+XAJHAssist.xml						-1			-1			0				Win_XAJHAssist
+
+QShop.xml										-1			-1			0				Win_QShop
+QshopSubItem.xml						-1			-1			0				Win_QshopSubItem
+QshopSubModel.xml						-1			-1			0				Win_QshopSubModel
+QshopCheck.xml						  -1			-1			0				Win_QshopCheck
+QshopCheckSingle.xml				-1			-1			0				Win_QshopCheckSingle
+QshopCheckSub.xml						-1			-1			0				Win_QshopCheckSub
+QshopExpandMsg.xml					-1			-1			0			  Win_QshopExpandMsg
+QshopGive.xml								-1			-1			0			  Win_QShopGive
+InputGNO.xml								-1			-1			0				Win_InputGNO
+
+PShop1.xml									-5			-1			0				Win_PShop1
+PShop2.xml									-5			-1			0				Win_PShop2
+PshopItem1.xml							-1			-1			0				Win_PshopItem1
+PshopItem2.xml							-1			-1			0				Win_PshopItem2
+PshopPet1.xml								-1			-1			0				Win_PshopPet1
+PshopPet2.xml								-1			-1			0				Win_PshopPet2
+PShopInput1.xml							-1			-1			0				Win_PShopInput1
+PShopInput2.xml							-1			-1			0				Win_PShopInput2
+PShopSearchResult.xml				-1			-1			0				Win_PShopSearchResult
+PShopInfo.xml								-1			-1			0				Win_PShopInfo
+PShopList.xml								-1			-1			0				Win_PShopList
+ItemSearch.xml							-1			-1			0				Win_ItemSearch
+SearchResult.xml						-1			-1			0				Win_SearchResult
+
+Camera.xml									-1			-1			0				Win_Camera
+Cosmetic.xml								-1			-1			0				Win_Cosmetic
+DragDrop.xml								-1			-1			0				DragDrop
+GuildAppoint.xml						-1			-1			0				Win_GuildAppoint
+GuildManage.xml							-1			-1			0				Win_GuildManage
+Guild_Help.xml							-1			-1			0				Win_Guild_Help
+GuildWar.xml								-1			-1			0				Win_GuildWar
+GuildWarStatus.xml					-1			0				0				Win_GuildWarStatus
+Inventory.xml								-50			-1			0				Win_Inventory
+InventoryExtra1.xml					-50			-1			0				Win_InventoryExtra1
+InventoryExtra2.xml					-50			-1			0				Win_InventoryExtra2
+InventoryMax.xml						-1			-1			0				Win_InventoryMax
+CharacterFrame.xml					50			-1			0				Win_CharacterFrame
+Character.xml								50			-1			0				Win_Character
+CharacterArenaScore.xml			50			-1			0				Win_CharacterArenaScore
+CharacterArenaScoreBadge.xml			-1			-1			0				Win_CharacterArenaScoreBadge
+CharacterYouxia.xml						-1			-1			0			Win_CharacterYouxia
+Prof_PotentialMain.xml			50			-1			0				Win_ProfPotentialMain
+Prof_Potential1.xml					50			-1			0				Win_ProfPotential1
+Prof_Potential2.xml					50			-1			0				Win_ProfPotential2
+Prof_Potential3.xml					50			-1			0				Win_ProfPotential3
+Prof_Potential4.xml					50			-1			0				Win_ProfPotential4
+Prof_Potential5.xml					50			-1			0				Win_ProfPotential5
+Prof_Potential6.xml					50			-1			0				Win_ProfPotential6
+Prof_Potential7.xml					50			-1			0				Win_ProfPotential7
+Prof_Potential8.xml					50			-1			0				Win_ProfPotential8
+Prof_Potential9.xml					50			-1			0				Win_ProfPotential9
+Prof_Potential10.xml				50			-1			0				Win_ProfPotential10
+
+EquipmentContent.xml				50			-1			0				Win_Equipment
+CharacterDetail.xml					50			-1			0				Win_CharacterDetail
+CharacterRepFrame.xml 			50			-1			0				Win_CharacterRepFrame
+CharacterReputation1.xml    50      -1      0       Win_CharacterReputation1
+CharacterReputation2.xml    50      -1      0       Win_CharacterReputation2
+CharacterTitle.xml					50			-1			0				Win_CharacterTitle
+Action.xml									50			-1			0				Win_Action
+SkillMain.xml								-1			-1			0				Win_SkillMain
+SkillCultivate.xml					-1			-1			0				Win_SkillCultivate
+SkillSutra.xml							-1			-1			0				Win_SkillSutra
+SkillLife.xml								-1			-1			0				Win_SkillLife
+SkillEnger.xml								-1			-1			0				Win_SkillEnger
+
+SkillSeq_Edit.xml						-1			-1			0				Win_SkillSeq_Edit
+SkillSeqEdit_Sub.xml				-1			-1			0				Win_SkillSeqEdit_Sub
+SkillIcon.xml								-1			-1			0				Win_SkillIcon
+SkillCompare.xml						-1			-1			0				Win_SkillCompare
+SkillLevelUp.xml						-1			-1			0				Win_SkillLevelUp
+SettingMouseL.xml						-1			-1			0				Win_SettingMouseL
+SettingMouseR.xml						-1			-1			0				Win_SettingMouseR
+
+Practice.xml								-1			-1			0				Win_Practice
+SkillCastTip10.xml					295			-170		0				Win_SkillCastTip10
+SettingCombo.xml						-1			-1			0				Win_SettingCombo
+FightingCircle.xml					-1			-1			1				Win_FightingCircle
+AggroList.xml					-2			262			1				Win_AggroList
+SkillSeqFrame.xml						-1			-1			0				Win_SkillSeqFrame
+SkillSystemMain.xml					-1			-1			0				Win_SkillSystemMain
+SkillDefineMain.xml					-1			-1			0				Win_SkillDefineMain
+SkillSystemElite.xml					-1			-1			0			Win_SkillSystemElite
+SkillDefineElite.xml					-1			-1			0			Win_SkillDefineElite
+SkillTest.xml								-1			-1			0				Win_SkillTest
+SkillSeqEliteSkill.xml			-1			-1			0				Win_SkillSeqEliteSkill
+SkillSeqEliteSkillExpand.xml		-1			-1			0				Win_SkillSeqEliteSkillExpand
+SkillSeqNormalSkill.xml			-1			-1			0				Win_SkillSeqNormalSkill
+SkillSeqNormalSkillBase.xml			-1			-1			0				Win_SkillSeqNormalSkillBase
+SkillSeqNormalSkillEdit.xml			-1			-1			0				Win_SkillSeqNormalSkillEdit
+SkillPreviewVideo.xml				-1			-1			0				Win_SkillPreviewVideo
+SkillPreviewModel.xml				-1			-1			0				Win_SkillPreviewModel
+
+SkillQTETip.xml							-200			-150			0				Win_SkillQTETip
+
+SkillSeqNormalSkillList_23127.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23127
+SkillSeqNormalSkillList_23128.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23128
+SkillSeqNormalSkillList_23132.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23132
+SkillSeqNormalSkillList_23133.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23133
+SkillSeqNormalSkillList_23137.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23137
+SkillSeqNormalSkillList_23138.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23138
+SkillSeqNormalSkillList_23142.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23142
+SkillSeqNormalSkillList_23143.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23143
+SkillSeqNormalSkillList_23147.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23147
+SkillSeqNormalSkillList_23148.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23148
+SkillSeqNormalSkillList_23152.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23152
+SkillSeqNormalSkillList_23153.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23153
+SkillSeqNormalSkillList_23157.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23157
+SkillSeqNormalSkillList_23158.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23158
+SkillSeqNormalSkillList_23162.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23162
+SkillSeqNormalSkillList_23163.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23163
+SkillSeqNormalSkillList_23167.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23167
+SkillSeqNormalSkillList_23168.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23168
+SkillSeqNormalSkillList_23172.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23172
+SkillSeqNormalSkillList_23173.xml		-1			-1			0				Win_SkillSeqNormalSkillList_23173
+
+CareerChange.xml						-1			-1			0				Win_CareerChange
+NPCPurchase.xml							-1			-1			0				Win_NPCPurchase
+
+InstanceDesc.xml						-1			35			0				Win_InstanceDesc
+InstanceList.xml						-1			-1			0				Win_InstanceList
+InstanceListSub1.xml						-1			-1			0			Win_InstanceListSub1
+InstanceListSub2.xml						-1			-1			0			Win_InstanceListSub2
+InstanceListSub3.xml						-1			-1			0			Win_InstanceListSub3
+InstanceListSub4.xml						-1			-1			0			Win_InstanceListSub4
+InstanceListSub5.xml						-1			-1			0			Win_InstanceListSub5
+InstanceFrame.xml						-1			-1			0				Win_InstanceFrame
+InstanceOtherFrame.xml						-1			-1			0			Win_InstanceOtherFrame
+
+AutoTeamIcon.xml						160			67			0			Win_AutoTeamIcon
+AutoTeamMain.xml						-1			-1			0			Win_AutoTeamMain
+AutoTeamReady.xml						-1			-1			0			Win_AutoTeamReady
+AutoTeamMatchSuccess.xml				-1			-1			0			Win_AutoTeamMatchSuccess
+
+
+HideGameRemind.xml						-1			-1			0			Win_HindGameRemind
+HideGameTrack.xml						-1			-1			0			Win_HideGameTrack
+HideGameModelList.xml					-1			-1			0			Win_HideGameModelList
+HideGameDetail.xml						-1			-1			0			Win_HideGameDetail
+
+InstanceConfig.xml					-2			-1			0				Win_InstanceConfig
+InstanceTime.xml						-50			-100		0				Win_InstanceTime
+InstanceAward.xml						-1			-1			0				Win_InstanceAward
+InstanceLottery.xml						-1			-1			0				Win_InstanceLottery
+InstanceFinish.xml					-1			-1			0				Win_InstanceFinish
+InstanceTeamErrMsg.xml			-1			-1			0				Win_InstanceTeamErrMsg
+InstanceJoin.xml						-1			-1			0				Win_InstanceJoin
+InstanceInfoTips.xml				-2			-70			0				Win_InstanceInfoTips
+SceneInfo_Task.xml					-1			-1			0				Win_SceneInfo_Task
+SceneInfo_Pack.xml					-1			-1			0				Win_SceneInfo_Pack
+InstanceKillScore.xml				-2		228			0				Win_InstanceKillScore
+InstanceBoardExit.xml				-1			30			0				Win_InstanceBoardExit
+InstanceExitTime.xml        -1			140			1       Win_InstanceExitTime
+InstanceStoryArea.xml				-1			90			0				Win_InstanceStoryArea
+
+QuickTeamLeader.xml					-1			-1			0				Win_QuickTeamLeader
+QuickTeamMember.xml					-1			-1			0				Win_QuickTeamMember
+Quest.xml										-1			-1			0				Win_Quest
+QuestContent.xml						-1			-1			0				Win_QuestContent
+TrackFrame.xml							-2			7				1				Win_TrackFrame
+TrackFrameClose.xml					-2			7				0				Win_TrackFrameClose
+QuestMinionContent.xml			-2			70			0				Win_QuestMinionContent
+QuestList.xml								-1			-1			0				Win_QuestList
+QuestSignUp.xml							-1			-1			0				Win_QuestSignUp
+DeclareWar.xml							-1			-1			0				Win_DeclareWar
+
+QuestStorage1.xml						-1			-1			0				Win_QuestStorage1
+QuestStorage2.xml						-1			-1			0				Win_QuestStorage2
+QuestStorage3.xml						-1			-1			0				Win_QuestStorage3
+QuestStorage4.xml						-1			-1			0				Win_QuestStorage4
+QuestStorage5.xml						-1			-1			0				Win_QuestStorage5
+QuestStorage6.xml						-1			-1			0				Win_QuestStorage6
+QuestStorage7.xml						-1			-1			0				Win_QuestStorage7
+QuestStorage9.xml						-1			-1			0				Win_QuestStorage9
+
+QuestStorageAward1.xml					-1			-1			0				Win_QuestStorageAward1
+
+
+Service_lover.xml						-1			-170			0				Win_Servicelover
+ChallengeIndex.xml					-1			-1			0				Win_ChallengeIndex
+Challenge.xml								-1			-1			0				Win_Challenge
+QuestStorage2_Info.xml			-1			-1			0				Win_QuestStorage2_Info
+QuestStorage5_Info.xml			-1			-1			0				Win_QuestStorage5_Info
+
+NPCTask.xml									30			-1			0				Win_NPCTask
+NPCTaskContent.xml					0				-1			0				Win_NPCTaskContent
+TaskLoopSkip.xml						-1			-1			0				Win_TaskLoopSkip
+NPCTaskExtra.xml						-1			-1			0				Win_NPCTaskExtra
+TaskAwardTip.xml						-1			-1			0				Win_TaskAwardTip
+
+NPC_SelectProf.xml						-1			-1			0				Win_NPCSelectProf
+
+Zone.xml										-1			140			1				Win_Zone
+Trade.xml										50			-1			0				Win_Trade
+InputMoney.xml							-1			-1			0				Win_InputMoney
+InputMoney2.xml							-1			-1			0				Win_InputMoney2
+InputNO.xml									-1			-1			0				Win_InputNO
+InputNO2.xml									-1			-1			0			Win_InputNO2
+InputNO3.xml								-1			-1			0				Win_InputNO3
+NPC.xml											30			110			0				Win_NPC
+NPCContent.xml							0				110			0				Win_NPCContent
+NpcTaskTalk.xml							-1			-125				0				Win_NpcTaskTalk
+Shop.xml										50			-1			0				Win_Shop
+ShopBack.xml								50			-1			0				Win_ShopBack
+SpecialShop.xml							50			-1			0				Win_SpecialShop
+
+Teach.xml										50			-1			0				Win_Teach
+TeachSkillSeq.xml						50			-1			0				Win_TeachSkillSeq
+PKSetting.xml								-1			-1			0				Win_PKSetting
+
+ProduceMain.xml							50			-1			0				Win_ProduceMain
+ProduceLearned.xml					-1			-1			0				Win_ProduceLearned
+ProduceUnlearn.xml					-1			-1			0				Win_ProduceUnlearn
+ProduceLevelUp.xml					-1			-1			0				Win_ProduceLevelUp
+ProduceMake.xml							-1			-1			0				Win_ProduceMake
+ProduceFortune.xml						-1			-1			0				Win_ProduceFortune
+ProduceAnalyse.xml						-1			-1			0				Win_ProduceAnalyse
+RecipeLevelUp.xml						-1			-1			0				Win_RecipeLevelUp
+RecipeLevelUp_Track.xml						-1			-1			0				Win_RecipeLevelUp_Track
+ProduceLink.xml								-1			-1			0			Win_ProduceLink
+ProduceGatherLink.xml						-1			-1			0			Win_ProduceGatherLink
+ProduceGather.xml						-1			-1			0				Win_ProduceGather
+
+Split.xml										25			-1			0				Win_Split
+Storage.xml									50			-1			0				Win_Storage
+StoragePW.xml								-1			-1			0				Win_StoragePW
+StorageChangePW.xml					-1			-1			0				Win_StorageChangePW
+StoragePWInitial.xml					-1			-1			0				Win_StoragePWInitial
+InputString.xml							-1			-1			0				Win_InputString
+InputNameID.xml							-1			-1			0				Win_InputNameID
+AskHelpToGM.xml							-1			-1			0				Win_AskHelpToGM
+
+PlayerTrace.xml							-1			-1			0				Win_PlayerTrace
+Message2.xml								-1			-1			0				Win_Message2
+Message4.xml								-1			-1			0				Win_Message4
+Identify.xml								25			-1			0				Win_Identify
+Broadcast.xml								-1			-1			0				Win_Broadcast
+
+
+EquipServ_Main.xml					-1			-1			0				Win_EquipServ_Main
+EquipServ_Compose.xml				-1			-1			0				Win_EquipServ_Compose
+EquipServ_Seperate.xml				-1			-1			0				Win_EquipServ_Seperate
+EquipServ_Inject.xml				-1			-1			0				Win_EquipServ_Inject
+//EquipServ_Kaiguang.xml			-1			-1			0				Win_EquipServ_Kaiguang
+//EquipServ_Reinforce.xml			-1			-1			0				Win_EquipServ_Reinforce
+EquipServ_StoneAdd.xml			-1			-1			0				Win_EquipServ_StoneAdd
+EquipServ_StonePurify.xml		-1			-1			0				Win_EquipServ_StonePurify
+EquipServ_StoneDel.xml			-1			-1			0				Win_EquipServ_StoneDel
+EquipServ_StoneCompose.xml	-1			-1			0				Win_EquipServ_StoneCompose
+EquipServ_Hole.xml					-1			-1			0				Win_EquipServ_Hole
+//EquipServ_MaterialCompose.xml		-1			-1			0				Win_EquipServ_MaterialCompose
+EquipServ_LegendLevelUp.xml	-1			-1			0				Win_EquipServ_LegendLevelUp
+EquipServ_LegendRebuild.xml	-1			-1			0				Win_EquipServ_LegendRebuild
+EquipServ_LegendCompose.xml	-1			-1			0				Win_EquipServ_LegendCompose
+EquipServ_ArtifactCompose.xml	-1			-1			0				Win_EquipServ_ArtifactCompose
+EquipServ_ArtifactLevelUp.xml	-1			-1			0				Win_EquipServ_ArtifactLevelUp
+EquipServ_ArtifactRebuild.xml	-1			-1			0				Win_EquipServ_ArtifactRebuild
+ArtifactRebuildTip.xml		-1			-1			0				Win_ArtifactRebuildTip
+EquipServ_ArtifactStarUp.xml	-1			-1			0				Win_EquipServ_ArtifactStarUp
+EquipIllusion.xml				-1			-1			0				Win_EquipIllusion
+EquipIllusionCancel.xml			-1			-1			0				Win_EquipIllusionCancel
+
+KungfuSoulUpgrade.xml	-1	-1	0	Win_KungfuSoulUpgrade
+KungfuSoulSwallow.xml	-1 -1 0	Win_KungfuSoulSwallow
+KungfuSoulDecompose.xml	-1	-1	0 Win_KungfuSoulDecompose
+KungfuSoulReborn.xml	-1	-1	0	Win_KungfuSoulReborn
+
+TreasureStorage.xml		-1			-1			0				Win_TreasureStorage
+TreasureSteal.xml		-1			-1			0				Win_TreasureSteal
+TreasureBuff.xml		-1			-1			0				Win_TreasureBuff
+TreasureBuffFull.xml	-1			-1			0				Win_TreasureBuffFull
+TreasureUpgrade.xml		-1			-1			0				Win_EquipServ_TreasureUpgrade
+
+FashionColorPurview.xml		-1			-1			0				Win_FashionColorPurview
+FashionColoration.xml		-1			-1			0				Win_FashionColoration
+FashionColorationFixed.xml		-1			-1			0				Win_FashionColorationFixed
+FashionColorationRandom.xml		-1			-1			0				Win_FashionColorationRandom
+FashionDraw.xml		-1			-1			0				Win_FashionDraw
+FashionTexture.xml		-1			-1			0				Win_FashionTexture
+FashionTextureRandom.xml		-1			-1			0				Win_FashionTextureRandom
+FashionTextureSize.xml		-1			-1			0				Win_FashionTextureSize
+
+Bind.xml										50			-1			0				Win_Bind
+BindClear.xml								50			-1			0				Win_BindClear
+BindRestore.xml							50			-1			0				Win_BindRestore
+FriendFrame.xml							50			-1			0				Win_FriendFrame
+Friendlist.xml							50			-1			0				Win_FriendList
+FriendGroup.xml							50			-1			0				Win_FriendGroup
+FriendSetting.xml						-1			-1			0				Win_FriendSetting
+FriendChgGroup.xml					-1			-1			0				Win_FriendChgGroup
+TemplateFriend.xml					-1			-1			0				Win_TemplateFriend
+ShieldList.xml						-1			-1			0				Win_ShieldList
+
+GroupChatInvite.xml					-1			-1			0				Win_ChatInvite
+GroupChatHistory.xml				-1			-1			0				Win_ChatHistory
+GroupChatTemplate.xml				-1			-1			0				Win_GroupChatTemplate
+
+MailList.xml								50			-1			0				Win_MailList
+MailItemList.xml							50			-1			0				Win_MailItemList
+MailWrite.xml								-50			-1			0				Win_MailWrite
+
+TeamFrame.xml								50			-1			0				Win_TeamFrame
+ArrangeTeamSip.xml					-1			-1			0				Win_ArrangeTeam
+TeamFollow.xml							50			-1			0				Win_TeamFollow
+TeamPlaza.xml								-1			-1			0				Win_TeamPlaza
+TeamPublish.xml							-1			-1			0				Win_TeamPublish
+TeamApply.xml								-1			-1			0				Win_TeamApply
+TeamInvite.xml							-1			-1			0				Win_TeamInvite
+TeamSetting.xml							-1			-1			0				Win_TeamSetting
+TeamMain.xml								0				235			0				Win_TeamMain
+TeamMate1.xml								0				0				0				Win_TeamMate1
+TeamMate2.xml								0				0				0				Win_TeamMate2
+TeamMate3.xml								0				0				0				Win_TeamMate3
+TeamMate4.xml								0				0				0				Win_TeamMate4
+TeamMate5.xml								0				0				0				Win_TeamMate5
+TeamGatherTip.xml						-1 			150 		0				Win_TeamGatherTip
+TeamMatch.xml								-1			-1			0				Win_TeamMatch
+TeamVote.xml							-40				-170		0				Win_TeamVote
+TeamMsg.xml							-1				-1		0				Win_TeamMsg
+
+Master.xml									-1			-1			0				Win_Master
+MasterSub.xml								-1			-1			0				Win_MasterSub
+StudentSub.xml							-1			-1			0				Win_StudentSub
+MasterSearch.xml						-1			-1			0				Win_MasterSearch
+SectPlatform.xml						-1			-1			0				Win_SectPlatform
+Disciple.xml								-1			-1			0				Win_Disciple
+MasterLvUp.xml							-1			-1			0				Win_MasterLvUp
+MasterRelation.xml					-1			-1			0				Win_MasterRelation
+MasterIntroduce.xml					-1			-1			0				Win_MasterIntroduce
+MasterInform.xml            -1			-1			0				Win_MasterInform
+
+FaceBook.xml								-1			-1			0				Win_Facebook
+FaceBookOther.xml						-1			-1			0				Win_FacebookOther
+FaceBookFriend.xml					-1			-1			0				Win_FacebookFriend
+FaceBookStar.xml						-1			-1			0				Win_Constellation
+FaceBookYearAnimal.xml			-1			-1			0				Win_YearAnimal
+FaceBookPrompt.xml					-1			-1			0				Win_FaceBookPrompt
+
+RankFrame.xml								-1			-1			0				Win_RankFrame
+Rank_HomePage.xml						-1			-1			0				Win_RankHomePage
+RankList.xml								-1			-1			0				Win_RankList
+
+BattleHint.xml							-1			70			0				Win_BattleHint
+
+BattleFieldMain.xml				  -2			 7			0				Win_BattleFieldMain
+BattleFieldList.xml					-50			-1			0				Win_BattleFieldList
+BattleFieldInvite.xml				-1			-120		0				Win_BattleFieldInvite
+BattleFieldLoad.xml					-1			-1			0				Win_BattleFieldLoad
+BattleFieldCreate.xml				-1			-1			0				Win_BattleFieldCreate
+BattleFieldSearch.xml				-1			-1			0				Win_BattleFieldSearch
+BattlePassword.xml					-1			-1			0				Win_BattlePassword
+BattleFieldPrepare.xml			-50			-1			0				Win_BattleFieldPrepare
+BattleFieldJoin1v1.xml			-1			-1			0				Win_BattleFieldJoin1v1
+BattleFieldJoin3on3.xml			-1			-1			0				Win_BattleFieldJoin3on3
+BattleFieldJoin1vCOM.xml		-1			-1			0				Win_BattleFieldJoin1vCOM
+BattleFieldJoin5v5.xml		  -1			-1			0				Win_BattleFieldJoin5v5
+BattleFieldAction.xml			  -1			-1			0				Win_BattleFieldAction
+BattleFieldAIList.xml			  -1			-1			0				Win_BattleFieldAIList
+BattleFieldMode.xml			    -1			-1			0				Win_BattleFieldMode
+BattleFieldLobby.xml			  -1			-1			0				Win_BattleFieldLobby
+BattleFieldPerson.xml			  -1			-1			0				Win_BattleFieldPerson
+BattleFieldChat.xml			    -1			-1			0				Win_BattleFieldChat
+BattleFieldScenes.xml			  -1			-1			0				Win_BattleFieldScenes
+BattleFieldResult.xml				-1			-1			0				Win_BattleFieldResult
+BattleFieldWinner.xml				-1			-1			0				Win_BattleFieldWinner
+BattleFieldRound.xml				-1			-1			0				Win_BattleFieldRound
+BattleFieldStart.xml				-1			-1			0				Win_BattleFieldStart
+BattleFieldKO.xml						-1			-1			0				Win_BattleFieldKO
+BattleJoin1.xml							-1			-1			0				Win_BattleJoin1
+BattleFieldPlayer1.xml			 0			 0			0				Win_BattleFieldPlayer1
+BattleFieldPlayer2.xml			-2			 0			0				Win_BattleFieldPlayer2
+BattleFieldTime.xml					-1			 0			0				Win_BattleFieldTime
+BattleFieldPlayerExtra1.xml	 0			-30			0				Win_BattleFieldPlayerExtra1
+BattleFieldPlayerExtra2.xml	-2			-30			0				Win_BattleFieldPlayerExtra2
+BattleFieldFunction.xml			-1			-2			0				Win_BattleFieldFunction
+BattleFieldLine.xml			    -1			-1			0				Win_BattleFieldLine
+BattleFieldFull.xml			    -1			-1			0				Win_BattleFieldFull
+BattlefieldBalanceTip.xml		-1			100			0				Win_BattlefieldBalanceTip
+BattleFieldAwardFrame.xml		-1			-1			0				Win_BattleFieldAwardFrame
+BattleFieldMatch.xml		    -1			-1			0				Win_BattleFieldMatch
+BattleFieldMatchReady.xml		-1			-1			0				Win_BattleFieldMatchReady
+BattleFieldMeeting.xml		-1			-1			0				Win_BattleFieldMeeting
+BattleFieldMeetingRule.xml		-1			-1			0				Win_BattleFieldMeetingRule
+BattleFieldTrans.xml		-1			-1			0				Win_BattleFieldTrans
+BattleFieldPlayerSkill1.xml	 300			80			0				Win_BattleFieldPlayerSkill1
+BattleFieldPlayerSkill2.xml	-302			80			0				Win_BattleFieldPlayerSkill2
+
+ObserveList.xml							-1			-1			0				Win_ObserveList
+ObserveBattleField.xml			-1			-1			0				Win_ObserveBattleField
+ObserveInstance.xml					-1			-1			0				Win_ObserveInstance
+
+TextFirework.xml						-1			-1			0				Win_TextFirework
+
+Help.xml										-1			-1			0				Win_Help
+HintBoard.xml								-1			-1			0				Win_HintBoard
+HintCompare.xml							-1			-1			0				Win_HintCompare
+
+MarrySort.xml								-1			-1			0				Win_MarrySort
+MarryPromise.xml						-1			-1			0				Win_MarryPromise
+Marriage.xml								-1			-1			0				Win_Marriage
+MarryItem.xml						-1			-1			0				Win_MarryItem
+ParadingSort.xml				-1			-1			0				Win_ParadingSort
+
+SwornFriendPromise.xml			-1			-1			0				Win_SwornFriendPromise
+SwornFriendCreate.xml				-1			-1			0				Win_SwornFriendCreate
+SwornFriendSelfEdit.xml			-1			-1			0				Win_SwornFriendSelfEdit
+SwornFriendFire.xml					-1			-1			0				Win_SwornFriendFire
+SwornFriendMain.xml					-1			-1			0				Win_SwornFriendMain
+SwornFriendEditMsg.xml			-1			-1			0				Win_SwornFriendEditMsg
+SwornSubRegular.xml					-1			-1			0				Win_SwornSubRegular
+SwornSubHappiness.xml			  -1			-1			0				Win_SwornSubHappiness
+
+Question.xml								-1			-1			0				Win_Question
+Question3D.xml							-1			-1			0			Win_Question3D
+Transform.xml  							-1   		-1   		0   		Win_Transform
+
+QuickBarE1.xml							300			-82			0				Win_QuickBarE1
+QuickBarE2.xml							300			-126		0				Win_QuickBarE2
+SkillSPQuick.xml						300			-82			0				Win_SkillSPQuick
+ComboQuick.xml							-1			-300		0				Win_ComboQuick
+QuickBarTest.xml						-50			-30			0				Win_QuickBarTest
+
+FriendOptionGroup.xml				-1			-1			0				Win_FriendOptionGroup
+FriendOptionName.xml				-1			-1			0				Win_FriendOptionName
+GroupChatOption.xml					-1			-1			0				Win_GroupChatOption
+TeleBuff.xml								-1			-1			0				Win_TeleBuff
+
+AuctionBuyList.xml					-1			-1			0				Win_AuctionBuyList
+AuctionList.xml							-1			-1			0				Win_AuctionList
+AuctionSellList.xml					-1			-1			0				Win_AuctionSellList
+AuctionSearch.xml						-1			-1			0				Win_AuctionSearch
+
+BuddyState.xml							-1			-1			0				Win_BuddyState
+BindStatus.xml							-48 	 	-84			0				Win_BindStatus
+
+EPEquip.xml									-1			-1			0				Win_EPEquip
+
+Record.xml									-1			-1			0				Win_Record
+RecordEnd.xml								-1			-1			0				Win_RecordEnd
+Replay.xml									-1			-1			0				Win_Replay
+ReplayEdit.xml							-1			100			0				Win_ReplayEdit
+
+DoubleExp.xml								-1			-1			0				Win_DoubleExp
+DoubleExpS.xml							-1			-1			0				Win_DoubleExpS
+
+GoldAccount.xml							-1			-1			0				Win_GoldAccount
+GoldTrade.xml								-1			-1			0				Win_GoldTrade
+GoldInquire.xml							-1			-1			0				Win_GoldInquire
+GoldPwdInput.xml						-1			-1			0				Win_GoldPwdInput
+GoldPwdChange.xml						-1			-1			0				Win_GoldPwdChange
+GoldSellInput.xml						-1			-1			0				Win_GoldSellInput
+GoldBuyInput.xml						-1			-1			0				Win_GoldBuyInput
+GoldHistory.xml							-1			-1			0				Win_GoldHistory
+
+PetHead.xml									0				-2			0				Win_PetHead
+PetQuickbar.xml							597			-69 		0				Win_PetQuickBar
+
+PetHead_Companion.xml				0				-2			0				Win_PetHead_Companion
+
+Lottery1.xml								-1			-1			0				Win_Lottery1
+Lottery2.xml								-1			-1			0				Win_Lottery2
+Lottery4.xml								-1			-1			0				Win_Lottery4
+Lottery8.xml								-1			-1			0				Win_Lottery8
+Lottery9.xml								-1			-1			0				Win_Lottery9
+
+NPCTrans.xml								-1			-1			0				Win_NPCTrans
+SkillSeqView.xml						20			-1			0				Win_SkillSeqView
+Gift.xml										-1			-1			0				Win_Gift
+GiftOther.xml								-1			-1			0				Win_GiftOther
+TaskItemSC.xml							-1			-200		0				Win_TaskItemSC
+TaskAction.xml						-1			-200		0				Win_TaskAction
+Repair.xml									-1			-1			0				Win_Repair
+
+PetMain.xml									-1			-1			0				Win_PetMain
+PetProperty.xml							-1			-1			0				Win_PetProperty
+PetDetailed.xml							-1			-1			0				Win_PetDetailed
+PetPractice.xml							-1			-1			0				Win_PetPractice
+PetFeature.xml							-1			-1			0				Win_PetFeature
+PetFeatureDetail.xml				-1			-1			0				Win_PetFeatureDetail
+PetTrain.xml								-1			-1			0				Win_PetTrain
+PetCommunicate.xml					-1			-1			0				Win_PetCommunicate
+PetSkillTeach.xml						-1			-1			0				Win_PetSkillTeach
+PetMix.xml									-1			-1			0				Win_PetMix
+PetGetID.xml								-1			-1			0				Win_PetGetID
+PetRecycle.xml							-1			-1			0				Win_PetRecycle
+PetSkillBook.xml						-1			-1			0				Win_PetSkillBook
+PetSkillAnger.xml						-1			-1			0				Win_PetSkillAnger
+PetSkillLife.xml						-1			-1			0				Win_PetSkillLife
+PetForget.xml								-1			-1			0				Win_PetForget
+PetParentageTrans.xml				-1			-1			0				Win_PetParentageTrans
+PetAppraise.xml							-1			-1			0				Win_PetAppraise
+PetDesc.xml									-1			-1			0				Win_PetDesc
+PetDescDetailed.xml						-1				-1			0		Win_PetDescDetailed
+PetHello.xml								-1			-1			0				Win_PetHello
+PetPickSetting.xml					-1			-1			0				Win_PetPickSetting
+PetReinforce.xml								-1			-1			0				Win_PetReinforce
+PetWashPoint.xml					-1			-1			0				Win_PetWashPoint
+
+Farm.xml										-1			-1			0				Win_Farm
+FarmStorage.xml							-1			-1			0				Win_FarmStorage
+FarmSow.xml									-1			-1			0				Win_FarmSow
+FarmMessage.xml             -1      -1      0       Win_FarmMessage
+
+PastureBreed.xml						-1			-1			0				Win_PastureBreed
+Pasture.xml									-1			-1			0				Win_Pasture
+
+HomeTrans.xml								-1			-1			0				Win_HomeTrans
+HomeTransFriend.xml					-1			-1			0				Win_HomeTransFriend
+HomeTransCommunity.xml			-1			-1			0				Win_HomeTransCommunity
+HomeFrame.xml								-1			-1			0				Win_HomeFrame
+HomeMain.xml								-1			-1			0				Win_HomeMain
+HomeBuildMenu.xml						-1			-1			0				Win_HomeBuildMenu
+HomeBuild.xml						    -1			-1			0				Win_HomeBuild
+HomeBuildDetail.xml					-1			-1			0				Win_HomeBuildDetail
+HomeServant.xml							-1			-1			0				Win_HomeServant
+HomeDecorate.xml							-1			-1			0				Win_HomeDecorate
+HomeHostRoom.xml						-1			-1			0				Win_HomeHostRoom
+HomeHostService.xml					-1			-1			0				Win_HomeHostService
+
+
+TransmitFlag.xml						-1			-1			0				Win_TransmitFlag
+TreasureMap2_1.xml					-1			-1			0				Win_TreasureMap2_1
+TreasureMap2_2.xml					-1			-1			0				Win_TreasureMap2_2
+TreasureMap3.xml						-1			-1			0				Win_TreasureMap3
+
+FactionTrans.xml						-1			-1			0				Win_FactionTrans
+FactionBuildingLvUp.xml			-1			-1			0				Win_FactionBuildingLvUp
+FactionContributionList.xml -1			-1			0				Win_FactionContributionList
+FactionDptApply.xml					-1			-1			0				Win_FactionDptApply
+FactionDonateItem.xml		-1			-1			0			  	Win_FactionDonateItem
+FactionDonateMoney.xml			-1			-1			0				Win_FactionDonateMoney
+FactionHireListPrepare.xml	-1			-1			0				Win_FactionHireListPrepare
+FactionHireListReady.xml		-1			-1			0				Win_FactionHireListReady
+FactionHireListSystem.xml		-1			-1			0				Win_FactionHireListSystem
+FactionHireListClient.xml		-1			-1			0				Win_FactionHireListClient
+FactionBaseReopen.xml				-1			-1			0				Win_FactionBaseReopen
+FactionInterrogation.xml		-1			-1			0				Win_FactionInterrogation
+FactionInterrogationSub.xml		-1			-1			0				Win_FactionInterrogationSub
+FactionConfession.xml			-1			-1			0				Win_FactionConfession
+FactionTiguan.xml				-1			-1			0				Win_FactionTiguan
+FactionTiguanMap.xml				-1			-1			0				Win_FactionTiguanMap
+FactionTiguanRemind.xml			-1			-1			0				Win_FactionTiguanRemind
+FactionTiguanTrack.xml			-1			-1			0				Win_FactionTiguanTrack
+FactionTiguanHistory.xml		-1			-1			0				Win_FactionTiguanHistory
+FactionTiguanProgress.xml		-1			-1			0				Win_FactionTiguanProgress
+FactionMsgPuzzle.xml			-1			-1			0				Win_FactionMsgPuzzle
+FactionMsgGate.xml				-1			-1			0				Win_FactionMsgGate
+FactionMsgStorage.xml			-1			-1			0				Win_FactionMsgStorage
+FactionCreateApply.xml			-1			-1			0				Win_FactionCreateApply
+FactionList.xml							-1			-1			0				Win_FactionList
+FactionLeaderList.xml			  -1			-1			0				Win_FactionLeaderList
+FactionApplyList.xml				-1			-1			0				Win_FactionApplyList
+FactionCard.xml							-1			-1			0				Win_FactionCard
+FactionRecommendPush.xml		-1			-1			0				Win_FactionRecommendPush
+FactionName.xml							-1			-1			0				Win_FactionName
+FactionMain.xml							-1			-1			0				Win_FactionMain
+FactionInfo.xml							-1			-1			0				Win_FactionInfo
+FactionFrontPage.xml				-1			-1			0				Win_FactionFrontPage
+FactionMember.xml						-1			-1			0				Win_FactionMember
+FactionWealth.xml						-1			-1			0				Win_FactionWealth
+FactionWealthGuide.xml      -1			-1			0				Win_FactionWealthGuide
+FactionSubMap.xml						-1			-1			0				Win_FactionSubMap
+FactionSubMapBuilding.xml				-1			-1			0			Win_FactionSubBuilding
+FactionSubMapWealth.xml				-1			-1			0				Win_FactionSubMapWealth
+FactionMsgEdit.xml					-1			-1			0				Win_FactionMsgEdit
+FactionNickName.xml					-1			-1			0				Win_FactionNickName
+FactionUniting.xml					-1			-1			0				Win_FactionUniting
+FactionQuick.xml						-1			-1			0				Win_FactionQuick
+FactionQuick2.xml						-1			-1			0				Win_FactionQuick2
+FactionUnite.xml						-1			-1			0			  Win_FactionUnite
+FactionStorage.xml					-1			-1			0			  Win_FactionStorage
+FactionStorageItem.xml			-1			-1			0			  Win_FactionStorageItem
+FactionTransfer.xml			-1			-1			0			  	Win_FactionTransfer
+FactionManagerScore.xml			-1			-1			0			  Win_FactionManagerScore
+FactionEvaluate.xml			-1			-1			0			  	Win_FactionEvaluate
+FactionDptApplyCard.xml		-1			-1			0			  	Win_FactionDptApplyCard
+FactionCard_Sub.xml			-1			-1			0			  	Win_FactionCard_Sub
+FactionCreateDpt.xml		-1			-1			0			  	Win_FactionCreateDpt
+FactionTerritory.xml		-1			-1			0					Win_FactionTerritory
+FactionTerritorySubMap.xml -1			-1			0				Win_FactionTerritorySubMap
+FactionTerritoryList.xml		-1			-1			0			Win_FactionTerritoryList
+FactionTerritorySituation.xml		-1			-1			0			Win_FactionTerritorySituation
+FactionAucGift.xml					-1			-1			0			Win_FactionAucGift
+FactionAuction.xml					-1			-1			0			Win_FactionAuction
+FactionTerritoryManage.xml	-1			-1			0			Win_FactionTerritoryManage
+FactionAuctionCustomize.xml	-1			-1			0			Win_FactionAuctionCustomize
+FactionTerritoryChooseBase.xml	-1	-1			0			Win_FactionTerritoryChooseBase
+FactionSecurityChooseDest.xml	-1		-1			0			Win_FactionSecurityChooseDest
+FactionSecurityDialogStart.xml	-1	-1			0			Win_FactionSecurityDialogStart
+FactionSecurityPanel.xml		-48			-119		0			Win_FactionSecurityPanel
+FactionActivityOpen.xml			-1			-1			0			Win_FactionActivityOpen
+FactionSecurityConfirm.xml	-1			-1			0			Win_FactionSecurityConfirm
+FactionPartyStart.xml			-1			-1			0			Win_FactionPartyStart
+FactionPartyCollect.xml			-1			-1			0			Win_FactionPartyCollect
+FactionActivityRemind.xml		-1			-1			0			Win_FactionActivityRemind
+FactionSecurityTrack.xml	-1			-1			0			Win_FactionSecurityTrack
+FactionActivityFinish.xml		-1			-1			0			Win_FactionActivityFinish
+FactionNewsContent.xml			-1			-1			0			Win_FactionNewsContent
+FactionTaskGuideSub.xml			-1			-1			0			Win_FactionTaskGuideSub
+FactionTaskBenefits.xml			-1			-1			0			Win_FactionTaskBenefits
+FactionLevelUp.xml					-1			-1			0			Win_FactionLevelUp
+FactionBuildingInfo.xml			-1			-1			0			Win_FactionBuildInfo
+FactionSetPosition.xml			-1			-1			0			Win_FactionSetPosition
+FactionInvestigate.xml			-1			-1			0			Win_FactionInvestigate
+FactionInvestigateTalk.xml		-1			-1			0			Win_FactionInvestigateTalk
+FactionInvestigateList.xml		-1			-1			0			Win_FactionInvestigateList
+FactionInvestigateNew.xml		-1			-1			0			Win_FactionInvestNew
+FactionInvestigateAnalysis.xml	-1			-1			0			Win_FactionInvestAnalysis
+FactionInvestigateEnd.xml		-1			-1			0			Win_FactionInvestigateEnd
+FactionJiaChi.xml				-1			-1			0			Win_FactionJiaChi
+FactionJiaChiDesc.xml			-1			-1			0			Win_FactionJiaChiDesc
+FactionJiaChiPrompt.xml			-1			-1			0			Win_FactionJiaChiPrompt
+FactionJiaChiChoose.xml			-1			-1			0			Win_FactionJiaChiChoose
+FactionMoneyTask.xml			-1			-1			0			Win_FactionMoneyTask
+FactionMoneyTaskList.xml			-1			-1			0			Win_FactionMoneyTaskList
+FactionMoneyTaskManage.xml			-1			-1			0			Win_FactionMoneyTaskManage
+FactionTaskBest.xml				-1			-1			0				Win_FactionTaskBest
+
+HegemonyBattleSign.xml			-1			-1			0				Win_HegemonyBattleSign
+HegemonyBattleJoin.xml			-1			-1			0				Win_HegemonyBattleJoin
+HegemonyBattleResult.xml		-1			-1			0				Win_HegemonyBattleResult
+HegemonyShop.xml						-1			-1			0				Win_HegemonyShop
+
+MinimizeBar0.xml						-1			-1			0				Win_MinimizeBar0
+MinimizeBar1.xml						-1			-1			0				Win_MinimizeBar1
+MinimizeBar2.xml						-1			-1			0				Win_MinimizeBar2
+MinimizeBar3.xml						-1			-1			0				Win_MinimizeBar3
+MinimizeBar4.xml						-1			-1			0				Win_MinimizeBar4
+MinimizeBar5.xml						-1			-1			0				Win_MinimizeBar5
+MinimizeBar6.xml						-1			-1			0				Win_MinimizeBar6
+MinimizeBar7.xml						-1			-1			0				Win_MinimizeBar7
+MinimizeBar8.xml						-1			-1			0				Win_MinimizeBar8
+MinimizeBar9.xml						-1			-1			0				Win_MinimizeBar9
+MinimizeBar10.xml						-1			-1			0				Win_MinimizeBar10
+MinimizeBar11.xml						-1			-1			0				Win_MinimizeBar11
+
+Customize.xml								-1			-10			0				Win_Customize
+GMConsole.xml								0				0				0				Win_GMConsole
+GMParam.xml									0				0				0				Win_GMParam
+GMDelMsgReason.xml					0				0				0				Win_GMDelMsgReason
+GMFinishMsg.xml							0				0				0				Win_GMFinishMsg
+GMChat.xml							-1			-1			0				Win_GMChat
+ProhibitionTool.xml					0				0				0				Win_ProhibitionTool
+
+ScheduleRemind.xml         -1      -1       0       Win_ScheduleRemind
+Explorer.xml				-1			-1				0			Win_Explorer
+
+HelpList.xml							 -1			-1			  0				Win_HelpList
+NewSkill.xml							 -1			-200			  0				Win_NewSkill
+PetStorage.xml             -1     -1        0       Win_PetStorage
+TaskTrans.xml              -1     -1        0       Win_TaskTrans
+SpcialSpeak.xml						 -1     -1        0       Win_SpecialSpeak
+FightHelper.xml            -1     -1        0       Win_FightHelper
+SettingOprConfig.xml				-1		-1				0				Win_SettingOprConfig
+Sos.xml                    -338		-166		  0       Win_Sos
+FunctionUnlockTip.xml			-2			-1				0				Win_FunctionUnlockTip
+EditPortrait.xml			-1				-1				0				Win_EditPortrait
+
+MainBack.xml								-1		-1		1		Win_MainBack
+
+TGllkGame.xml								-1		-1		0		Win_TGllkGame
+TGllkGame2014.xml							-1		-1		0		Win_TGllkGame2014
+MiniGameBSZ.xml							-1		-1		0		Win_MiniGameBSZ
+minigamebsmc.xml							-1		-1		0		Win_minigamebsmc
+EnvDbgAssist.xml						-1		-1		0		Win_EnvDbgAssist
+Settings_Effect.xml					-1		-1		0		Panel_SetEffect
+RenderDbg.xml								-1		-1		0		Win_RenderDbg
+
+PayCheck.xml						-1		-1		0			Win_PayCheck
+TaskPublish.xml						-1		-1		0			Win_TaskPublish
+TaskPublishList.xml					-1		-1		0			Win_TaskPublishList
+TaskPublishCount.xml				-1		-1		0			Win_TaskPublishCount
+TransformInfo.xml						-1		-1		0			Win_TransformInfo
+
+AnQiXia.xml						-1			-1			0			Win_AnQiXia
+AnQiXiaLevelUp.xml				-1			-1			0			Win_AnQiXiaLevelUp
+AnQiAdvance.xml				-1			-1			0			Win_AnQiAdvance
+
+JueweiAuctionSwitch.xml				-2			200			0			  Win_JueweiAuctionSwitch
+JueweiAuctionFrame.xml						-1		-1		0			Win_JueweiAuctionFrame
+JueweiAuctionEnglishSys.xml						-1		-1		0			Win_JueweiAuctionEnglishSys
+JueweiAuctionSFPSys.xml						-1		-1		0			Win_JueweiAuctionSFPSys
+JueweiAuctionInput.xml					-1		-1		0			Win_JueweiAuctionInput
+
+StarFrame.xml					-1		-1		0			Win_StarFrame
+StarShow.xml					-1		-1		0			Win_StarShow
+StarCatalog.xml				-1		-1		0			Win_StarCatalog
+StarContent.xml				-1		-1		0			Win_StarContent
+StarRecord.xml				-1		-1		0			Win_StarRecord
+StarPowerFrame.xml		-1		-1		0			Win_StarPowerFrame
+StarPower1.xml				-1		-1		0			Win_StarPower1
+StarPower2.xml				-1		-1		0			Win_StarPower2
+StarPower3.xml				-1		-1		0			Win_StarPower3
+StarHelpFrame.xml			-1		-1		0			Win_StarHelpFrame
+StarHelp1.xml				  -1		-1		0			Win_StarHelp1
+StarHelp2.xml				  -1		-1		0			Win_StarHelp2
+StarHelp3.xml				  -1		-1		0			Win_StarHelp3
+
+SutraPotential.xml				-2		-1		0			Win_SurtraPotential
+SutraPotentialPoint.xml				-1		-1		0			Win_SutraPotentialPoint
+SutraModel.xml				0		0		0			Win_SutraModel
+SutraCancel.xml				0		-2		0			Win_SutraCancel
+
+XAVSMain.xml					-1		-2		0			Win_XAVSMain
+XAVSPack.xml					-2		-2		0			Win_XAVSPack
+XAVSMap.xml						0			-2		0			Win_XAVSMap
+XAVSInfo.xml					-1		0			0			Win_XAVSInfo
+XAVSTeam1.xml					0			0			0			Win_XAVSTeam1
+XAVSTeam2.xml					-2		0			0			Win_XAVSTeam2
+XAVSShop.xml					-1		-1		0			Win_XAVSShop
+XAVSChat.xml					0			-200	0			Win_XAVSChat
+XAVSChatInfo.xml			0			-230	0			Win_XAVSChatInfo
+XAVSChoose.xml				-1		-1		0			Win_XAVSChoose
+XAVSWinMain3.xml			-1		-1		0			Win_XAVSWinMain3
+XAVSTarget.xml			  -1		42		0			Win_XAVSTarget
+XAVSFightInfo.xml			-1		-1		0			Win_XAVSFightInfo
+XAVSKillInfo1.xml			-1		-1		0			Win_XAVSKillInfo1
+XAVSKillInfo2.xml			-1		-1		0			Win_XAVSKillInfo2
+
+ServerChange.xml			-1		-1		0			Win_ServerChange
+
+Scrawl.xml					0		0		0			Win_Scrawl
+ScrawlTeam.xml					0		0		0		Win_ScrawlTeam
+ServerReturn.xml			-1			-1			0				Win_ServerReturn
+
+ServerReturnCount.xml		-1			-1			0				Win_ServerReturnCount
+EquipRebuild.xml		-1			-1			0			Win_EquipRebuild
+
+ServerCloseTip.xml			-1			-1			0				Win_ServerCloseTip
+DuelMeetingTrack.xml    -40    270      0      Win_DuelMeetingTrack
+BattleFieldEntance.xml			-1			-1			0				Win_BattleFieldEntrance
+
+FontTest.xml					-1			-1			0				Win_FontTest
+Setting_HotKeysList.xml		-1			-1			0				Win_SettingHotkeysList
+
+FactionStatusPurview.xml							-1			-1			0				Win_FactionStatusPurview
+FactionPositionPurview.xml							-1			-1			0				Win_FactionPositionPurview
+
+ColorSetting.xml			-1			-1			0				Win_ColorSetting
+
+AutoPlayFrame.xml			-1			-1			0				Win_AutoPlayFrame
+AutoPlayBase.xml			-1			-1			0				Win_AutoPlayBase
+AutoPlaySkill.xml			-1			-1			0				Win_AutoPlaySkill
+AutoPlayRecover.xml			-1			-1			0				Win_AutoPlayRecover
+AutoPlayEquip.xml			-1			-1			0				Win_AutoPlayEquip
+AutoPlayTip.xml				-250		30			0				Win_AutoPlayTip
+AutoPlayResult.xml			-40			-1			0				Win_AutoPlayResult
+
+AwardExchange.xml			-1			-1			0				Win_AwardExchange
+ActivityQuestion.xml	-1			-1			0				Win_ActivityQuestion
+
+CreateChangeFrame.xml	-1			-1			0				Win_CreateChangeFrame
+CreateChangeFace.xml	-1			-1			0				Win_CreateChangeFace
+CreateChangeBody.xml	-1			-1			0				Win_CreateChangeBody
+CreateChangeEyes.xml	-1			-1			0				Win_CreateChangeEyes
+CreateChangeHair.xml	-1			-1			0				Win_CreateChangeHair
+CreateChangeSnoot.xml	-1			-1			0				Win_CreateChangeSnoot
+CreateChangeAge.xml		-1			-1			0				Win_CreateChangeAge
+CreateBodyDetail.xml	-1			-1			0				Win_CreateBodyDetail
+CreateFaceDetail.xml	-1			-1			0				Win_CreateFaceDetail
+CreateMouthDetail.xml	-1			-1			0				Win_CreateMouthDetail
+CreateNoseDetail.xml	-1			-1			0				Win_CreateNoseDetail
+CreateEyesDetail.xml	-1			-1			0				Win_CreateEyesDetail
+CreateChangeBackground.xml	-1	-1		0				Win_CreateChangeBackground
+CreateLoli.xml				-1			-1			0				Win_CreateLoli
+
+CreateExport.xml			-1			-1			0				Win_CreateExport
+ChooseFile.xml				-1			-1			0				Win_ChooseFile
+
+FactionProtectSet.xml		-1			-1			0				Win_FactionProtectSet
+FactionSalarySet.xml		-1			-1			0				Win_FactionSalarySet
+
+FactionAlign.xml				-1			-1			0				Win_FactionAlign
+FactionAlignList.xml		-1			-1			0				Win_FactionAlignList
+FactionAlignInvite.xml	-1			-1			0				Win_FactionAlignInvite
+
+ClothStorage.xml				-1			-1			0				Win_ClothStorage
+
+QuestBuGua.xml			-1			-1			0				Win_QuestBuGua
+SkillSpecialShow.xml		-1			-1			1				Win_SkillSpecialShow
+
+ExtendStudent.xml			-1			-1			0				Win_ExtendStudent
+ExtendTeacher.xml			-1			-1			0				Win_ExtendTeacher
+
+BindStone.xml			-1			-1			0				Win_BindStone
+XunBaoMain.xml			-1			-1			0				Win_XunBaoMain
+XunBaoAll.xml			-1			-1			0				Win_XunBaoAll
+ExplorerXunbao.xml      -1          -1          0               Win_ExplorerXunbao
+
+BattleGroundEstablish.xml	-1		-1		0				Win_BattleGroundEstablish
+BattleGround.xml	-1		-1		0				Win_BattleGround
+BattleFieldCorpsMatch.xml		-1		-1		0		Win_BattleFieldCorpsMatch
+BattleFieldCorpsReady.xml		-1		-1		0		Win_BattleFieldCorpsReady
+BattleEventMini.xml					-2		140		0		Win_BattleEventMini
+BattleCorpsRecord.xml				-1		-1		0		Win_BattleCorpsRecord
+BattleGroundTeam.xml				-1		-1		0		Win_BattleGroundTeam
+BattleCorpsVote.xml					-1		-1		0		Win_BattleCorpsVote
+BattleCorpsDismiss.xml					-1		-1		0		Win_BattleCorpsDismiss
+BattleCorpsAwardFrame.xml		-1		-1		0		Win_BattleCorpsAwardFrame
+BattleHideMatch.xml		-1		-1		0		Win_BattleHideMatch
+Return.xml		-1		-1		0		Win_Return
+
+CountryFrame.xml		-1		-1		0		Win_CountryFrame
+CountrySub1.xml		-1		-1		0		Win_CountrySub1
+CountrySub2.xml		-1		-1		0		Win_CountrySub2
+CountrySub3.xml		-1		-1		0		Win_CountrySub3
+CountryCard.xml		-1		-1		0		Win_CountryCard
+CountryEscortMsg.xml		-1		-1		0		Win_CountryEscortMsg
+CountryEscort.xml		-1		-1		0		Win_CountryEscort
+CountryList.xml		-1		-1		0		Win_CountryList
+CountryInputMoney.xml		-1		-1		0		Win_CountryInputMoney
+CountryEscortSalary.xml		-1		-1		0		Win_CountryEscortSalary
+CountryEscortChange.xml		-1		-1		0		Win_CountryEscortChange
+CountryEscortInsure.xml		-1		-1		0		Win_CountryEscortInsure
+CountryEscortOpen.xml		-1		-1		0		Win_CountryEscortOpen
+CountryFight.xml		-1		-1		0		Win_CountryFight
+CountryWuxun.xml		-1		-1		0		Win_CountryWuxun
+CountryFightVS.xml		-1		-1		0		Win_CountryFightVS
+CountryActivity.xml		-1		-1		0		Win_CountryActivity
+
+ShakeDice1.xml		-1		-1		0		Win_ShakeDice1
+ShakeDice2.xml		-1		-1		0		Win_ShakeDice2
+
+ActivityVS.xml		-2		-320		0		Win_ActivityVS
+
+WorldCup_AccumlatedQuiz.xml		-1		-1		0		Win_WorldCup_AccumlatedQuiz
+WorldCup_SingleQuiz.xml		-1		-1		0		Win_WorldCup_SingleQuiz
+WorldCupChampion.xml		-1		-1		0		Win_WorldCupChampion
+
+FashionSynthesis.xml		-1		-1		0		Win_FashionSynthesis
+Fashionshow.xml		-1		-1		0		Win_Fashionshow
+FactoryCollectShow.xml		-1		-1		0		Win_FactoryCollectShow
+FactoryCollectPart.xml		-1		-1		0		Win_FactoryCollectPart
+FactoryCollectTime.xml		-1		-1		0		Win_FactoryCollectTime
+FactoryCollectList.xml		-1		-1		0		Win_FactoryCollectList
+
+EquipServ_NamePlate.xml		-1		-1		0		Win_EquipServ_NamePlate
+EquipServ_NamePlateImprove.xml  -1   -1   0 Win_EquipServ_NamePlateImprove
+
+InstanceTurnover.xml		-1		-1		0		Win_InstanceTurnover
+InstanceTurnSingle.xml		-1		-1		0		Win_InstanceTurnSingle
+CardCollectionSystem.xml		-1		-1		0		Win_CardCollectionSystem
+CardCollectionSuit.xml		-1		-1		0		Win_CardCollectionSuit
+CardPackage.xml		-1		-1		0		Win_CardPackage
+TheMainInterfaceCard.xml		-1		-1		0		Win_TheMainInterfaceCard
+CardExtraction.xml		-1		-1		0		Win_CardExtraction
+
+BattleDuoYang.xml		-1		-1		0		Win_BattleDuoYang
+Scenetoplist.xml		-1		-1		0		Win_Scenetoplist
+InputCristalNum.xml		-1		-1		0		Win_InputCristalNum
+
+FactionXZResponse.xml		-1		-1		0		Win_FactionXZResponse
+FactionXZComplete.xml		-1		-1		0		Win_FactionXZComplete
+FactionCropAdmin.xml		-1		-1		0		Win_FactionCropAdmin
+FactionCropGet.xml			-1		-1		0		Win_FactionCropGet
+FactionCropBuy.xml			-1		-1		0		Win_FactionCropBuy
+FactionXZReady.xml		-1		-1		0		Win_FactionXZReady
+FactionXZOutcom.xml		-1		-1		0		Win_FactionXZOutcom
+
+Holy_Unbound.xml		-1		-1		0		Win_Holy_Unbound
+BigHorn.xml             -1      -1      0       Win_BigHorn
+Bigpopmsg.xml			-1			100			0				Win_Bigpopmsg
+Dance.xml				-1			-2			0				Win_Dance
+TowerFirstReward.xml	-1	-1	0	Win_TowerFirstReward
+TowerTodayReward.xml	-1	-1	0	Win_TowerTodayReward
+TowerReviveSelect.xml	-1	-1	0	Win_TowerReviveSelect
+TowerAcceptApplication.xml	-1	-1	0	Win_TowerAcceptApplication
+TowerRequestTimes.xml	-1	-1	0	Win_TowerRequestTimes
+TowerReTimes.xml	-1	-1	0	Win_TowerReTimes
+TowerMonster.xml	-1	-1	0	Win_TowerMonster
+TowerFightScene.xml	-1	-1	0	Win_TowerFightScene
+VipPartContent.xml             -1      -1      0       Win_VipPartContent
+VipExplain.xml             -1      -1      0       Win_VipExplain
+
+CaptureFlagTopListFrame.xml -1 -1 0 Win_CaptureFlagTopListFrame
+CaptureFlagTopList.xml -1 -1 0 Win_CaptureFlagTopList
+CaptureFlagIntegral.xml -2 228 0 Win_CaptureFlagIntegral
+CaputerFlagZoneEnter.xml -1 -1 0 Win_CaputerFlagZoneEnter
+				
+ProhibitianTip1.xml -1 -1 0 Win_ProhibitianTip1
+ProhibitionTip.xml -1 -1 0 Win_ProhibitionTip
+PassScene.xml	-1	-1	0	Win_PassScene

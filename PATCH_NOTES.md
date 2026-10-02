@@ -2,32 +2,34 @@
 
 ## New Features
 **Borderless Window**
-- New option in *ESC → Settings → System*, under Display Mode
-- Pick Windowed Mode, tick **Borderless window**, use your desktop resolution
+- *ESC → Settings → System → Display Mode*: pick **Borderless window**
 
-**Night Only**
-- Option in *ESC → Settings → System*, under Day and Night
-- Keeps the world at night permanently
+**Night Only / Day Only**
+- *ESC → Settings → System*: keep the world at night, or at midday
 
 **Minimal Mode**
 - Toggle in *ESC → Settings → System*, next to HD Texture (restart to apply)
 
 **FPS & Ping**
-- Live FPS and server ping shown under the minimap
+- Live FPS and ping under the minimap (ping every 3 s)
+
+**Aggro List**
+- Toggle under the quest list: who your target attacks + top 10 damage on it
+
+**Bar Numbers**
+- 0–100 shown under the Stamina, Rage and Warsoul bars
 
 **Mail: Get All**
 - New **Get All** button in the mailbox
 - Instantly claims all mail on the current page (safe zones)
 
 **Always-Visible Player HP Bars**
-- Player HP bars can stay visible above heads at all times
-- Toggle: **Show Players Health Bar** in *ESC → Settings → Gameplay*
+- Toggle **Show Players Health Bar** in *ESC → Settings → Gameplay*
 
 ## Combat
 **Locked Target now works in Action mode**
-- Skills set to **Locked Target** now hit your target instead of the nearest enemy
-- With no target, skills still auto-pick like before
-- Set it per skill bar in *ESC → Settings → Control Scheme*
+- **Locked Target** skills hit your target, not the nearest enemy (no target: auto-pick)
+- Set per skill bar in *ESC → Settings → Control Scheme*
 
 **Action Mode Camera**
 - Camera is now centred directly behind your character
@@ -37,11 +39,11 @@
 - Forced Move can no longer be used, including during Lost Arts skills
 
 **Tab Targeting fixed**
-- *Tab Target Selection: Ignore Players* and *Ignore Monsters* in *ESC → Settings → Gameplay* now work
+- *Ignore Players* / *Ignore Monsters* (*ESC → Settings → Gameplay*) now work
 
 ## Interface & Camera
-- **Max Zoom slider** (15–50) under Distance in *ESC → Settings → System*
-- **Removed the target info popup** that covered the screen when targeting someone
+- **Settings → System redone**: Graphics, Sound, Display, Camera sections; new **Max Zoom** (15–50), **Zoom Speed**, **Compatibility mode**
+- **Removed the target info popup** in mid-screen
 - **Console disabled**: Shift + ö no longer opens the debug console
 
 ## Installation

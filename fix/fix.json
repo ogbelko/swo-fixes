@@ -1,11 +1,11 @@
 {
   "name": "Swordsman Classic client fixes",
-  "version": 5,
+  "version": 6,
   "files": [
     {
       "path": "bin/xajh.exe",
-      "md5": "a4c019787bf6925b972a951489c1a46c",
-      "desc": "Game exe with the code changes: borderless window, Night only, FPS + Ping, always-visible player HP bars, centred Action camera and aim, Locked Target in Action mode, Forced Move blocked, Tab ignore fix, mail Get All, Max Zoom slider. The settings and buttons for these come from the interface files below.",
+      "md5": "60de365ba18f5581a292c2cc63976d24",
+      "desc": "Game exe with all code changes: borderless window, Night/Day only, FPS + Ping (every 3 s), health bars, bar numbers, Aggro List, centred Action camera, Locked Target, Forced Move blocked, Tab ignore fix, mail Get All, Max Zoom, Zoom Speed, Display Mode, Compatibility mode. The windows and buttons for these come from the interface files below.",
       "packed": "zlib",
       "url": "dl/bin/xajh.exe.z"
     },
@@ -23,10 +23,28 @@
       "url": "dl/package/data/skills.data.z"
     },
     {
+      "path": "package/interfaces/aggrolist.xml",
+      "md5": "4652914949d167e8cc41b5a6ef9d627b",
+      "desc": "The Aggro List window under the quest list. Install together with gameui.dcf (works with the game exe).",
+      "url": "dl/package/interfaces/aggrolist.xml"
+    },
+    {
       "path": "package/interfaces/facebookprompt.xml",
       "md5": "04a199290305ed49e1692fff14ee2c01",
       "desc": "Hides the target info popup in the middle of the screen.",
       "url": "dl/package/interfaces/facebookprompt.xml"
+    },
+    {
+      "path": "package/interfaces/fightingcircle.xml",
+      "md5": "cce3f6588ad4f9056ad02e7eb731b4c0",
+      "desc": "0-100 numbers under the Stamina, Rage and Warsoul bars (works with the game exe).",
+      "url": "dl/package/interfaces/fightingcircle.xml"
+    },
+    {
+      "path": "package/interfaces/gameui.dcf",
+      "md5": "e62843d5198d2f2366b8a369d18c320f",
+      "desc": "Game window list with the Aggro List window added. Install together with aggrolist.xml.",
+      "url": "dl/package/interfaces/gameui.dcf"
     },
     {
       "path": "package/interfaces/maillist.xml",
@@ -41,15 +59,33 @@
       "url": "dl/package/interfaces/minimap.xml"
     },
     {
+      "path": "package/interfaces/setting_fightoperation.xml",
+      "md5": "df1005f103879f9c3c509922d3332588",
+      "desc": "Settings > Control Scheme: rows and columns aligned, two label fixes.",
+      "url": "dl/package/interfaces/setting_fightoperation.xml"
+    },
+    {
       "path": "package/interfaces/setting_game.xml",
-      "md5": "37f39de9f174d9a0a591a79176154521",
-      "desc": "Adds the Show Players Health Bar checkbox (works with the game exe).",
+      "md5": "f899f73bd73364e7d5fb4464e18db5d8",
+      "desc": "Reorganized Settings > Gameplay tab, incl. the Show Players Health Bar checkbox (works with the game exe).",
       "url": "dl/package/interfaces/setting_game.xml"
     },
     {
+      "path": "package/interfaces/setting_hotkeyslist.xml",
+      "md5": "395baf4059c7827b201050d027abf184",
+      "desc": "Settings > Key Bind list view: clearer column and button names.",
+      "url": "dl/package/interfaces/setting_hotkeyslist.xml"
+    },
+    {
+      "path": "package/interfaces/setting_keyboard.xml",
+      "md5": "bb4691567b3dcc3ea1348603667a8a1f",
+      "desc": "Settings > Key Bind keyboard view: smaller key text so action names don't overlap.",
+      "url": "dl/package/interfaces/setting_keyboard.xml"
+    },
+    {
       "path": "package/interfaces/setting_system.xml",
-      "md5": "acae27313af211d8d251d39f13cb9d0d",
-      "desc": "Adds the Borderless window, Night only and Minimal Mode checkboxes and the Max Zoom slider (works with the game exe).",
+      "md5": "ce2c62978dc462cebc51d91bcc7fba32",
+      "desc": "Redesigned Settings > System tab (Graphics, Sound, Display, Camera and World) with Display Mode, Max Zoom, Zoom Speed, Compatibility mode, Night/Day only. Needs the game exe.",
       "url": "dl/package/interfaces/setting_system.xml"
     },
     {
