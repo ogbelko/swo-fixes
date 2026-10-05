@@ -1,11 +1,11 @@
 {
   "name": "Swordsman Classic client fixes",
-  "version": 6,
+  "version": 7,
   "files": [
     {
       "path": "bin/xajh.exe",
-      "md5": "60de365ba18f5581a292c2cc63976d24",
-      "desc": "Game exe with all code changes: borderless window, Night/Day only, FPS + Ping (every 3 s), health bars, bar numbers, Aggro List, centred Action camera, Locked Target, Forced Move blocked, Tab ignore fix, mail Get All, Max Zoom, Zoom Speed, Display Mode, Compatibility mode. The windows and buttons for these come from the interface files below.",
+      "md5": "b34be9248e37a1d7622a5b345a7014ea",
+      "desc": "Game exe with all code changes: borderless window, Night/Day only, FPS + Ping (every 3 s), health bars, bar numbers, Aggro List, Player Kills counter, chat input keeps focus when you get hit, bigger world map (right-click = Back, maps open fully zoomed out), skips the logos and server list at start, centred Action camera, Locked Target, Forced Move blocked, Tab ignore fix, mail Get All, Max Zoom, Zoom Speed, Display Mode, Compatibility mode. The windows and buttons for these come from the interface files below.",
       "packed": "zlib",
       "url": "dl/bin/xajh.exe.z"
     },
@@ -23,10 +23,22 @@
       "url": "dl/package/data/skills.data.z"
     },
     {
+      "path": "package/gfx/界面/登陆界面水墨logo.gfx",
+      "md5": "d514898958c4b7171515fa34dcbdc201",
+      "desc": "Loading screen at game start shows only the Swordsman logo (no Perfect World logo, no book).",
+      "url": "dl/package/gfx/界面/登陆界面水墨logo.gfx"
+    },
+    {
       "path": "package/interfaces/aggrolist.xml",
       "md5": "4652914949d167e8cc41b5a6ef9d627b",
-      "desc": "The Aggro List window under the quest list. Install together with gameui.dcf (works with the game exe).",
+      "desc": "The Aggro List window on the left side under the quest area. Install together with gameui.dcf (works with the game exe).",
       "url": "dl/package/interfaces/aggrolist.xml"
+    },
+    {
+      "path": "package/interfaces/chatinfo.xml",
+      "md5": "8d3f7d13643f088133a4f6b0cf2dad36",
+      "desc": "Bigger chat box by default (450x300); you can still resize it.",
+      "url": "dl/package/interfaces/chatinfo.xml"
     },
     {
       "path": "package/interfaces/facebookprompt.xml",
@@ -42,9 +54,22 @@
     },
     {
       "path": "package/interfaces/gameui.dcf",
-      "md5": "e62843d5198d2f2366b8a369d18c320f",
-      "desc": "Game window list with the Aggro List window added. Install together with aggrolist.xml.",
+      "md5": "717e1b22a3058e89a79062be713f7ca4",
+      "desc": "Game window list: adds the Aggro List (left side) and the Player Kills counter. Install together with aggrolist.xml and killcount.xml.",
       "url": "dl/package/interfaces/gameui.dcf"
+    },
+    {
+      "path": "package/interfaces/gameui.stf",
+      "md5": "615e48bd1f105e778f36ea1f08b52049",
+      "desc": "Text fix: the chat cooldown message now names the Alliance Channel instead of Dragon's Roar.",
+      "packed": "zlib",
+      "url": "dl/package/interfaces/gameui.stf.z"
+    },
+    {
+      "path": "package/interfaces/killcount.xml",
+      "md5": "2983f2d5e7c43a1dbf52821155a23e6a",
+      "desc": "The Player Kills counter above your character portrait. Install together with gameui.dcf (works with the game exe).",
+      "url": "dl/package/interfaces/killcount.xml"
     },
     {
       "path": "package/interfaces/maillist.xml",
@@ -57,6 +82,12 @@
       "md5": "5d8b6f82abef30ee5fb0abb8eb3685b2",
       "desc": "Adds the FPS + Ping line under the minimap (works with the game exe).",
       "url": "dl/package/interfaces/minimap.xml"
+    },
+    {
+      "path": "package/interfaces/producemake.xml",
+      "md5": "f62aeac8ee9cd9ff5622d3ae4aa9479d",
+      "desc": "Wider recipe list in every crafting window so long item names fit. Install together with the crafting background (surfaces).",
+      "url": "dl/package/interfaces/producemake.xml"
     },
     {
       "path": "package/interfaces/setting_fightoperation.xml",
@@ -89,11 +120,24 @@
       "url": "dl/package/interfaces/setting_system.xml"
     },
     {
+      "path": "package/interfaces/worldmap.xml",
+      "md5": "c14050d32152ddd38a710253e65d8266",
+      "desc": "Smaller map name labels on the world map.",
+      "url": "dl/package/interfaces/worldmap.xml"
+    },
+    {
       "path": "package/script/instance_client.lua",
       "md5": "80ce5518a68528fda2ea8eee785e8580",
       "desc": "Lets you zoom the camera out further on every map.",
       "packed": "zlib",
       "url": "dl/package/script/instance_client.lua.z"
+    },
+    {
+      "path": "package/surfaces/xajh/生产相关/生产左半边_宽.tga",
+      "md5": "2bd73de2b14e0c659e67862f7a117578",
+      "desc": "Wider background picture for the crafting window. Install together with producemake.xml.",
+      "packed": "zlib",
+      "url": "dl/package/surfaces/xajh/生产相关/生产左半边_宽.tga.z"
     }
   ]
 }

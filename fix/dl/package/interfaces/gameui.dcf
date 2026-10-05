@@ -221,7 +221,8 @@ Practice.xml								-1			-1			0				Win_Practice
 SkillCastTip10.xml					295			-170		0				Win_SkillCastTip10
 SettingCombo.xml						-1			-1			0				Win_SettingCombo
 FightingCircle.xml					-1			-1			1				Win_FightingCircle
-AggroList.xml					-2			262			1				Win_AggroList
+AggroList.xml					0			262			1				Win_AggroList
+KillCount.xml					-1			-2			1				Win_KillCount
 SkillSeqFrame.xml						-1			-1			0				Win_SkillSeqFrame
 SkillSystemMain.xml					-1			-1			0				Win_SkillSystemMain
 SkillDefineMain.xml					-1			-1			0				Win_SkillDefineMain

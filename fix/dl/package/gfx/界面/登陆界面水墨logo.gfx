@@ -1,0 +1,803 @@
+MOXTVersion: 117
+IsAngelica3: 0
+DedaultScale: 1.000000
+PlaySpeed: 0.850000
+DefaultAlpha: 1.000000
+Raytrace: 0
+FaceToViewer: 0
+FadeByDist: 0
+FadeStart: 0.000000
+FadeEnd: 0.000000
+Vec: -4372.332520, -2070.299805, -774.377930
+Vec: 3250.349854, 1537.649902, 983.984009
+UseAABB: 0
+AccurateAABB: 0
+ShakeCam: 0
+ShakeDamp: 0
+NoChangeDir: 0
+2DRender: 1
+2DBackLayer: 0
+SkipTime: 0
+PhysExist: 0
+GFXELEMENTCOUNT: 12
+GFXELEMENTID: 101
+Name: Unnamed1
+SrcBlend: 5
+DestBlend: 6
+RepeatCount: 1
+RepeatDelay: 0
+TexFile: 登陆底图\白背景.dds
+BindEle: 
+ZEnable: 1
+MatchGrnd: 0
+GroundHeight: 0
+TexRow: 1
+TexCol: 1
+TexInterval: 50
+Priority: 1
+IsDummy: 0
+DummyEle: 
+Warp: 0
+TileMode: 0
+TexSpeed: 0.000000
+TexSpeed: 0.000000
+UReverse: 0
+VReverse: 0
+UVExchg: 0
+RenderLayer: 5
+NoDownSample: 0
+ResetLoopEnd: 1
+TexAnimMaxTime: 0
+PSFileVersion: 1
+ShaderFile: 
+ShaderTex: 
+PSConstCount: 0
+CanDoFadeOut: 1
+SoftEdge: 0
+gfxEleHLSLInfo version: 1
+HLPixelShader version: 2
+shaderFile: 
+samplerCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+Width: 1024.000000
+Height: 1024.000000
+RotFromView: 0
+GrndNormOnly: 0
+NoScale: 0
+NoScale: 0
+OrgPt: 0.500000
+OrgPt: 0.500000
+ZOffset: 0.000000
+MatchSurface: 0
+SurfaceUseParentDir: 0
+MaxExtent: 1536.000000
+YawEffect: 0
+ScreenSpace: 0
+StartTime: 0
+KEYPOINTCOUNT: 1
+InterpolateMode: 0
+TimeSpan: 3000
+Position: 0.000000, 0.000000, 0.000000
+Color: -16777216
+Scale: 1.000000
+Direction: 0.000000, 0.000000, 0.000000, 1.000000
+Rad_2D: 0.000000
+CtrlMethodCount: 1
+CtrlType: 108
+StartTime: 0.000000
+EndTime: -1.000000
+Color: 0
+Count: 2
+Color: -16777216
+TimeSpan: 200.000000
+Color: 0
+TimeSpan: 500.000000
+AlphaOnly: 0
+GFXELEMENTID: 200
+Name: Unnamed10
+SrcBlend: 5
+DestBlend: 2
+RepeatCount: 1
+RepeatDelay: 0
+TexFile: 
+BindEle: 
+ZEnable: 1
+MatchGrnd: 0
+GroundHeight: 0
+TexRow: 1
+TexCol: 1
+TexInterval: 50
+Priority: 1
+IsDummy: 0
+DummyEle: 
+Warp: 0
+TileMode: 0
+TexSpeed: 0.000000
+TexSpeed: 0.000000
+UReverse: 0
+VReverse: 0
+UVExchg: 0
+RenderLayer: 0
+NoDownSample: 0
+ResetLoopEnd: 1
+TexAnimMaxTime: 0
+PSFileVersion: 1
+ShaderFile: 
+ShaderTex: 
+PSConstCount: 0
+CanDoFadeOut: 1
+SoftEdge: 0
+gfxEleHLSLInfo version: 1
+HLPixelShader version: 2
+shaderFile: 
+samplerCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+GfxPath: 界面\墨散开.gfx
+OutColor: 0
+LoopFlag: 0
+PlaySpeed: 1.300000
+DummyUseGScale: 0
+StartTime: 175
+KEYPOINTCOUNT: 1
+InterpolateMode: 0
+TimeSpan: 2000
+Position: 278.000000, 89.000000, 0.000000
+Color: -1677721601
+Scale: 1.500000
+Direction: 0.000000, 0.000000, 0.000000, 1.000000
+Rad_2D: 0.000000
+CtrlMethodCount: 0
+GFXELEMENTID: 200
+Name: Unnamed11
+SrcBlend: 5
+DestBlend: 2
+RepeatCount: 1
+RepeatDelay: 0
+TexFile: 
+BindEle: 
+ZEnable: 1
+MatchGrnd: 0
+GroundHeight: 0
+TexRow: 1
+TexCol: 1
+TexInterval: 50
+Priority: 1
+IsDummy: 0
+DummyEle: 
+Warp: 0
+TileMode: 0
+TexSpeed: 0.000000
+TexSpeed: 0.000000
+UReverse: 0
+VReverse: 0
+UVExchg: 0
+RenderLayer: 0
+NoDownSample: 0
+ResetLoopEnd: 1
+TexAnimMaxTime: 0
+PSFileVersion: 1
+ShaderFile: 
+ShaderTex: 
+PSConstCount: 0
+CanDoFadeOut: 1
+SoftEdge: 0
+gfxEleHLSLInfo version: 1
+HLPixelShader version: 2
+shaderFile: 
+samplerCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+GfxPath: 界面\墨散开.gfx
+OutColor: 0
+LoopFlag: 0
+PlaySpeed: 1.000000
+DummyUseGScale: 0
+StartTime: 50
+KEYPOINTCOUNT: 1
+InterpolateMode: 0
+TimeSpan: 2000
+Position: 1581.000000, -24.000000, 0.000000
+Color: -1
+Scale: 7.000000
+Direction: 0.000000, 0.000000, 0.000000, 1.000000
+Rad_2D: 0.000000
+CtrlMethodCount: 2
+CtrlType: 105
+StartTime: 0.500000
+EndTime: -1.000000
+ColorDelta: 0, 0, 0, -300
+CtrlType: 106
+StartTime: 0.000000
+EndTime: -1.000000
+ScaleChage: 1.000000, 0.010000, 9999.000000
+GFXELEMENTID: 200
+Name: Unnamed4
+SrcBlend: 5
+DestBlend: 2
+RepeatCount: 1
+RepeatDelay: 0
+TexFile: 
+BindEle: 
+ZEnable: 1
+MatchGrnd: 0
+GroundHeight: 0
+TexRow: 1
+TexCol: 1
+TexInterval: 50
+Priority: 1
+IsDummy: 0
+DummyEle: 
+Warp: 0
+TileMode: 0
+TexSpeed: 0.000000
+TexSpeed: 0.000000
+UReverse: 0
+VReverse: 0
+UVExchg: 0
+RenderLayer: 0
+NoDownSample: 0
+ResetLoopEnd: 1
+TexAnimMaxTime: 0
+PSFileVersion: 1
+ShaderFile: 
+ShaderTex: 
+PSConstCount: 0
+CanDoFadeOut: 1
+SoftEdge: 0
+gfxEleHLSLInfo version: 1
+HLPixelShader version: 2
+shaderFile: 
+samplerCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+GfxPath: 界面\墨散开.gfx
+OutColor: 0
+LoopFlag: 0
+PlaySpeed: 1.000000
+DummyUseGScale: 0
+StartTime: 100
+KEYPOINTCOUNT: 1
+InterpolateMode: 0
+TimeSpan: 3000
+Position: 394.000000, -117.000000, 0.000000
+Color: -1
+Scale: 2.000000
+Direction: 0.000000, 0.000000, 0.000000, 1.000000
+Rad_2D: 0.000000
+CtrlMethodCount: 0
+GFXELEMENTID: 200
+Name: Unnamed8
+SrcBlend: 5
+DestBlend: 2
+RepeatCount: 1
+RepeatDelay: 0
+TexFile: 
+BindEle: 
+ZEnable: 1
+MatchGrnd: 0
+GroundHeight: 0
+TexRow: 1
+TexCol: 1
+TexInterval: 50
+Priority: 1
+IsDummy: 0
+DummyEle: 
+Warp: 0
+TileMode: 0
+TexSpeed: 0.000000
+TexSpeed: 0.000000
+UReverse: 0
+VReverse: 0
+UVExchg: 0
+RenderLayer: 0
+NoDownSample: 0
+ResetLoopEnd: 1
+TexAnimMaxTime: 0
+PSFileVersion: 1
+ShaderFile: 
+ShaderTex: 
+PSConstCount: 0
+CanDoFadeOut: 1
+SoftEdge: 0
+gfxEleHLSLInfo version: 1
+HLPixelShader version: 2
+shaderFile: 
+samplerCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+GfxPath: 界面\墨散开子效果5.gfx
+OutColor: 0
+LoopFlag: 0
+PlaySpeed: 1.500000
+DummyUseGScale: 0
+StartTime: 275
+KEYPOINTCOUNT: 1
+InterpolateMode: 0
+TimeSpan: 2000
+Position: -69.000000, 244.000000, 0.000000
+Color: -1
+Scale: 1.500000
+Direction: 0.000000, 0.000000, 0.000000, 1.000000
+Rad_2D: 0.000000
+CtrlMethodCount: 1
+CtrlType: 106
+StartTime: 0.000000
+EndTime: -1.000000
+ScaleChage: 0.500000, 0.010000, 9999.000000
+GFXELEMENTID: 101
+Name: Unnamed12
+SrcBlend: 5
+DestBlend: 6
+RepeatCount: 1
+RepeatDelay: 0
+TexFile: 安全框.dds
+BindEle: 
+ZEnable: 1
+MatchGrnd: 0
+GroundHeight: 0
+TexRow: 1
+TexCol: 1
+TexInterval: 50
+Priority: 1
+IsDummy: 0
+DummyEle: 
+Warp: 0
+TileMode: 0
+TexSpeed: 0.000000
+TexSpeed: 0.000000
+UReverse: 0
+VReverse: 0
+UVExchg: 0
+RenderLayer: 0
+NoDownSample: 0
+ResetLoopEnd: 1
+TexAnimMaxTime: 0
+PSFileVersion: 1
+ShaderFile: 
+ShaderTex: 
+PSConstCount: 0
+CanDoFadeOut: 1
+SoftEdge: 0
+gfxEleHLSLInfo version: 1
+HLPixelShader version: 2
+shaderFile: 
+samplerCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+Width: 512.000000
+Height: 384.000000
+RotFromView: 0
+GrndNormOnly: 0
+NoScale: 0
+NoScale: 0
+OrgPt: 0.500000
+OrgPt: 0.500000
+ZOffset: 0.000000
+MatchSurface: 0
+SurfaceUseParentDir: 0
+MaxExtent: 768.000000
+YawEffect: 0
+ScreenSpace: 0
+StartTime: 0
+KEYPOINTCOUNT: 1
+InterpolateMode: 0
+TimeSpan: 5100
+Position: 0.000000, 0.000000, 0.000000
+Color: 16711680
+Scale: 0.200000
+Direction: 0.000000, 0.000000, 0.000000, 1.000000
+Rad_2D: 0.000000
+CtrlMethodCount: 0
+GFXELEMENTID: 200
+Name: Unnamed13
+SrcBlend: 5
+DestBlend: 2
+RepeatCount: 1
+RepeatDelay: 0
+TexFile: 
+BindEle: 
+ZEnable: 1
+MatchGrnd: 0
+GroundHeight: 0
+TexRow: 1
+TexCol: 1
+TexInterval: 50
+Priority: 1
+IsDummy: 0
+DummyEle: 
+Warp: 0
+TileMode: 0
+TexSpeed: 0.000000
+TexSpeed: 0.000000
+UReverse: 0
+VReverse: 0
+UVExchg: 0
+RenderLayer: 0
+NoDownSample: 0
+ResetLoopEnd: 1
+TexAnimMaxTime: 0
+PSFileVersion: 1
+ShaderFile: 
+ShaderTex: 
+PSConstCount: 0
+CanDoFadeOut: 1
+SoftEdge: 0
+gfxEleHLSLInfo version: 1
+HLPixelShader version: 2
+shaderFile: 
+samplerCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+GfxPath: 界面\登陆界面水墨logo字发光.gfx
+OutColor: 0
+LoopFlag: 0
+PlaySpeed: 1.200000
+DummyUseGScale: 0
+StartTime: 125
+KEYPOINTCOUNT: 1
+InterpolateMode: 0
+TimeSpan: 4050
+Position: -46.000000, -44.000000, 0.000000
+Color: -1
+Scale: 1.000000
+Direction: 0.000000, 0.000000, 0.000000, 1.000000
+Rad_2D: 0.000000
+CtrlMethodCount: 1
+CtrlType: 104
+StartTime: 0.000000
+EndTime: -1.000000
+Pos: 0.000000, -44.000011, 0.000000
+Vel: -50.000000
+Acc: -100.000000
+GFXELEMENTID: 200
+Name: Unnamed15
+SrcBlend: 5
+DestBlend: 2
+RepeatCount: 1
+RepeatDelay: 0
+TexFile: 
+BindEle: 
+ZEnable: 1
+MatchGrnd: 0
+GroundHeight: 0
+TexRow: 1
+TexCol: 1
+TexInterval: 50
+Priority: 1
+IsDummy: 0
+DummyEle: 
+Warp: 0
+TileMode: 0
+TexSpeed: 0.000000
+TexSpeed: 0.000000
+UReverse: 0
+VReverse: 0
+UVExchg: 0
+RenderLayer: 0
+NoDownSample: 0
+ResetLoopEnd: 1
+TexAnimMaxTime: 0
+PSFileVersion: 1
+ShaderFile: 
+ShaderTex: 
+PSConstCount: 0
+CanDoFadeOut: 1
+SoftEdge: 0
+gfxEleHLSLInfo version: 1
+HLPixelShader version: 2
+shaderFile: 
+samplerCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+GfxPath: 界面\墨散开子效果4.gfx
+OutColor: 1
+LoopFlag: 0
+PlaySpeed: 0.900000
+DummyUseGScale: 0
+StartTime: 175
+KEYPOINTCOUNT: 1
+InterpolateMode: 0
+TimeSpan: 2000
+Position: -208.000000, 101.999931, 0.000000
+Color: 1694498815
+Scale: 2.000000
+Direction: 0.000000, 0.000000, 0.000000, 1.000000
+Rad_2D: 0.000000
+CtrlMethodCount: 0
+GFXELEMENTID: 200
+Name: Unnamed5
+SrcBlend: 5
+DestBlend: 2
+RepeatCount: 1
+RepeatDelay: 0
+TexFile: 
+BindEle: 
+ZEnable: 1
+MatchGrnd: 0
+GroundHeight: 0
+TexRow: 1
+TexCol: 1
+TexInterval: 50
+Priority: 1
+IsDummy: 0
+DummyEle: 
+Warp: 0
+TileMode: 0
+TexSpeed: 0.000000
+TexSpeed: 0.000000
+UReverse: 0
+VReverse: 0
+UVExchg: 0
+RenderLayer: 0
+NoDownSample: 0
+ResetLoopEnd: 1
+TexAnimMaxTime: 0
+PSFileVersion: 1
+ShaderFile: 
+ShaderTex: 
+PSConstCount: 0
+CanDoFadeOut: 1
+SoftEdge: 0
+gfxEleHLSLInfo version: 1
+HLPixelShader version: 2
+shaderFile: 
+samplerCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+GfxPath: 界面\墨散开子效果6.gfx
+OutColor: 1
+LoopFlag: 0
+PlaySpeed: 0.900000
+DummyUseGScale: 0
+StartTime: 50
+KEYPOINTCOUNT: 1
+InterpolateMode: 0
+TimeSpan: 2000
+Position: -30.000000, -380.000183, 0.000000
+Color: -1677721601
+Scale: 2.000000
+Direction: 0.000000, 0.000000, 0.000000, 1.000000
+Rad_2D: 0.000000
+CtrlMethodCount: 0
+GFXELEMENTID: 200
+Name: Unnamed6
+SrcBlend: 5
+DestBlend: 2
+RepeatCount: 1
+RepeatDelay: 0
+TexFile: 
+BindEle: 
+ZEnable: 1
+MatchGrnd: 0
+GroundHeight: 0
+TexRow: 1
+TexCol: 1
+TexInterval: 50
+Priority: 1
+IsDummy: 0
+DummyEle: 
+Warp: 0
+TileMode: 0
+TexSpeed: 0.000000
+TexSpeed: 0.000000
+UReverse: 0
+VReverse: 0
+UVExchg: 0
+RenderLayer: 0
+NoDownSample: 0
+ResetLoopEnd: 1
+TexAnimMaxTime: 0
+PSFileVersion: 1
+ShaderFile: 
+ShaderTex: 
+PSConstCount: 0
+CanDoFadeOut: 1
+SoftEdge: 0
+gfxEleHLSLInfo version: 1
+HLPixelShader version: 2
+shaderFile: 
+samplerCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+GfxPath: 界面\墨散开子效果6.gfx
+OutColor: 1
+LoopFlag: 0
+PlaySpeed: 0.900000
+DummyUseGScale: 0
+StartTime: 375
+KEYPOINTCOUNT: 1
+InterpolateMode: 0
+TimeSpan: 2000
+Position: -505.000000, -317.000183, 0.000000
+Color: -1677721601
+Scale: 4.000000
+Direction: 0.000000, 0.000000, 0.000000, 1.000000
+Rad_2D: 0.000000
+CtrlMethodCount: 0
+GFXELEMENTID: 200
+Name: Unnamed33
+SrcBlend: 5
+DestBlend: 2
+RepeatCount: 1
+RepeatDelay: 0
+TexFile: 
+BindEle: 
+ZEnable: 1
+MatchGrnd: 0
+GroundHeight: 0
+TexRow: 1
+TexCol: 1
+TexInterval: 50
+Priority: 1
+IsDummy: 0
+DummyEle: 
+Warp: 0
+TileMode: 0
+TexSpeed: 0.000000
+TexSpeed: 0.000000
+UReverse: 0
+VReverse: 0
+UVExchg: 0
+RenderLayer: 0
+NoDownSample: 0
+ResetLoopEnd: 1
+TexAnimMaxTime: 0
+PSFileVersion: 1
+ShaderFile: 
+ShaderTex: 
+PSConstCount: 0
+CanDoFadeOut: 1
+SoftEdge: 0
+gfxEleHLSLInfo version: 1
+HLPixelShader version: 2
+shaderFile: 
+samplerCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+GfxPath: 界面\登陆界面无书.gfx
+OutColor: 1
+LoopFlag: 0
+PlaySpeed: 1.000000
+DummyUseGScale: 1
+StartTime: 0
+KEYPOINTCOUNT: 2
+InterpolateMode: 0
+TimeSpan: 2275
+Position: 0.000000, 0.000000, 0.000000
+Color: -1
+Scale: 1.000000
+Direction: 0.000000, 0.000000, 0.000000, 1.000000
+Rad_2D: 0.000000
+CtrlMethodCount: 1
+CtrlType: 108
+StartTime: 0.000000
+EndTime: -1.000000
+Color: -1
+Count: 3
+Color: -5855578
+TimeSpan: 500.000000
+Color: -1513240
+TimeSpan: 700.000000
+Color: -1
+TimeSpan: 500.000000
+AlphaOnly: 0
+InterpolateMode: 0
+TimeSpan: -1
+Position: 0.000000, 0.000000, 0.000000
+Color: -1
+Scale: 1.000000
+Direction: 0.000000, 0.000000, 0.000000, 1.000000
+Rad_2D: 0.000000
+CtrlMethodCount: 1
+CtrlType: 108
+StartTime: 0.000000
+EndTime: -1.000000
+Color: -1
+Count: 3
+Color: -2960686
+TimeSpan: 500.000000
+Color: -5395027
+TimeSpan: 500.000000
+Color: -1
+TimeSpan: 800.000000
+AlphaOnly: 0
+GFXELEMENTID: 101
+Name: Unnamed9
+SrcBlend: 5
+DestBlend: 6
+RepeatCount: 1
+RepeatDelay: 0
+TexFile: 登陆底图\白背景.dds
+BindEle: 
+ZEnable: 1
+MatchGrnd: 0
+GroundHeight: 0
+TexRow: 1
+TexCol: 1
+TexInterval: 50
+Priority: 1
+IsDummy: 0
+DummyEle: 
+Warp: 0
+TileMode: 0
+TexSpeed: 0.000000
+TexSpeed: 0.000000
+UReverse: 0
+VReverse: 0
+UVExchg: 0
+RenderLayer: 8
+NoDownSample: 0
+ResetLoopEnd: 1
+TexAnimMaxTime: 0
+PSFileVersion: 1
+ShaderFile: 
+ShaderTex: 
+PSConstCount: 0
+CanDoFadeOut: 1
+SoftEdge: 0
+gfxEleHLSLInfo version: 1
+HLPixelShader version: 2
+shaderFile: 
+samplerCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+AnimationTrack version: 1
+animatableCount: 0
+Width: 1024.000000
+Height: 1024.000000
+RotFromView: 0
+GrndNormOnly: 0
+NoScale: 0
+NoScale: 0
+OrgPt: 0.500000
+OrgPt: 0.500000
+ZOffset: 0.000000
+MatchSurface: 0
+SurfaceUseParentDir: 0
+MaxExtent: 1536.000000
+YawEffect: 0
+ScreenSpace: 0
+StartTime: 150
+KEYPOINTCOUNT: 1
+InterpolateMode: 0
+TimeSpan: 3000
+Position: 0.000000, 0.000000, 0.000000
+Color: -16777216
+Scale: 1.000000
+Direction: 0.000000, 0.000000, 0.000000, 1.000000
+Rad_2D: 0.000000
+CtrlMethodCount: 1
+CtrlType: 108
+StartTime: 0.000000
+EndTime: -1.000000
+Color: 16777215
+Count: 2
+Color: -1
+TimeSpan: 300.000000
+Color: 16777215
+TimeSpan: 300.000000
+AlphaOnly: 1

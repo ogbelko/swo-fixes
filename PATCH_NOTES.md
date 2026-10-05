@@ -14,7 +14,14 @@
 - Live FPS and ping under the minimap (ping every 3 s)
 
 **Aggro List**
-- Toggle under the quest list: who your target attacks + top 10 damage on it
+- Toggle on the left side: who your target attacks + top 10 damage on it
+
+**Player Kills Counter**
+- Counts the enemy players you kill this session, shown above your character portrait
+
+**Faster Start**
+- Skips the Perfect World logo, the book screen and the one-server list: straight to character select
+- Only the Swordsman logo shows while the game loads
 
 **Bar Numbers**
 - 0–100 shown under the Stamina, Rage and Warsoul bars
@@ -25,6 +32,21 @@
 
 **Always-Visible Player HP Bars**
 - Toggle **Show Players Health Bar** in *ESC → Settings → Gameplay*
+
+## Interface
+**Chat**
+- Bigger chat box by default (still resizable)
+- Typing in chat no longer stops when you get hit or a window pops up
+- The chat cooldown message now names the Alliance Channel correctly
+
+**World Map**
+- Bigger world map window
+- Right-click a region map to go back (same as the Back button)
+- Every map opens fully zoomed out
+- Smaller map name labels
+
+**Crafting**
+- Wider recipe list in every crafting window, so long item names fit
 
 ## Combat
 **Locked Target now works in Action mode**
