@@ -221,8 +221,9 @@ Practice.xml								-1			-1			0				Win_Practice
 SkillCastTip10.xml					295			-170		0				Win_SkillCastTip10
 SettingCombo.xml						-1			-1			0				Win_SettingCombo
 FightingCircle.xml					-1			-1			1				Win_FightingCircle
-AggroList.xml					0			262			1				Win_AggroList
 KillCount.xml					-1			-2			1				Win_KillCount
+QolBagFind.xml					-1			-2			0				Win_QolBagFind
+QolStashFind.xml				-1			-2			0				Win_QolStashFind
 SkillSeqFrame.xml						-1			-1			0				Win_SkillSeqFrame
 SkillSystemMain.xml					-1			-1			0				Win_SkillSystemMain
 SkillDefineMain.xml					-1			-1			0				Win_SkillDefineMain
@@ -1026,3 +1027,6 @@ CaputerFlagZoneEnter.xml -1 -1 0 Win_CaputerFlagZoneEnter
 ProhibitianTip1.xml -1 -1 0 Win_ProhibitianTip1
 ProhibitionTip.xml -1 -1 0 Win_ProhibitionTip
 PassScene.xml	-1	-1	0	Win_PassScene
+client_tweaks_settings.xml -1 -1 0 Win_ClientTweaksSettings
+exp_replacement_warning.xml 0 0 0 Win_EXPReplacementWarning
+QolMarketFind.xml					-1			-2			0				Win_QolMarketFind

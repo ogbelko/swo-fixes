@@ -1,6 +1,30 @@
 # Swordsman Classic — Client Patch Notes
 
 ## New Features
+**Client Tweaks Window**
+- *ESC → Settings → System → Client Tweaks* (button at the bottom, next to Default)
+- One on/off switch for every client fix; choices are kept in `userdata\ClientTweaks.ini`
+
+**Bag**
+- Big bag with Bag / Bag 1 / Bag 2 / All views, pages, Sort Selected / Sort All
+- Material / Quest / Gift tabs, Lock / Unlock / Booth / Equip buttons, coins and notes
+- Bag opens maximized (switch in Client Tweaks, off by default)
+
+**Search**
+- Bag search and stash search (item name or ID), free-slot counters
+- Sycee Marketplace (J) search: jumps to a matching item, never buys
+
+**EXP**
+- Warning before an EXP item with a different multiplier replaces your remaining EXP time
+- Multi-EXP window works in combat and shows World Energy use per minute and time left
+
+**Rare Animal Island**
+- Boss tooltips show direction, spawn coordinates and trophy
+- Jade Sung's teleport options show which boss each leads to
+
+**Hall of Heroes**
+- Entry camera scene skipped (other cutscenes still play)
+
 **Borderless Window**
 - *ESC → Settings → System → Display Mode*: pick **Borderless window**
 
@@ -9,12 +33,10 @@
 
 **Minimal Mode**
 - Toggle in *ESC → Settings → System*, next to HD Texture (restart to apply)
+- No more Chinese banner at the top; maps keep their normal fog
 
 **FPS & Ping**
 - Live FPS and ping under the minimap (ping every 3 s)
-
-**Aggro List**
-- Toggle on the left side: who your target attacks + top 10 damage on it
 
 **Player Kills Counter**
 - Counts the enemy players you kill this session, shown above your character portrait

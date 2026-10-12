@@ -1,11 +1,11 @@
 {
   "name": "Swordsman Classic client fixes",
-  "version": 7,
+  "version": 8,
   "files": [
     {
       "path": "bin/xajh.exe",
-      "md5": "b34be9248e37a1d7622a5b345a7014ea",
-      "desc": "Game exe with all code changes: borderless window, Night/Day only, FPS + Ping (every 3 s), health bars, bar numbers, Aggro List, Player Kills counter, chat input keeps focus when you get hit, bigger world map (right-click = Back, maps open fully zoomed out), skips the logos and server list at start, centred Action camera, Locked Target, Forced Move blocked, Tab ignore fix, mail Get All, Max Zoom, Zoom Speed, Display Mode, Compatibility mode. The windows and buttons for these come from the interface files below.",
+      "md5": "f9c223ec95be38583bbc2d1b21efe9d0",
+      "desc": "Game exe with all code changes, including the Client Tweaks window (ESC > Settings > System > Client Tweaks) where each fix can be switched on or off: borderless window, Night/Day only, FPS + Ping (every 3 s), health bars, bar numbers, Player Kills counter, chat keeps focus when you get hit, bigger world map (right-click = Back, opens zoomed out), short logo screen, skip server list, centred Action camera, Locked Target, Forced Move blocked, Tab ignore fix, mail Get All, Max Zoom, Zoom Speed, Display Mode, Compatibility mode, Minimal Mode fog, bag fix and search, stash and marketplace search, EXP warnings, boss tooltips. The windows and buttons come from the interface files below.",
       "packed": "zlib",
       "url": "dl/bin/xajh.exe.z"
     },
@@ -29,16 +29,28 @@
       "url": "dl/package/gfx/界面/登陆界面水墨logo.gfx"
     },
     {
-      "path": "package/interfaces/aggrolist.xml",
-      "md5": "4652914949d167e8cc41b5a6ef9d627b",
-      "desc": "The Aggro List window on the left side under the quest area. Install together with gameui.dcf (works with the game exe).",
-      "url": "dl/package/interfaces/aggrolist.xml"
-    },
-    {
       "path": "package/interfaces/chatinfo.xml",
       "md5": "8d3f7d13643f088133a4f6b0cf2dad36",
       "desc": "Bigger chat box by default (450x300); you can still resize it.",
       "url": "dl/package/interfaces/chatinfo.xml"
+    },
+    {
+      "path": "package/interfaces/client_tweaks_settings.xml",
+      "md5": "7ee68b19d51aa958cbaaedeb50b6333b",
+      "desc": "The Client Tweaks window: on/off switches for every client fix.",
+      "url": "dl/package/interfaces/client_tweaks_settings.xml"
+    },
+    {
+      "path": "package/interfaces/doubleexp.xml",
+      "md5": "e73f0cf56d96a7b4efea3f8d57d77e81",
+      "desc": "Multi-EXP window: usable in combat, shows World Energy use per minute and time left.",
+      "url": "dl/package/interfaces/doubleexp.xml"
+    },
+    {
+      "path": "package/interfaces/exp_replacement_warning.xml",
+      "md5": "86575452bcc5bbd2ba3bd35b22b1ede7",
+      "desc": "Warning before an EXP item with a different multiplier replaces your remaining EXP time.",
+      "url": "dl/package/interfaces/exp_replacement_warning.xml"
     },
     {
       "path": "package/interfaces/facebookprompt.xml",
@@ -54,8 +66,8 @@
     },
     {
       "path": "package/interfaces/gameui.dcf",
-      "md5": "717e1b22a3058e89a79062be713f7ca4",
-      "desc": "Game window list: adds the Aggro List (left side) and the Player Kills counter. Install together with aggrolist.xml and killcount.xml.",
+      "md5": "d02af63bd9bcbb924911c4503a5b1d4c",
+      "desc": "Game window list: adds the Player Kills counter and the new Client Tweaks, search and EXP warning windows.",
       "url": "dl/package/interfaces/gameui.dcf"
     },
     {
@@ -64,6 +76,30 @@
       "desc": "Text fix: the chat cooldown message now names the Alliance Channel instead of Dragon's Roar.",
       "packed": "zlib",
       "url": "dl/package/interfaces/gameui.stf.z"
+    },
+    {
+      "path": "package/interfaces/inventory.xml",
+      "md5": "9a2468ec5a28da6876eedcb5fb162268",
+      "desc": "Bag: Material / Quest / Gift tabs, Lock / Unlock / Booth / Equip buttons, coin and note display, search magnifier.",
+      "url": "dl/package/interfaces/inventory.xml"
+    },
+    {
+      "path": "package/interfaces/inventoryextra1.xml",
+      "md5": "95aead69b4c34354226f5aad1ffecfa4",
+      "desc": "Bag 1 window layout for the bag fix.",
+      "url": "dl/package/interfaces/inventoryextra1.xml"
+    },
+    {
+      "path": "package/interfaces/inventoryextra2.xml",
+      "md5": "c27c4a77a539b678eaacc902758e7baa",
+      "desc": "Bag 2 window layout for the bag fix.",
+      "url": "dl/package/interfaces/inventoryextra2.xml"
+    },
+    {
+      "path": "package/interfaces/inventorymax.xml",
+      "md5": "736ce0c2d9447be491780f2de17dc113",
+      "desc": "Big bag: Bag / Bag 1 / Bag 2 / All views, pages, Sort Selected / Sort All, free-slot counter.",
+      "url": "dl/package/interfaces/inventorymax.xml"
     },
     {
       "path": "package/interfaces/killcount.xml",
@@ -78,6 +114,12 @@
       "url": "dl/package/interfaces/maillist.xml"
     },
     {
+      "path": "package/interfaces/maininfoframe.xml",
+      "md5": "c7f997a901c916c785cf7a13803ac844",
+      "desc": "Hides the Chinese Minimal Mode banner.",
+      "url": "dl/package/interfaces/maininfoframe.xml"
+    },
+    {
       "path": "package/interfaces/minimap.xml",
       "md5": "5d8b6f82abef30ee5fb0abb8eb3685b2",
       "desc": "Adds the FPS + Ping line under the minimap (works with the game exe).",
@@ -88,6 +130,30 @@
       "md5": "f62aeac8ee9cd9ff5622d3ae4aa9479d",
       "desc": "Wider recipe list in every crafting window so long item names fit. Install together with the crafting background (surfaces).",
       "url": "dl/package/interfaces/producemake.xml"
+    },
+    {
+      "path": "package/interfaces/qolbagfind.xml",
+      "md5": "428a0d48a0a950c66bc828ff404c49bd",
+      "desc": "Bag search bar (item name or item ID).",
+      "url": "dl/package/interfaces/qolbagfind.xml"
+    },
+    {
+      "path": "package/interfaces/qolmarketfind.xml",
+      "md5": "ca3af84097053c5a05e43e4e18339017",
+      "desc": "Marketplace search bar. It never buys anything.",
+      "url": "dl/package/interfaces/qolmarketfind.xml"
+    },
+    {
+      "path": "package/interfaces/qolstashfind.xml",
+      "md5": "cbfd775f81e38bc72ae87d2610e3e5ee",
+      "desc": "Stash search bar.",
+      "url": "dl/package/interfaces/qolstashfind.xml"
+    },
+    {
+      "path": "package/interfaces/qshop.xml",
+      "md5": "fa51f6641789d40d072ec5335cc4c286",
+      "desc": "Sycee Marketplace (J): search box.",
+      "url": "dl/package/interfaces/qshop.xml"
     },
     {
       "path": "package/interfaces/setting_fightoperation.xml",
@@ -115,15 +181,27 @@
     },
     {
       "path": "package/interfaces/setting_system.xml",
-      "md5": "ce2c62978dc462cebc51d91bcc7fba32",
-      "desc": "Redesigned Settings > System tab (Graphics, Sound, Display, Camera and World) with Display Mode, Max Zoom, Zoom Speed, Compatibility mode, Night/Day only. Needs the game exe.",
+      "md5": "0190891de13e5b4327867f9d4d9cf045",
+      "desc": "Redesigned Settings > System tab with Display Mode, Max Zoom, Zoom Speed, Compatibility mode, Night/Day only, and the Client Tweaks button at the bottom. Needs the game exe.",
       "url": "dl/package/interfaces/setting_system.xml"
+    },
+    {
+      "path": "package/interfaces/storage.xml",
+      "md5": "7ed0ce96683c561d1c62fd7770ffb6ce",
+      "desc": "Personal stash: search magnifier.",
+      "url": "dl/package/interfaces/storage.xml"
     },
     {
       "path": "package/interfaces/worldmap.xml",
       "md5": "c14050d32152ddd38a710253e65d8266",
       "desc": "Smaller map name labels on the world map.",
       "url": "dl/package/interfaces/worldmap.xml"
+    },
+    {
+      "path": "package/interfaceso/maininfoframe.xml",
+      "md5": "c7f997a901c916c785cf7a13803ac844",
+      "desc": "Hides the Chinese Minimal Mode banner (second interface archive).",
+      "url": "dl/package/interfaceso/maininfoframe.xml"
     },
     {
       "path": "package/script/instance_client.lua",
@@ -133,11 +211,71 @@
       "url": "dl/package/script/instance_client.lua.z"
     },
     {
+      "path": "package/script/interfaces/client_tweaks_settings.lua",
+      "md5": "e0e7fda55ce7ca4846b2f1539635606a",
+      "desc": "Logic for the Client Tweaks window (choices saved in userdata\\ClientTweaks.ini).",
+      "url": "dl/package/script/interfaces/client_tweaks_settings.lua"
+    },
+    {
+      "path": "package/script/interfaces/exp_replacement_warning.lua",
+      "md5": "d77087eb19c877ec3c1a7931b683d1a2",
+      "desc": "Logic for the EXP replacement warning.",
+      "url": "dl/package/script/interfaces/exp_replacement_warning.lua"
+    },
+    {
+      "path": "package/script/interfaces/gameui.lua",
+      "md5": "ad35fa2e6ced41bb34fd25975a8f4d3d",
+      "desc": "Registers the new Client Tweaks, search and EXP warning windows.",
+      "url": "dl/package/script/interfaces/gameui.lua"
+    },
+    {
+      "path": "package/script/interfaces/qolbagfind.lua",
+      "md5": "48f680d5a0253c7e5144fe75c133c7c2",
+      "desc": "Logic for the bag search.",
+      "url": "dl/package/script/interfaces/qolbagfind.lua"
+    },
+    {
+      "path": "package/script/interfaces/qolmarketfind.lua",
+      "md5": "63565350fc6e1daaa13f2ab4fd8f12b9",
+      "desc": "Logic for the marketplace search.",
+      "url": "dl/package/script/interfaces/qolmarketfind.lua"
+    },
+    {
+      "path": "package/script/interfaces/qolstashfind.lua",
+      "md5": "96afe7402be6042801ae58a189371fd3",
+      "desc": "Logic for the stash search.",
+      "url": "dl/package/script/interfaces/qolstashfind.lua"
+    },
+    {
+      "path": "package/script/interfaces/setting_system.lua",
+      "md5": "92ff7aa7d871b032186a5d73ecbc0cc7",
+      "desc": "Opens the Client Tweaks window from Settings > System.",
+      "url": "dl/package/script/interfaces/setting_system.lua"
+    },
+    {
+      "path": "package/script/monstervisual.lua",
+      "md5": "759eb2119b83f2b3b836ec176aa6f70a",
+      "desc": "Rare Animal Island boss tooltips (direction, spawn coordinates, trophy) and Jade Sung boss names.",
+      "url": "dl/package/script/monstervisual.lua"
+    },
+    {
+      "path": "package/surfaces/xajh/主界面/精简模式提示文字.tga",
+      "md5": "afad3caa152edebcbefbd15a03662fbe",
+      "desc": "Blank picture in place of the Chinese Minimal Mode banner.",
+      "url": "dl/package/surfaces/xajh/主界面/精简模式提示文字.tga"
+    },
+    {
       "path": "package/surfaces/xajh/生产相关/生产左半边_宽.tga",
       "md5": "2bd73de2b14e0c659e67862f7a117578",
       "desc": "Wider background picture for the crafting window. Install together with producemake.xml.",
       "packed": "zlib",
       "url": "dl/package/surfaces/xajh/生产相关/生产左半边_宽.tga.z"
+    },
+    {
+      "path": "package/surfaces/xajh/进度条/surfaces/xajh/主界面/精简模式提示文字.tga",
+      "md5": "afad3caa152edebcbefbd15a03662fbe",
+      "desc": "Blank picture in place of the Chinese Minimal Mode banner (second copy).",
+      "url": "dl/package/surfaces/xajh/进度条/surfaces/xajh/主界面/精简模式提示文字.tga"
     }
   ]
 }
