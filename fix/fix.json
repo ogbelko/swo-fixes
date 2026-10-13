@@ -1,6 +1,6 @@
 {
   "name": "Swordsman Classic client fixes",
-  "version": 8,
+  "version": 9,
   "files": [
     {
       "path": "bin/xajh.exe",
@@ -27,6 +27,12 @@
       "md5": "d514898958c4b7171515fa34dcbdc201",
       "desc": "Loading screen at game start shows only the Swordsman logo (no Perfect World logo, no book).",
       "url": "dl/package/gfx/界面/登陆界面水墨logo.gfx"
+    },
+    {
+      "path": "package/interfaces/autoplayrecover.xml",
+      "md5": "18770d5780e198796e63e99b449b8ccf",
+      "desc": "Self-Cultivation Settings > Healing: new row 'World Energy below [0-200] auto-use item' in Rest Settings (uses a World Energy Remedy or Fresh Dragonspit Herb from your bag).",
+      "url": "dl/package/interfaces/autoplayrecover.xml"
     },
     {
       "path": "package/interfaces/chatinfo.xml",
@@ -224,8 +230,8 @@
     },
     {
       "path": "package/script/interfaces/gameui.lua",
-      "md5": "ad35fa2e6ced41bb34fd25975a8f4d3d",
-      "desc": "Registers the new Client Tweaks, search and EXP warning windows.",
+      "md5": "1e9b811a50f8d8965583f6f3cf15f5f8",
+      "desc": "Registers the new Client Tweaks, search and EXP warning windows, and runs the World Energy auto-use (settings in userdata\\AutoEnergy.ini).",
       "url": "dl/package/script/interfaces/gameui.lua"
     },
     {

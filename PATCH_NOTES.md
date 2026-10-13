@@ -14,6 +14,11 @@
 - Bag search and stash search (item name or ID), free-slot counters
 - Sycee Marketplace (J) search: jumps to a matching item, never buys
 
+**World Energy Auto-Use**
+- *Self-Cultivation Settings → Healing → Rest Settings*: tick **World Energy below [0–200] auto-use item**
+- Uses a World Energy Remedy (or Fresh Dragonspit Herb) from your bag when your World Energy drops to that number
+- Works all the time, not only while cultivating; one item at a time
+
 **EXP**
 - Warning before an EXP item with a different multiplier replaces your remaining EXP time
 - Multi-EXP window works in combat and shows World Energy use per minute and time left

@@ -2529,6 +2529,137 @@ function EnergyUI:Tick()
     end
 end
 
+---------------------------------------------------------------- World Energy auto-use
+-- Row "World Energy below [n] auto-use item" in Self-Cultivation Settings > Healing
+-- (Win_AutoPlayRecover). Own file userdata\AutoEnergy.ini: O:Save rewrites ClientTweaks.ini.
+local AE = {DLG = "Win_AutoPlayRecover", CHK = "Chk_AutoEnergy", EDT = "Edt_AutoEnergyInput",
+    on = false, at = 50, names = {}, KNOWN = {75033, 92583},   -- World Energy Remedy, Fresh Dragonspit Herb
+    WANT = {"world energy", "dragonspit herb"},
+    SKIP = {"pack", "box", "bag", "chest", "crate", "recipe", "scroll"},
+    nextCheck = 0, nextRead = 0, wasShown = false}
+U.AutoEnergy = AE
+
+function AE:Path()
+    local p = O:Path()
+    local dir = p and p:match("^(.*[\\/])")
+    if dir then return dir .. "AutoEnergy.ini" end
+end
+
+function AE:Load()
+    if self.loaded then return end
+    self.loaded = true
+    local path = self:Path()
+    if not path or not io or type(io.open) ~= "function" then return end
+    local ok, f = pcall(io.open, path, "rb")
+    if not ok or not f then return end
+    local okR, text = pcall(f.read, f, "*a"); pcall(f.close, f)
+    if not okR or type(text) ~= "string" then return end
+    local on = text:match("enabled%s*=%s*(%d+)")
+    local at = tonumber(text:match("below%s*=%s*(%d+)") or "")
+    if on then self.on = on ~= "0" end
+    if at then self.at = math.max(0, math.min(200, at)) end
+end
+
+function AE:Save()
+    local path = self:Path()
+    if not path or not io or type(io.open) ~= "function" then return end
+    local ok, f = pcall(io.open, path, "wb")
+    if not ok or not f then return end
+    pcall(f.write, f, "[AutoEnergy]\r\nenabled=" .. (self.on and "1" or "0") .. "\r\nbelow=" .. self.at .. "\r\n")
+    pcall(f.close, f)
+end
+
+-- row <-> saved values while the Healing tab is open
+function AE:Sync(now)
+    local vis = shown(self.DLG)
+    if vis and not self.wasShown then
+        pcall(DlgApi.CheckItem, self.DLG, self.CHK, self.on)
+        settext(self.DLG, self.EDT, tostring(self.at))
+        self.nextRead = now + 250
+    elseif vis and now >= self.nextRead then
+        self.nextRead = now + 250
+        local on, at = self.on, self.at
+        local okC, c = pcall(DlgApi.IsItemChecked, self.DLG, self.CHK)
+        if okC then on = c == true end
+        local okT, txt = pcall(DlgApi.GetItemText, self.DLG, self.EDT)
+        local n = okT and type(txt) == "string" and tonumber(txt) or nil
+        if n then
+            n = math.floor(n)
+            if n > 200 then n = 200; settext(self.DLG, self.EDT, "200") end
+            if n < 0 then n = 0 end
+            at = n
+        end
+        if on ~= self.on or at ~= self.at then
+            self.on, self.at = on, at
+            self:Save()
+        end
+    end
+    self.wasShown = vis
+end
+
+local function ae_count(id)
+    local ok, n = pcall(GameApi.GetItemNumByID, id)
+    return ok and type(n) == "number" and n or 0
+end
+
+function AE:Usable(id)
+    local name = self.names[id]
+    if name == nil then
+        local ok, nm = pcall(GameApi.GetItemInfo, id)
+        if not ok or type(nm) ~= "string" or nm == "" then return false end   -- ask again next time
+        name = (nm:gsub("%^%x%x%x%x%x%x", "")):lower()
+        self.names[id] = name
+    end
+    for _, s in ipairs(self.SKIP) do if name:find(s, 1, true) then return false end end
+    for _, w in ipairs(self.WANT) do if name:find(w, 1, true) then return true end end
+    return false
+end
+
+function AE:FindItem()
+    if self.itemId and ae_count(self.itemId) > 0 then return self.itemId end
+    self.itemId = nil
+    if type(GameApi.GetItemNumByID) == "function" then
+        for _, id in ipairs(self.KNOWN) do
+            if ae_count(id) > 0 then self.itemId = id; return id end
+        end
+    end
+    if type(GameApi.GetInventoryQoLPack) == "function" and type(GameApi.GetItemInfo) == "function" then
+        for _, pack in ipairs({2, 3, 4}) do
+            local ok, _, raw = pcall(GameApi.GetInventoryQoLPack, pack)
+            if ok and type(raw) == "string" then
+                for id in raw:gmatch("%d+:(%d+):%d+;") do
+                    id = tonumber(id)
+                    if id and id > 0 and self:Usable(id) then self.itemId = id; return id end
+                end
+            end
+        end
+    end
+end
+
+function AE:Tick(now)
+    self:Load()
+    self:Sync(now)
+    if not self.on or now < self.nextCheck then return end
+    self.nextCheck = now + 1000
+    if type(GameApi.GetWorldEnergySample) ~= "function" or type(GameApi.UseItemByID) ~= "function" then return end
+    local host = host_key()
+    if host ~= self.host then self.host = host; self.readyAt = now + 10000; self.usedAt = nil end
+    if not host or now < (self.readyAt or 0) then return end     -- not in game / just logged in
+    local ok, bal, cap = pcall(GameApi.GetWorldEnergySample)
+    if not ok or not finite(bal) or not finite(cap) or cap <= 0 or bal < 0 then return end
+    if bal >= cap or math.ceil(bal) > self.at then self.usedAt = nil; return end
+    -- one item at a time: wait for the last one to show up in the energy (or 15 s)
+    if self.usedAt and bal <= self.usedBal + 0.5 and now - self.usedAt < 15000 then return end
+    local id = self:FindItem()
+    if not id then self.nextCheck = now + 5000; return end
+    local okU, r = pcall(GameApi.UseItemByID, id)
+    if okU and r ~= false then
+        self.usedAt, self.usedBal = now, bal
+    else
+        self.nextCheck = now + 10000
+    end
+end
+
 ---------------------------------------------------------------- one shared per-frame hook
 function U.Tick()
     local now = now_ms()
@@ -2542,6 +2673,7 @@ function U.Tick()
     pcall(U.Search.Tick, U.Search)
     if U.MarketSearch then pcall(U.MarketSearch.Tick, U.MarketSearch) end
     pcall(EnergyUI.Tick, EnergyUI)
+    pcall(AE.Tick, AE, now)
     if type(GameApi.TickClientTweaks) == "function" then pcall(GameApi.TickClientTweaks) end
     if type(EXPReplacementWarningTick) == "function" then pcall(EXPReplacementWarningTick) end
 end
