@@ -112,6 +112,12 @@
 - **Removed the target info popup** in mid-screen
 - **Console disabled**: Shift + ö no longer opens the debug console
 
+## Stability
+**Crash after leaving instances fixed**
+- The client could close at random right after leaving an instance or changing map
+- Cause: both loading threads could rebuild the same shader at once; they now take turns
+- Loading a new map may take slightly longer
+
 ## Installation
 Close the game, then replace these files:
 - `bin\xajh.exe`

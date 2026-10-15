@@ -1,11 +1,11 @@
 {
   "name": "Swordsman Classic client fixes",
-  "version": 10,
+  "version": 11,
   "files": [
     {
       "path": "bin/xajh.exe",
-      "md5": "c9741507d49ea988c4e113df900ac553",
-      "desc": "Game exe with all code changes, including the Client Tweaks window (ESC > Settings > System > Client Tweaks) where each fix can be switched on or off: borderless window, Night/Day only, FPS + Ping (every 3 s), health bars, bar numbers, Player Kills counter, chat keeps focus when you get hit, bigger world map (right-click = Back, opens zoomed out), short logo screen, skip server list, centred Action camera, Locked Target, Forced Move blocked, Tab ignore fix, mail Get All, Max Zoom, Zoom Speed, Display Mode, Compatibility mode, Minimal Mode fog, bag fix and search, stash and marketplace search, EXP warnings, boss tooltips, custom Minimal Mode (draw distances, grass / far terrain / ground paint, background FPS limit, players drawn, players without costumes, effect distance), the Celestial Reforge auto-reforge tool, and skills facing the camera while you hold the right mouse button. The windows and buttons come from the interface files below.",
+      "md5": "08504e9b0843ee51fbce84915908cd6a",
+      "desc": "Game exe with all code changes, including the Client Tweaks window (ESC > Settings > System > Client Tweaks) where each fix can be switched on or off: borderless window, Night/Day only, FPS + Ping (every 3 s), health bars, bar numbers, Player Kills counter, chat keeps focus when you get hit, bigger world map (right-click = Back, opens zoomed out), short logo screen, skip server list, centred Action camera, Locked Target, Forced Move blocked, Tab ignore fix, mail Get All, Max Zoom, Zoom Speed, Display Mode, Compatibility mode, Minimal Mode fog, bag fix and search, stash and marketplace search, EXP warnings, boss tooltips, custom Minimal Mode (draw distances, grass / far terrain / ground paint, background FPS limit, players drawn, players without costumes, effect distance), the Celestial Reforge auto-reforge tool, and skills facing the camera while you hold the right mouse button. The windows and buttons come from the interface files below. Also fixes the random crash after leaving an instance / changing map (two loading threads rebuilding the same shader at once).",
       "packed": "zlib",
       "url": "dl/bin/xajh.exe.z"
     },
