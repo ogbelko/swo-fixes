@@ -1,11 +1,11 @@
 {
   "name": "Swordsman Classic client fixes",
-  "version": 9,
+  "version": 10,
   "files": [
     {
       "path": "bin/xajh.exe",
-      "md5": "f9c223ec95be38583bbc2d1b21efe9d0",
-      "desc": "Game exe with all code changes, including the Client Tweaks window (ESC > Settings > System > Client Tweaks) where each fix can be switched on or off: borderless window, Night/Day only, FPS + Ping (every 3 s), health bars, bar numbers, Player Kills counter, chat keeps focus when you get hit, bigger world map (right-click = Back, opens zoomed out), short logo screen, skip server list, centred Action camera, Locked Target, Forced Move blocked, Tab ignore fix, mail Get All, Max Zoom, Zoom Speed, Display Mode, Compatibility mode, Minimal Mode fog, bag fix and search, stash and marketplace search, EXP warnings, boss tooltips. The windows and buttons come from the interface files below.",
+      "md5": "c9741507d49ea988c4e113df900ac553",
+      "desc": "Game exe with all code changes, including the Client Tweaks window (ESC > Settings > System > Client Tweaks) where each fix can be switched on or off: borderless window, Night/Day only, FPS + Ping (every 3 s), health bars, bar numbers, Player Kills counter, chat keeps focus when you get hit, bigger world map (right-click = Back, opens zoomed out), short logo screen, skip server list, centred Action camera, Locked Target, Forced Move blocked, Tab ignore fix, mail Get All, Max Zoom, Zoom Speed, Display Mode, Compatibility mode, Minimal Mode fog, bag fix and search, stash and marketplace search, EXP warnings, boss tooltips, custom Minimal Mode (draw distances, grass / far terrain / ground paint, background FPS limit, players drawn, players without costumes, effect distance), the Celestial Reforge auto-reforge tool, and skills facing the camera while you hold the right mouse button. The windows and buttons come from the interface files below.",
       "packed": "zlib",
       "url": "dl/bin/xajh.exe.z"
     },
@@ -72,8 +72,8 @@
     },
     {
       "path": "package/interfaces/gameui.dcf",
-      "md5": "d02af63bd9bcbb924911c4503a5b1d4c",
-      "desc": "Game window list: adds the Player Kills counter and the new Client Tweaks, search and EXP warning windows.",
+      "md5": "248036964f1f276dff68f501f3222d4d",
+      "desc": "Game window list: adds the Player Kills counter and the new Client Tweaks, search, EXP warning, Minimal Settings and Reforge tool windows.",
       "url": "dl/package/interfaces/gameui.dcf"
     },
     {
@@ -126,6 +126,12 @@
       "url": "dl/package/interfaces/maininfoframe.xml"
     },
     {
+      "path": "package/interfaces/minimal_custom.xml",
+      "md5": "ab26ab41ca353faa88a404b90e8dd5bf",
+      "desc": "The Minimal Settings window (ESC > Settings > System > Minimal Settings): draw distances, grass / far terrain / ground paint, presets, background FPS limit, players drawn, players without costumes, effect distance.",
+      "url": "dl/package/interfaces/minimal_custom.xml"
+    },
+    {
       "path": "package/interfaces/minimap.xml",
       "md5": "5d8b6f82abef30ee5fb0abb8eb3685b2",
       "desc": "Adds the FPS + Ping line under the minimap (works with the game exe).",
@@ -162,6 +168,12 @@
       "url": "dl/package/interfaces/qshop.xml"
     },
     {
+      "path": "package/interfaces/reroll_tool.xml",
+      "md5": "df5b1783032a54663d0a0d86fb11ed90",
+      "desc": "The Celestial Reforge auto-reforge window, opens on the left of the Reforge window: tick the stats / skills you want and it reforges until it gets them.",
+      "url": "dl/package/interfaces/reroll_tool.xml"
+    },
+    {
       "path": "package/interfaces/setting_fightoperation.xml",
       "md5": "df1005f103879f9c3c509922d3332588",
       "desc": "Settings > Control Scheme: rows and columns aligned, two label fixes.",
@@ -187,8 +199,8 @@
     },
     {
       "path": "package/interfaces/setting_system.xml",
-      "md5": "0190891de13e5b4327867f9d4d9cf045",
-      "desc": "Redesigned Settings > System tab with Display Mode, Max Zoom, Zoom Speed, Compatibility mode, Night/Day only, and the Client Tweaks button at the bottom. Needs the game exe.",
+      "md5": "abf10693b5c0a03cdd26240d7df12dc2",
+      "desc": "Redesigned Settings > System tab with Display Mode, Max Zoom, Zoom Speed, Compatibility mode, Night/Day only, and the Client Tweaks and Minimal Settings buttons at the bottom. Needs the game exe.",
       "url": "dl/package/interfaces/setting_system.xml"
     },
     {
@@ -230,9 +242,15 @@
     },
     {
       "path": "package/script/interfaces/gameui.lua",
-      "md5": "1e9b811a50f8d8965583f6f3cf15f5f8",
-      "desc": "Registers the new Client Tweaks, search and EXP warning windows, and runs the World Energy auto-use (settings in userdata\\AutoEnergy.ini).",
+      "md5": "99b92f9a75efd72f21504e05725f89d0",
+      "desc": "Registers the new windows and runs the World Energy auto-use (userdata\\AutoEnergy.ini), the Minimal Settings logic (userdata\\MinimalMode.ini) and the Celestial Reforge auto-reforge tool.",
       "url": "dl/package/script/interfaces/gameui.lua"
+    },
+    {
+      "path": "package/script/interfaces/minimal_custom.lua",
+      "md5": "4315f898d4f06115611048dca1f9c339",
+      "desc": "Logic for the Minimal Settings window (saved in userdata\\MinimalMode.ini).",
+      "url": "dl/package/script/interfaces/minimal_custom.lua"
     },
     {
       "path": "package/script/interfaces/qolbagfind.lua",
@@ -253,9 +271,15 @@
       "url": "dl/package/script/interfaces/qolstashfind.lua"
     },
     {
+      "path": "package/script/interfaces/reroll_tool.lua",
+      "md5": "2c3d68f379cd7888f7979a88a70a45ca",
+      "desc": "Logic for the Celestial Reforge auto-reforge window.",
+      "url": "dl/package/script/interfaces/reroll_tool.lua"
+    },
+    {
       "path": "package/script/interfaces/setting_system.lua",
-      "md5": "92ff7aa7d871b032186a5d73ecbc0cc7",
-      "desc": "Opens the Client Tweaks window from Settings > System.",
+      "md5": "8d857de726f797d27bee8aae36a6780c",
+      "desc": "Opens the Client Tweaks and Minimal Settings windows from Settings > System.",
       "url": "dl/package/script/interfaces/setting_system.lua"
     },
     {

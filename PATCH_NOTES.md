@@ -19,6 +19,11 @@
 - Uses a World Energy Remedy (or Fresh Dragonspit Herb) from your bag when your World Energy drops to that number
 - Works all the time, not only while cultivating; one item at a time
 
+**Celestial Reforge: Auto-Reforge**
+- A tool window opens on the left of the Celestial Reforge window when an item is in it
+- Tick the stats and skills you want and press **Start**: it keeps reforging until the item has them, or until you press **Stop**
+- Uses your normal reforge materials for every roll
+
 **EXP**
 - Warning before an EXP item with a different multiplier replaces your remaining EXP time
 - Multi-EXP window works in combat and shows World Energy use per minute and time left
@@ -39,6 +44,15 @@
 **Minimal Mode**
 - Toggle in *ESC → Settings → System*, next to HD Texture (restart to apply)
 - No more Chinese banner at the top; maps keep their normal fog
+
+**Minimal Settings (custom Minimal Mode)**
+- *ESC → Settings → System → Minimal Settings* (button at the bottom, next to Client Tweaks)
+- Your own draw distances for Trees, Objects, Water and Other, plus switches for Grass, Far terrain and Ground paint
+- Presets: **Ultra light**, **Balanced**, **Original** (the game's own Minimal Mode)
+- **Background FPS limit** while the game window is not active, and **Players drawn** (only the nearest N)
+- **Other players without costumes**: they show their normal look, like turning off Display Costume
+- **Effects of others within X m**: skill and projectile effects of characters farther away are hidden
+- Works while Minimal Mode is on; saved in `userdata\MinimalMode.ini`, applies at the next teleport
 
 **FPS & Ping**
 - Live FPS and ping under the minimap (ping every 3 s)
@@ -79,6 +93,9 @@
 **Locked Target now works in Action mode**
 - **Locked Target** skills hit your target, not the nearest enemy (no target: auto-pick)
 - Set per skill bar in *ESC → Settings → Control Scheme*
+
+**Skills follow the camera**
+- Outside Action mode, hold the right mouse button while you use a skill: your character first turns to where the camera is looking
 
 **Action Mode Camera**
 - Camera is now centred directly behind your character

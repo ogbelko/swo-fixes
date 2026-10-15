@@ -2660,6 +2660,742 @@ function AE:Tick(now)
     end
 end
 
+---------------------------------------------------------------- Minimal Mode Settings
+-- Win_MinimalCustom (ESC > Settings > System > Minimal Settings). Writes userdata\MinimalMode.ini,
+-- which the exe reads every time a map loads (Custom=0 or no file: the original Minimal Mode).
+local MM = {DLG = "Win_MinimalCustom",
+    KEYS = {"Custom", "Grass", "FarTerrain", "GroundPaint", "Trees", "Objects", "Water", "Other", "BgFps", "MaxPlayers", "NoCostumes", "FxDistance"},
+    CHECKS = {Custom = "Chk_Custom", Grass = "Chk_Grass", FarTerrain = "Chk_Far", GroundPaint = "Chk_Ground",
+              NoCostumes = "Chk_NoCostume"},
+    EDITS = {Trees = "Edt_Trees", Objects = "Edt_Objects", Water = "Edt_Water", Other = "Edt_Other",
+             BgFps = "Edt_BgFps", MaxPlayers = "Edt_MaxPlayers", FxDistance = "Edt_FxDistance"},
+    RANGE = {BgFps = {0, 60}, MaxPlayers = {0, 200}, FxDistance = {0, 300}},
+    PRESETS = {
+        ultra = {Custom = 1, Grass = 0, FarTerrain = 0, GroundPaint = 0, Trees = 15, Objects = 40, Water = 40, Other = 40, BgFps = 10, MaxPlayers = 20, NoCostumes = 1, FxDistance = 20},
+        balanced = {Custom = 1, Grass = 1, FarTerrain = 1, GroundPaint = 1, Trees = 40, Objects = 120, Water = 300, Other = 100, BgFps = 20, MaxPlayers = 50, NoCostumes = 0, FxDistance = 50},
+        original = {Custom = 0, Grass = 0, FarTerrain = 0, GroundPaint = 0, Trees = 20, Objects = 50, Water = 50, Other = 50, BgFps = 0, MaxPlayers = 0, NoCostumes = 0, FxDistance = 0},
+    }}
+MM.v = {}
+for k, val in pairs(MM.PRESETS.original) do MM.v[k] = val end
+U.Minimal = MM
+
+function MM:Path()
+    local p = O:Path()
+    local dir = p and p:match("^(.*[\\/])")
+    if dir then return dir .. "MinimalMode.ini" end
+end
+
+function MM:Load()
+    local path = self:Path()
+    if not path or not io or type(io.open) ~= "function" then return end
+    local ok, f = pcall(io.open, path, "rb")
+    if not ok or not f then return end
+    local okR, text = pcall(f.read, f, "*a"); pcall(f.close, f)
+    if not okR or type(text) ~= "string" or #text > 4096 then return end
+    for key, value in text:gmatch("([%a]+)%s*=%s*(%d+)") do
+        if self.v[key] ~= nil then self.v[key] = tonumber(value) end
+    end
+end
+
+function MM:Save()
+    local path = self:Path()
+    if not path or not io or type(io.open) ~= "function" then return false end
+    local lines = {"[Minimal]"}
+    for _, k in ipairs(self.KEYS) do lines[#lines + 1] = k .. "=" .. tostring(self.v[k]) end
+    local ok, f = pcall(io.open, path, "wb")
+    if not ok or not f then return false end
+    local okW = pcall(f.write, f, table.concat(lines, "\r\n") .. "\r\n")
+    pcall(f.close, f)
+    return okW
+end
+
+function MM:Enable()
+    local on = self.v.Custom == 1
+    for _, item in pairs(self.EDITS) do enable(self.DLG, item, on) end
+    for k, item in pairs(self.CHECKS) do if k ~= "Custom" then enable(self.DLG, item, on) end end
+end
+
+function MM:Populate()
+    for k, item in pairs(self.CHECKS) do pcall(DlgApi.CheckItem, self.DLG, item, self.v[k] == 1) end
+    for k, item in pairs(self.EDITS) do settext(self.DLG, item, tostring(self.v[k])) end
+    self:Enable()
+end
+
+function MM:Read()
+    for k, item in pairs(self.CHECKS) do
+        local ok, c = pcall(DlgApi.IsItemChecked, self.DLG, item)
+        if ok then self.v[k] = (c == true) and 1 or 0 end
+    end
+    for k, item in pairs(self.EDITS) do
+        local ok, txt = pcall(DlgApi.GetItemText, self.DLG, item)
+        local n = ok and type(txt) == "string" and tonumber(txt) or nil
+        if n then
+            local r = self.RANGE[k] or {10, 600}
+            n = math.max(r[1], math.min(r[2], math.floor(n)))
+            if (k == "BgFps" or k == "FxDistance") and n > 0 and n < 5 then n = 5 end
+            self.v[k] = n
+        end
+    end
+end
+
+function MM:Open()
+    if shown(self.DLG) then self:Close(); return end
+    self:Load()
+    show(self.DLG, true)
+    center(self.DLG)
+    self:Populate()
+    settext(self.DLG, "Txt_Status", "")
+    self.open = true
+end
+
+function MM:Close() show(self.DLG, false); self.open = false end
+
+function MM:Preset(name)
+    local p = self.PRESETS[name]
+    if not p then return end
+    for k, val in pairs(p) do self.v[k] = val end
+    self:Populate()
+    settext(self.DLG, "Txt_Status", "Preset loaded. Press Apply or OK to keep it.")
+end
+
+function MM:Apply()
+    self:Read()
+    local saved = self:Save()
+    self:Populate()
+    settext(self.DLG, "Txt_Status", saved and "Saved. FPS and player limits apply within 2 s; the rest at the next map load or teleport."
+        or "The settings file could not be written.")
+    return saved
+end
+
+function MM:OK() if self:Apply() then self:Close() end end
+
+-- keeps the rows greyed out while "Use my settings" is off
+function MM:Tick(now)
+    if not self.open then return end
+    if not shown(self.DLG) then self.open = false; return end
+    if now < (self.nextRead or 0) then return end
+    self.nextRead = now + 200
+    local ok, c = pcall(DlgApi.IsItemChecked, self.DLG, "Chk_Custom")
+    local v = (ok and c == true) and 1 or 0
+    if ok and v ~= self.v.Custom then self.v.Custom = v; self:Enable() end
+end
+
+-- Reforge reroll core: parsing, matching and exact odds. No game calls (testable in plain Lua 5.1).
+-- The roll follows the game server's addon_manager::GenerateGroup:
+--   1. skill group: index by the pool's skillprop odds (0 = none); count 1..3 by the group's count odds;
+--      ids drawn uniformly without replacement from one list (or all lists merged when "mixed");
+--      each level by the group's level odds.
+--   2. stats (by-count pools): n by gen_random_bycount_odds, n -= skills drawn, then n slots drawn by
+--      weight without replacement (independent pools: each slot by its own odds; select-one: one slot).
+RerollCore = RerollCore or {}
+local C = RerollCore
+
+---------------------------------------------------------------- hex helpers
+local function byte_at(hex, off) return tonumber(hex:sub(off * 2 + 1, off * 2 + 2), 16) or 0 end
+local function u32(hex, off)
+    return byte_at(hex, off) + byte_at(hex, off + 1) * 256 + byte_at(hex, off + 2) * 65536 + byte_at(hex, off + 3) * 16777216
+end
+local function i32(hex, off) local v = u32(hex, off); if v >= 2147483648 then v = v - 4294967296 end; return v end
+local function f32(hex, off)
+    local b = u32(hex, off)
+    local sign = (b >= 2147483648) and -1 or 1
+    local e = math.floor(b / 8388608) % 256
+    local m = b % 8388608
+    if e == 0 then
+        if m == 0 then return 0 end
+        return sign * m * 2 ^ -149
+    elseif e == 255 then
+        return 0
+    end
+    return sign * (1 + m / 8388608) * 2 ^ (e - 127)
+end
+C.u32, C.f32, C.byte_at = u32, f32, byte_at
+
+local function normalize(t)
+    local s = 0
+    for _, v in ipairs(t) do s = s + v end
+    if s <= 1e-6 then return nil end
+    local out = {}
+    for i, v in ipairs(t) do out[i] = v / s end
+    return out
+end
+
+---------------------------------------------------------------- parsing
+-- item essence (0x70 bytes from item+0x18d)
+function C.ParseItem(hex)
+    if type(hex) ~= "string" or #hex < 0xe0 then return nil end
+    local it = {pool = u32(hex, 0), slots = {}, skills = {}}
+    for i = 0, 31 do it.slots[i] = byte_at(hex, 0x0f + i) ~= 0 end
+    local n = byte_at(hex, 0x4f)
+    if n > 3 then return nil end
+    for i = 0, n - 1 do
+        it.skills[#it.skills + 1] = {id = u32(hex, 0x50 + 5 * i), level = byte_at(hex, 0x54 + 5 * i)}
+    end
+    return it
+end
+
+-- ADDON_GROUP_ESSENCE (552 bytes)
+function C.ParsePool(hex)
+    if type(hex) ~= "string" or #hex < 552 * 2 then return nil end
+    local p = {gen = u32(hex, 0x90), slots = {}, groups = {}}
+    for i = 0, 31 do
+        local id, w = u32(hex, 0xbc + 8 * i), f32(hex, 0xc0 + 8 * i)
+        p.slots[i] = {id = id, w = (id ~= 0 and w > 0) and w or 0}
+    end
+    local bc = {}
+    for n = 0, 8 do bc[n + 1] = f32(hex, 0x1bc + 4 * n) end
+    p.bycount = normalize(bc)                      -- [n + 1] = chance of n random lines
+    local sp, ids = {}, {}
+    for k = 0, 8 do
+        local id, o = u32(hex, 0x1e0 + 8 * k), f32(hex, 0x1e4 + 8 * k)
+        if k == 0 then id = 0 elseif id == 0 then o = 0 end
+        ids[k + 1], sp[k + 1] = id, o
+    end
+    local spn = normalize(sp)
+    if not spn then return nil end
+    for k = 1, 9 do
+        if spn[k] > 0 then p.groups[#p.groups + 1] = {p = spn[k], id = ids[k]} end
+    end
+    if p.gen == 2 and not p.bycount then return nil end
+    return p
+end
+
+-- SKILLPROP_GROUP_CONFIG (660 bytes)
+function C.ParseSkillGroup(hex)
+    if type(hex) ~= "string" or #hex < 660 * 2 then return nil end
+    local g = {mixed = u32(hex, 0x4c) ~= 0, levels = {}, lists = {}, maxlv = 0}
+    local lv, lo = {}, {}
+    for i = 0, 4 do
+        local v, o = i32(hex, 0x50 + 8 * i), f32(hex, 0x54 + 8 * i)
+        if v > 0 and o > 1e-6 then lv[#lv + 1] = v; lo[#lo + 1] = o end
+    end
+    local lon = normalize(lo)
+    if lon then
+        for i, v in ipairs(lv) do
+            g.levels[i] = {v = v, p = lon[i]}
+            if v > g.maxlv then g.maxlv = v end
+        end
+    end
+    g.pmax = 0
+    for _, l in ipairs(g.levels) do if l.v == g.maxlv then g.pmax = g.pmax + l.p end end
+    g.counts = normalize({f32(hex, 0x78), f32(hex, 0x7c), f32(hex, 0x80)})
+    if not g.counts then return nil end
+    for l = 0, 10 do
+        local list = {}
+        for j = 0, 11 do
+            local id = i32(hex, 0x84 + 48 * l + 4 * j)
+            if id > 0 then list[#list + 1] = id end
+        end
+        if #list > 0 then g.lists[#g.lists + 1] = list end
+    end
+    return g
+end
+
+---------------------------------------------------------------- what the item can roll
+-- stats: {id, slots = {i...}} for every slot with a weight (ordered by first slot)
+function C.PoolStats(pool)
+    local out, seen = {}, {}
+    for i = 0, 31 do
+        local s = pool.slots[i]
+        if s.id ~= 0 and s.w > 0 then
+            if not seen[s.id] then seen[s.id] = {id = s.id, slots = {}}; out[#out + 1] = seen[s.id] end
+            table.insert(seen[s.id].slots, i)
+        end
+    end
+    return out
+end
+
+-- skills: ordered unique ids over all skill groups (needs pool.groups[k].sk = parsed group)
+function C.PoolSkills(pool)
+    local out, seen = {}, {}
+    for _, gr in ipairs(pool.groups) do
+        if gr.sk then
+            for _, list in ipairs(gr.sk.lists) do
+                for _, id in ipairs(list) do
+                    if not seen[id] then seen[id] = true; out[#out + 1] = id end
+                end
+            end
+        end
+    end
+    return out
+end
+
+-- highest level any group gives a skill
+function C.SkillMaxLevel(pool, id)
+    local best = 0
+    for _, gr in ipairs(pool.groups) do
+        local g = gr.sk
+        if g and #g.levels > 0 then
+            for _, list in ipairs(g.lists) do
+                for _, x in ipairs(list) do if x == id and g.maxlv > best then best = g.maxlv end end
+            end
+        end
+    end
+    return best
+end
+
+---------------------------------------------------------------- matching
+-- want = {stats = {[id] = true}, atleast = N, skills = {[id] = true}, maxlevel = bool}
+function C.Matches(item, pool, want)
+    local hit = 0
+    for i = 0, 31 do
+        if item.slots[i] then
+            local s = pool.slots[i]
+            if s and want.stats[s.id] then hit = hit + 1 end
+        end
+    end
+    if hit < (want.atleast or 0) then return false end
+    for id in pairs(want.skills) do
+        local ok = false
+        for _, sk in ipairs(item.skills) do
+            if sk.id == id and (not want.maxlevel or sk.level >= C.SkillMaxLevel(pool, id)) then ok = true end
+        end
+        if not ok then return false end
+    end
+    return true
+end
+
+---------------------------------------------------------------- exact odds
+local function choose(n, k)
+    if k < 0 or k > n then return 0 end
+    local r = 1
+    for i = 1, k do r = r * (n - k + i) / i end
+    return r
+end
+
+-- chance that every wanted skill appears among c uniform draws (no replacement) from list
+-- (and, with p < 1, at least one copy at max level, each copy at max level with chance p)
+local function skill_prob(list, c, wanted, p)
+    local ids = {}
+    for id in pairs(wanted) do ids[#ids + 1] = id end
+    if #ids == 0 then return 1 end
+    local m = {}
+    for i, id in ipairs(ids) do
+        m[i] = 0
+        for _, x in ipairs(list) do if x == id then m[i] = m[i] + 1 end end
+        if m[i] == 0 then return 0 end
+    end
+    local L = #list
+    local total = choose(L, c)
+    if total == 0 then return 0 end
+    local sum = 0
+    for mask = 0, 2 ^ #ids - 1 do
+        local ms, bits, x = 0, 0, mask
+        for i = 1, #ids do
+            if x % 2 == 1 then ms = ms + m[i]; bits = bits + 1 end
+            x = math.floor(x / 2)
+        end
+        local none = 0          -- no max-level copy of the skills in this subset
+        for j = 0, math.min(c, ms) do
+            local hyp = choose(ms, j) * choose(L - ms, c - j) / total
+            none = none + hyp * (1 - p) ^ j
+        end
+        sum = sum + ((bits % 2 == 1) and -none or none)
+    end
+    if sum < 0 then sum = 0 end
+    return sum
+end
+C.skill_prob = skill_prob
+
+-- stat chance by number of drawn lines: res[k + 1] = P(at least N wanted lines | k draws), by-count pools
+local function stat_by_lines(pool, wanted, need)
+    local groups, key = {}, {}
+    for i = 0, 31 do
+        local s = pool.slots[i]
+        if s.w > 0 then
+            local wk = (wanted[s.id] and "1" or "0") .. ":" .. string.format("%.9g", s.w)
+            if not key[wk] then
+                key[wk] = #groups + 1
+                groups[#groups + 1] = {w = s.w, n = 0, want = wanted[s.id] and true or false}
+            end
+            local g = groups[key[wk]]
+            g.n = g.n + 1
+        end
+    end
+    local res = {}
+    -- layer = {[statekey] = {d = {...}, p = prob}}
+    local layer = {[""] = {d = {}, p = 1}}
+    for _, g in ipairs(groups) do end
+    local function hits(d)
+        local h = 0
+        for gi, g in ipairs(groups) do if g.want then h = h + (d[gi] or 0) end end
+        return h
+    end
+    for k = 0, 8 do
+        local s = 0
+        for _, st in pairs(layer) do if hits(st.d) >= need then s = s + st.p end end
+        res[k + 1] = s
+        if k == 8 then break end
+        local nxt = {}
+        for _, st in pairs(layer) do
+            local R = 0
+            for gi, g in ipairs(groups) do R = R + (g.n - (st.d[gi] or 0)) * g.w end
+            if R <= 1e-12 then
+                local kk = table.concat(st.d, ",")
+                if nxt[kk] then nxt[kk].p = nxt[kk].p + st.p else nxt[kk] = {d = st.d, p = st.p} end
+            else
+                for gi, g in ipairs(groups) do
+                    local left = g.n - (st.d[gi] or 0)
+                    if left > 0 then
+                        local d = {}
+                        for j = 1, #groups do d[j] = st.d[j] or 0 end
+                        d[gi] = d[gi] + 1
+                        local kk = table.concat(d, ",")
+                        local pr = st.p * left * g.w / R
+                        if nxt[kk] then nxt[kk].p = nxt[kk].p + pr else nxt[kk] = {d = d, p = pr} end
+                    end
+                end
+            end
+        end
+        layer = nxt
+    end
+    return res
+end
+C.stat_by_lines = stat_by_lines
+
+-- chance of the stat condition for independent / select-one pools
+local function stat_other(pool, wanted, need)
+    if pool.gen == 1 then
+        local tot, good = 0, 0
+        for i = 0, 31 do
+            local s = pool.slots[i]
+            tot = tot + s.w
+            if wanted[s.id] then good = good + s.w end
+        end
+        if tot <= 1e-6 then return need <= 0 and 1 or 0 end
+        if need <= 0 then return 1 end
+        if need == 1 then return good / tot end
+        return 0
+    end
+    -- independent: each slot rolls with its own chance
+    local dist = {[0] = 1}
+    for i = 0, 31 do
+        local s = pool.slots[i]
+        if s.w > 0 and wanted[s.id] then
+            local q = math.min(1, s.w)
+            local nd = {}
+            for h, pr in pairs(dist) do
+                nd[h] = (nd[h] or 0) + pr * (1 - q)
+                nd[h + 1] = (nd[h + 1] or 0) + pr * q
+            end
+            dist = nd
+        end
+    end
+    local s = 0
+    for h, pr in pairs(dist) do if h >= need then s = s + pr end end
+    return s
+end
+
+-- want as in Matches. Returns the chance per roll (0..1).
+function C.Chance(pool, want)
+    local need = want.atleast or 0
+    local by_lines = (pool.gen == 2) and stat_by_lines(pool, want.stats, need) or nil
+    local other = (pool.gen ~= 2) and stat_other(pool, want.stats, need) or nil
+    local function stat(cact)
+        if not by_lines then return other end
+        local s = 0
+        for n = 0, 8 do
+            local lines = n - cact
+            if lines < 0 then lines = 0 end
+            s = s + pool.bycount[n + 1] * by_lines[lines + 1]
+        end
+        return s
+    end
+    local any_skill = next(want.skills) ~= nil
+    local total = 0
+    for _, gr in ipairs(pool.groups) do
+        local g = gr.sk
+        if gr.id == 0 or not g or #g.levels == 0 then
+            -- no skills rolled (no group, missing group, or a group without levels)
+            if not any_skill then total = total + gr.p * stat(0) end
+        else
+            local lists = g.lists
+            if g.mixed then
+                local all = {}
+                for _, l in ipairs(lists) do for _, id in ipairs(l) do all[#all + 1] = id end end
+                lists = (#all > 0) and {all} or {}
+            end
+            if #lists == 0 then
+                if not any_skill then total = total + gr.p * stat(0) end
+            else
+                local pmax = want.maxlevel and g.pmax or 1
+                for _, list in ipairs(lists) do
+                    for c = 1, 3 do
+                        local q = g.counts[c]
+                        if q > 0 then
+                            local cact = math.min(c, #list)
+                            total = total + gr.p * (1 / #lists) * q * skill_prob(list, cact, want.skills, pmax) * stat(cact)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return total
+end
+
+
+---------------------------------------------------------------- Reforge reroll tool
+-- Win_RerollTool opens on the left side of Win_EquipServ_ArtifactRebuild while that window is open with an item.
+-- Tick the wanted stats / skills, Start: it presses Reforge (GameApi.RerollPress), waits for the item to
+-- change (GameApi.RerollItem), checks it and repeats until it matches. Never ticks Chk_UseTrace.
+local RR = {DLG = "Win_RerollTool", HOST = "Win_EquipServ_ArtifactRebuild",
+    STATS = 32, SKILLS = 16, GAP = 150, TIMEOUT = 6000, DEFAULT_TYPES = {[189] = true, [190] = true},
+    running = false, nextRead = 0, statTick = {}, skillTick = {}, page = 1}
+U.Reroll = RR
+local Core = RerollCore
+
+local function rr_show_item(item, on) pcall(DlgApi.ShowItem, RR.DLG, item, on and true or false) end
+local function rr_checked(item) local ok, c = pcall(DlgApi.IsItemChecked, RR.DLG, item); return ok and c == true end
+local function rr_check(item, on) pcall(DlgApi.CheckItem, RR.DLG, item, on and true or false) end
+
+function RR:Status(text) settext(self.DLG, "Txt_Status", text or "") end
+
+local function stat_label(id)
+    local ok, okp, typ, p1, p2 = pcall(GameApi.GetItemDBProp, id, 1004, "type", "param1", "param2", "param3")
+    if ok and okp and type(EQUIP_ESSENCE_TYPE) == "table" and EQUIP_ESSENCE_TYPE[typ] then
+        local style = EQUIP_ESSENCE_TYPE[typ].style
+        local okf, txt = pcall(string.format, style, p1 or 0)
+        if okf and type(txt) == "string" then return txt, typ end
+        return style, typ
+    end
+    return "Stat #" .. tostring(id), ok and okp and typ or 0
+end
+
+local function skill_label(id)
+    local ok, name = pcall(GameApi.GetSkillName, id)
+    if ok and type(name) == "string" and name ~= "" then return name end
+    return "Skill #" .. tostring(id)
+end
+
+-- reads the item in the Reforge slot; returns hex, tid, ptr or nil
+function RR:ReadItem()
+    if type(GameApi.RerollItem) ~= "function" then return nil end
+    local ok, hex, tid, ptr = pcall(GameApi.RerollItem)
+    if ok and type(hex) == "string" then return hex, tid, ptr end
+end
+
+function RR:Clear(msg)
+    self.item, self.pool, self.stats, self.skills, self.hex, self.ptr, self.tid = nil, nil, {}, {}, nil, nil, nil
+    for i = 1, self.STATS do rr_show_item("Chk_S" .. i, false) end
+    for i = 1, self.SKILLS do rr_show_item("Chk_K" .. i, false) end
+    rr_show_item("Btn_KPrev", false); rr_show_item("Btn_KNext", false); settext(self.DLG, "Lab_KPage", "")
+    settext(self.DLG, "Lab_Item", "")
+    settext(self.DLG, "Txt_Odds", "")
+    self:Status(self.lastStop or msg)
+end
+
+-- (re)builds the lists for the item now in the slot
+function RR:Load()
+    local hex, tid, ptr = self:ReadItem()
+    if not hex then self:Clear("Put a Celestial item in the Reforge window."); return end
+    local item = Core.ParseItem(hex)
+    local ph = item and GameApi.RerollTemplate and select(2, pcall(GameApi.RerollTemplate, item.pool, 6, 86, 552))
+    local pool = type(ph) == "string" and Core.ParsePool(ph) or nil
+    if not pool then self:Clear("Can't read this item's stats."); self.hex, self.ptr, self.tid = hex, ptr, tid; return end
+    for _, gr in ipairs(pool.groups) do
+        if gr.id ~= 0 then
+            local ok, gh = pcall(GameApi.RerollTemplate, gr.id, 4, 135, 660)
+            gr.sk = (ok and type(gh) == "string") and Core.ParseSkillGroup(gh) or nil
+        end
+    end
+    local samePool = self.pool and self.poolId == item.pool
+    self.item, self.pool, self.poolId, self.hex, self.ptr, self.tid = item, pool, item.pool, hex, ptr, tid
+    if not samePool then
+        self.stats, self.skills, self.statTick, self.skillTick, self.page = {}, {}, {}, {}, 1
+        local ticked = 0
+        for _, st in ipairs(Core.PoolStats(pool)) do
+            local label, typ = stat_label(st.id)
+            if #st.slots > 1 then label = label .. " (x" .. #st.slots .. ")" end
+            self.stats[#self.stats + 1] = {id = st.id, label = label}
+            if self.DEFAULT_TYPES[typ] then self.statTick[st.id] = true; ticked = ticked + 1 end
+        end
+        for _, id in ipairs(Core.PoolSkills(pool)) do
+            self.skills[#self.skills + 1] = {id = id, label = skill_label(id)}
+        end
+        settext(self.DLG, "Edt_AtLeast", tostring(ticked))
+        rr_check("Chk_MaxLevel", false)
+    end
+    local name = "Item"
+    local okn, nm = pcall(GameApi.GetItemName, tid)
+    if okn and type(nm) == "string" and nm ~= "" then name = nm end
+    local lines = ""
+    if pool.gen == 2 then
+        local most = 0
+        for n = 0, 8 do if pool.bycount[n + 1] > 0 then most = n end end
+        lines = string.format("  (up to %d lines, skills take lines)", most)
+    end
+    settext(self.DLG, "Lab_Item", name .. lines)
+    self:Populate()
+end
+
+function RR:Populate()
+    for i = 1, self.STATS do
+        local st = self.stats[i]
+        rr_show_item("Chk_S" .. i, st ~= nil)
+        if st then settext(self.DLG, "Chk_S" .. i, st.label); rr_check("Chk_S" .. i, self.statTick[st.id]) end
+    end
+    local pages = math.max(1, math.ceil(#self.skills / self.SKILLS))
+    if self.page > pages then self.page = pages end
+    for i = 1, self.SKILLS do
+        local sk = self.skills[(self.page - 1) * self.SKILLS + i]
+        rr_show_item("Chk_K" .. i, sk ~= nil)
+        if sk then settext(self.DLG, "Chk_K" .. i, sk.label); rr_check("Chk_K" .. i, self.skillTick[sk.id]) end
+    end
+    rr_show_item("Btn_KPrev", pages > 1); rr_show_item("Btn_KNext", pages > 1)
+    settext(self.DLG, "Lab_KPage", pages > 1 and string.format("%d / %d", self.page, pages) or "")
+    if #self.skills == 0 then settext(self.DLG, "Lab_SkillsHdr", "Skills (none on this item)")
+    else settext(self.DLG, "Lab_SkillsHdr", "Skills") end
+    self.wantKey = nil
+    self:ReadControls()
+end
+
+-- checkbox / option state -> self.want, odds text
+function RR:ReadControls()
+    if not self.pool then return end
+    for i = 1, self.STATS do
+        local st = self.stats[i]
+        if st then self.statTick[st.id] = rr_checked("Chk_S" .. i) or nil end
+    end
+    for i = 1, self.SKILLS do
+        local sk = self.skills[(self.page - 1) * self.SKILLS + i]
+        if sk then self.skillTick[sk.id] = rr_checked("Chk_K" .. i) or nil end
+    end
+    local okT, txt = pcall(DlgApi.GetItemText, self.DLG, "Edt_AtLeast")
+    local n = okT and tonumber(txt) or 0
+    local want = {stats = {}, skills = {}, atleast = n or 0, maxlevel = rr_checked("Chk_MaxLevel")}
+    local keys, nstats = {}, 0
+    for id in pairs(self.statTick) do want.stats[id] = true; keys[#keys + 1] = "s" .. id; nstats = nstats + 1 end
+    for id in pairs(self.skillTick) do want.skills[id] = true; keys[#keys + 1] = "k" .. id end
+    if want.atleast > nstats then want.atleast = nstats end
+    table.sort(keys)
+    local key = table.concat(keys, ",") .. "|" .. want.atleast .. "|" .. tostring(want.maxlevel)
+    self.want = want
+    if key == self.wantKey then return end
+    self.wantKey = key
+    if nstats == 0 and next(want.skills) == nil then
+        self.chance = nil
+        settext(self.DLG, "Txt_Odds", "Tick the stats and skills you want.")
+        return
+    end
+    local ok, p = pcall(Core.Chance, self.pool, want)
+    self.chance = ok and p or nil
+    if not ok then
+        settext(self.DLG, "Txt_Odds", "Could not compute the odds.")
+    elseif p <= 0 then
+        settext(self.DLG, "Txt_Odds", "This combination can't roll on this item.")
+    else
+        local inv = 1 / p
+        local s = inv < 10 and string.format("%.2f", inv) or string.format("%.0f", inv)
+        settext(self.DLG, "Txt_Odds", string.format("Chance per roll: 1 in %s  (%.4g%%)", s, p * 100))
+    end
+end
+
+function RR:Page(delta)
+    if self.running then return end
+    self:ReadControls()
+    local pages = math.max(1, math.ceil(#self.skills / self.SKILLS))
+    self.page = math.max(1, math.min(pages, self.page + delta))
+    self:Populate()
+end
+
+local function rr_controls(on)
+    for i = 1, RR.STATS do enable(RR.DLG, "Chk_S" .. i, on) end
+    for i = 1, RR.SKILLS do enable(RR.DLG, "Chk_K" .. i, on) end
+    for _, n in ipairs({"Chk_MaxLevel", "Edt_AtLeast", "Btn_KPrev", "Btn_KNext", "Btn_Start"}) do enable(RR.DLG, n, on) end
+    enable(RR.DLG, "Btn_Stop", not on)
+end
+
+function RR:Start()
+    if self.running then return end
+    self:Load()
+    if not self.item or not self.pool then self:Status(self.item and "Can't read this item's stats." or "Put a Celestial item in the Reforge window."); return end
+    self:ReadControls()
+    if not self.chance then self:Status("Tick the stats and skills you want first."); return end
+    if self.chance <= 0 then self:Status("This combination can't roll on this item."); return end
+    if Core.Matches(self.item, self.pool, self.want) then self:Status("The item already matches."); return end
+    self.running, self.rolls, self.waiting, self.nextAt, self.lastStop = true, 0, false, 0, nil
+    rr_controls(false)
+    self.statusText = "Rolling..."
+    self:Status(self.statusText)
+end
+
+function RR:Stop(msg)
+    self.running, self.waiting = false, false
+    rr_controls(true)
+    self.lastStop = msg or "Stopped."
+    self:Status(self.lastStop)
+end
+
+function RR:Press(now)
+    pcall(DlgApi.CheckItem, self.HOST, "Chk_UseTrace", false)      -- never use the Recall token
+    local ok, r = pcall(GameApi.RerollPress)
+    if not ok or r ~= 1 then
+        self:Stop(string.format("Stopped: Reforge not possible (not enough items or coins?) after %d rolls.", self.rolls))
+        return
+    end
+    self.waiting, self.pressAt, self.pressHex = true, now, self.hex
+end
+
+function RR:Step(now)
+    local hex, tid, ptr = self:ReadItem()
+    if not hex then self:Stop(string.format("Stopped: the item was removed after %d rolls.", self.rolls)); return end
+    -- a new item object while a roll is pending can be the server's update of the same item
+    if tid ~= self.tid or (ptr ~= self.ptr and not (self.waiting and hex ~= self.pressHex)) then
+        self:Stop(string.format("Stopped: the item was swapped after %d rolls.", self.rolls)); return
+    end
+    self.ptr = ptr
+    local item = Core.ParseItem(hex)
+    if not item or item.pool ~= self.poolId then self:Stop(string.format("Stopped: the item changed after %d rolls.", self.rolls)); return end
+    if self.waiting then
+        if hex ~= self.pressHex then
+            self.waiting, self.hex, self.item = false, hex, item
+            self.rolls = self.rolls + 1
+            if Core.Matches(item, self.pool, self.want) then
+                self:Stop(string.format("Got it after %d rolls!", self.rolls))
+                return
+            end
+            self.nextAt = now + self.GAP
+            self.statusText = string.format("Rolling... %d rolls", self.rolls)
+            self:Status(self.statusText)
+        elseif now - self.pressAt > self.TIMEOUT then
+            self:Stop(string.format("Stopped: no reply from the server for 6 s (after %d rolls).", self.rolls))
+        end
+        return
+    end
+    if now >= self.nextAt then self:Press(now) end
+end
+
+function RR:Close()
+    if self.running then self:Stop("Stopped.") end
+    self.userClosed = true
+    show(self.DLG, false)
+end
+
+function RR:Tick(now)
+    local hostShown = shown(self.HOST)
+    if not hostShown then
+        if self.running then self:Stop(string.format("Stopped: the Reforge window was closed after %d rolls.", self.rolls)) end
+        if shown(self.DLG) then show(self.DLG, false) end
+        self.userClosed, self.pool, self.poolId = false, nil, nil
+        return
+    end
+    if not shown(self.DLG) then
+        if self.userClosed then return end
+        show(self.DLG, true)
+        pcall(DlgApi.SetDialogPosition, self.DLG, 0, 0, self.HOST, AUIDIALOG_ALIGN_OUTSIDE, AUIDIALOG_ALIGN_LEFT,
+            AUIDIALOG_ALIGN_INSIDE, AUIDIALOG_ALIGN_TOP)
+        rr_controls(true)
+        self:Load()
+        return
+    end
+    if self.running then self:Step(now); return end
+    if now < self.nextRead then return end
+    self.nextRead = now + 300
+    local hex, tid, ptr = self:ReadItem()
+    if hex ~= self.hex or ptr ~= self.ptr or tid ~= self.tid then self:Load() else self:ReadControls() end
+end
+
 ---------------------------------------------------------------- one shared per-frame hook
 function U.Tick()
     local now = now_ms()
@@ -2674,6 +3410,8 @@ function U.Tick()
     if U.MarketSearch then pcall(U.MarketSearch.Tick, U.MarketSearch) end
     pcall(EnergyUI.Tick, EnergyUI)
     pcall(AE.Tick, AE, now)
+    pcall(MM.Tick, MM, now)
+    pcall(RR.Tick, RR, now)
     if type(GameApi.TickClientTweaks) == "function" then pcall(GameApi.TickClientTweaks) end
     if type(EXPReplacementWarningTick) == "function" then pcall(EXPReplacementWarningTick) end
 end

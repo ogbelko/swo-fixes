@@ -1030,3 +1030,5 @@ PassScene.xml	-1	-1	0	Win_PassScene
 client_tweaks_settings.xml -1 -1 0 Win_ClientTweaksSettings
 exp_replacement_warning.xml 0 0 0 Win_EXPReplacementWarning
 QolMarketFind.xml					-1			-2			0				Win_QolMarketFind
+minimal_custom.xml -1 -1 0 Win_MinimalCustom
+reroll_tool.xml -1 -1 0 Win_RerollTool

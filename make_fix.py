@@ -33,6 +33,8 @@ DESCRIPTIONS = "descriptions.json"
 
 
 def main():
+    if hasattr(sys.stdout, "reconfigure"):     # Chinese file names on a cp1252 console
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     if len(sys.argv) < 3:
         print(__doc__)
         sys.exit(1)
