@@ -1526,12 +1526,16 @@ local O = {
         {key = "uf_fps_ping"},
         {key = "uf_keepalive", group = 4},
         {key = "uf_bar_numbers"},
-        {key = "uf_kill_counter"},
+        {key = "uf_kill_counter", quick = true},
         {key = "quest_closed"},
         {key = "uf_chat_focus", group = 5},
         {key = "uf_get_all"},
         -- Hall of Heroes
         {key = "hoh_skip_cutscene"},
+        -- name labels (exe reads names_only / enemy_names_red from ClientTweaks.ini)
+        -- quick = true: set in the cogwheel panel (ClientUI.Quick), not in the Client Tweaks window
+        {key = "names_only", default = false, quick = true},
+        {key = "enemy_names_red", default = false, quick = true},
         -- bag and Marketplace
         {key = "uf_bag_maximized", group = 9, default = false},
         {key = "bag_search"},
@@ -1542,6 +1546,7 @@ local O = {
         {key = "uf_map_bigger", group = 6},
         {key = "uf_map_back", group = 7},
         {key = "uf_map_zoomout", group = 8},
+        {key = "mirage_arrows", group = 16},   -- v37: Mirage arrows walk through doorways (GameApi.MirageStep)
         -- Rare Animal Island
         {key = "boss_notes"},
         {key = "jade_labels"},
@@ -1549,6 +1554,9 @@ local O = {
         {key = "uf_skip_logos", group = 10},
         {key = "uf_skip_serverlist", group = 11},
         {key = "uf_minimal_fog", group = 12},
+        -- performance (v36)
+        {key = "uf_fps_unlock", group = 14},
+        {key = "uf_bg_fps", group = 15},
     },
 }
 U.Options = O
@@ -1623,7 +1631,9 @@ end
 
 function S:Populate()
     O:Load()
-    for _, o in ipairs(O.list) do pcall(DlgApi.CheckItem, self.name, "Chk_" .. o.key, O.values[o.key] == true) end
+    for _, o in ipairs(O.list) do
+        if not o.quick then pcall(DlgApi.CheckItem, self.name, "Chk_" .. o.key, O.values[o.key] == true) end
+    end
     settext(self.name, "Txt_Status", "")
 end
 
@@ -1631,7 +1641,7 @@ function S:Apply()
     O:Load()
     for _, o in ipairs(O.list) do
         local ok, checked = pcall(DlgApi.IsItemChecked, self.name, "Chk_" .. o.key)
-        if ok then O.values[o.key] = checked == true end
+        if ok and not o.quick then O.values[o.key] = checked == true end
     end
     O:ApplyNative()
     local saved = O:Save()
@@ -1670,7 +1680,6 @@ function V:Tick(now)
     if self.lastCheck and now >= self.lastCheck and now - self.lastCheck < 300 then return end
     self.lastCheck = now
     if shown("Win_MiniMap") then
-        want_item("Win_MiniMap", "Txt_PerfInfo", O:On("uf_fps_ping"))
         want_dialog(self, "Win_KillCount", "uf_kill_counter")
     end
     if shown("Win_FightingCircle") then
@@ -3136,10 +3145,17 @@ end
 
 
 ---------------------------------------------------------------- Reforge reroll tool
--- Win_RerollTool opens on the left side of Win_EquipServ_ArtifactRebuild while that window is open with an item.
--- Tick the wanted stats / skills, Start: it presses Reforge (GameApi.RerollPress), waits for the item to
--- change (GameApi.RerollItem), checks it and repeats until it matches. Never ticks Chk_UseTrace.
-local RR = {DLG = "Win_RerollTool", HOST = "Win_EquipServ_ArtifactRebuild",
+-- Win_RerollTool docks to the left of the Equipment Service window (Win_EquipServ_Main, the frame with the tabs; the
+-- Celestial / Legendary Reforge pages are sub-dialogs inside it), tops aligned, and follows it when it is moved. It is
+-- shown while the Celestial Reforge (Win_EquipServ_ArtifactRebuild) or Legendary Reforge (Win_EquipServ_LegendRebuild)
+-- page is open. Tick the wanted stats / skills, Start: it presses Reforge (GameApi.RerollPress / RerollPressL), waits
+-- for the item to change (GameApi.RerollItem / RerollItemL), checks it and repeats until it matches. Both pages use the
+-- server's RefreshEquip reroll, so items and pools parse the same way. Never ticks Chk_UseTrace (Celestial).
+local RR = {DLG = "Win_RerollTool", MAIN = "Win_EquipServ_Main",
+    HOSTS = {
+        {name = "Win_EquipServ_ArtifactRebuild", item = "RerollItem", press = "RerollPress", label = "Celestial", trace = true},
+        {name = "Win_EquipServ_LegendRebuild", item = "RerollItemL", press = "RerollPressL", label = "Legendary"},
+    },
     STATS = 32, SKILLS = 16, GAP = 150, TIMEOUT = 6000, DEFAULT_TYPES = {[189] = true, [190] = true},
     running = false, nextRead = 0, statTick = {}, skillTick = {}, page = 1}
 U.Reroll = RR
@@ -3148,8 +3164,19 @@ local Core = RerollCore
 local function rr_show_item(item, on) pcall(DlgApi.ShowItem, RR.DLG, item, on and true or false) end
 local function rr_checked(item) local ok, c = pcall(DlgApi.IsItemChecked, RR.DLG, item); return ok and c == true end
 local function rr_check(item, on) pcall(DlgApi.CheckItem, RR.DLG, item, on and true or false) end
+local function rr_pos(name)
+    local ok, p = pcall(DlgApi.GetDialogProp, name)
+    if ok and type(p) == "table" and type(p.x) == "number" and type(p.y) == "number" then return p.x, p.y end
+end
 
 function RR:Status(text) settext(self.DLG, "Txt_Status", text or "") end
+
+-- the Reforge page that is open now (or nil)
+function RR:ActiveHost()
+    for _, h in ipairs(self.HOSTS) do if shown(h.name) then return h end end
+end
+
+function RR:PutHint() return "Put a " .. (self.host and self.host.label or "Celestial") .. " item in the Reforge window." end
 
 local function stat_label(id)
     local ok, okp, typ, p1, p2 = pcall(GameApi.GetItemDBProp, id, 1004, "type", "param1", "param2", "param3")
@@ -3168,11 +3195,21 @@ local function skill_label(id)
     return "Skill #" .. tostring(id)
 end
 
--- reads the item in the Reforge slot; returns hex, tid, ptr or nil
+-- reads the item in the open page's Reforge slot; returns hex, tid, ptr or nil
 function RR:ReadItem()
-    if type(GameApi.RerollItem) ~= "function" then return nil end
-    local ok, hex, tid, ptr = pcall(GameApi.RerollItem)
+    local fn = self.host and GameApi[self.host.item]
+    if type(fn) ~= "function" then return nil end
+    local ok, hex, tid, ptr = pcall(fn)
     if ok and type(hex) == "string" then return hex, tid, ptr end
+end
+
+-- docks the tool to the left of the Equipment Service frame (or the page itself if the frame is not found)
+function RR:Dock()
+    local anchor = shown(self.MAIN) and self.MAIN or (self.host and self.host.name)
+    if not anchor then return end
+    pcall(DlgApi.SetDialogPosition, self.DLG, 0, 0, anchor, AUIDIALOG_ALIGN_OUTSIDE, AUIDIALOG_ALIGN_LEFT,
+        AUIDIALOG_ALIGN_INSIDE, AUIDIALOG_ALIGN_TOP)
+    self.anchorX, self.anchorY = rr_pos(anchor)
 end
 
 function RR:Clear(msg)
@@ -3188,7 +3225,7 @@ end
 -- (re)builds the lists for the item now in the slot
 function RR:Load()
     local hex, tid, ptr = self:ReadItem()
-    if not hex then self:Clear("Put a Celestial item in the Reforge window."); return end
+    if not hex then self:Clear(self:PutHint()); return end
     local item = Core.ParseItem(hex)
     local ph = item and GameApi.RerollTemplate and select(2, pcall(GameApi.RerollTemplate, item.pool, 6, 86, 552))
     local pool = type(ph) == "string" and Core.ParsePool(ph) or nil
@@ -3309,7 +3346,7 @@ end
 function RR:Start()
     if self.running then return end
     self:Load()
-    if not self.item or not self.pool then self:Status(self.item and "Can't read this item's stats." or "Put a Celestial item in the Reforge window."); return end
+    if not self.item or not self.pool then self:Status(self.item and "Can't read this item's stats." or self:PutHint()); return end
     self:ReadControls()
     if not self.chance then self:Status("Tick the stats and skills you want first."); return end
     if self.chance <= 0 then self:Status("This combination can't roll on this item."); return end
@@ -3328,13 +3365,38 @@ function RR:Stop(msg)
 end
 
 function RR:Press(now)
-    pcall(DlgApi.CheckItem, self.HOST, "Chk_UseTrace", false)      -- never use the Recall token
-    local ok, r = pcall(GameApi.RerollPress)
+    local h = self.host
+    if h.trace then pcall(DlgApi.CheckItem, h.name, "Chk_UseTrace", false) end      -- never use the Recall token
+    if U.Money then U.Money:Apply(h.name) end                -- Notes first, or Coins only (the page's Only Use Coin)
+    local fn = GameApi[h.press]
+    local ok, r = false, nil
+    if type(fn) == "function" then ok, r = pcall(fn) end
+    if ok and r == 2 then
+        self:Stop("Stopped: Notes would bind this item, so the game asks first. Reforge once by hand (it is then "
+            .. "bound), or untick Notes first (Coins only), then Start again.")
+        return
+    end
     if not ok or r ~= 1 then
         self:Stop(string.format("Stopped: Reforge not possible (not enough items or coins?) after %d rolls.", self.rolls))
         return
     end
     self.waiting, self.pressAt, self.pressHex = true, now, self.hex
+end
+
+-- the Notes-first tick <-> the shared setting (U.Money); the page's own Only Use Coin box follows it
+function RR:SyncMoney()
+    local M = U.Money
+    if not M then return end
+    M:Load()
+    local c = rr_checked("Chk_NotesFirst")
+    if self.moneyShown ~= nil and c ~= self.moneyShown then
+        M:Set(c)
+        self.moneyShown = c
+    elseif self.moneyShown ~= M.notesFirst then
+        rr_check("Chk_NotesFirst", M.notesFirst)
+        self.moneyShown = M.notesFirst
+    end
+    if self.host then M:Apply(self.host.name) end
 end
 
 function RR:Step(now)
@@ -3373,27 +3435,2639 @@ function RR:Close()
 end
 
 function RR:Tick(now)
-    local hostShown = shown(self.HOST)
-    if not hostShown then
-        if self.running then self:Stop(string.format("Stopped: the Reforge window was closed after %d rolls.", self.rolls)) end
-        if shown(self.DLG) then show(self.DLG, false) end
-        self.userClosed, self.pool, self.poolId = false, nil, nil
-        return
+    local host = self:ActiveHost()
+    if host ~= self.host then
+        -- the page changed (Celestial <-> Legendary, or closed): start over for the new page
+        if self.running then self:Stop(string.format("Stopped: the Reforge page was closed after %d rolls.", self.rolls)) end
+        self.host, self.pool, self.poolId, self.hex, self.ptr, self.tid = host, nil, nil, nil, nil, nil
+        if not host then
+            if shown(self.DLG) then show(self.DLG, false) end
+            self.userClosed = false
+            return
+        end
+        if shown(self.DLG) then self:Dock(); self:Load() end
     end
+    if not host then return end
     if not shown(self.DLG) then
         if self.userClosed then return end
         show(self.DLG, true)
-        pcall(DlgApi.SetDialogPosition, self.DLG, 0, 0, self.HOST, AUIDIALOG_ALIGN_OUTSIDE, AUIDIALOG_ALIGN_LEFT,
-            AUIDIALOG_ALIGN_INSIDE, AUIDIALOG_ALIGN_TOP)
+        self:Dock()
         rr_controls(true)
         self:Load()
+        self.moneyShown = nil
+        self:SyncMoney()
         return
     end
+    -- stay docked when the Equipment Service window is moved
+    local ax, ay = rr_pos(shown(self.MAIN) and self.MAIN or host.name)
+    if ax and (ax ~= self.anchorX or ay ~= self.anchorY) then self:Dock() end
     if self.running then self:Step(now); return end
     if now < self.nextRead then return end
     self.nextRead = now + 300
+    self:SyncMoney()
     local hex, tid, ptr = self:ReadItem()
     if hex ~= self.hex or ptr ~= self.ptr or tid ~= self.tid then self:Load() else self:ReadControls() end
+end
+
+---------------------------------------------------------------- General Power target mode per key
+-- Control Scheme tab (Win_SettingFightOperation): "Set per key" + padlocks under keys 1-8
+-- (ticked = Locked Target, empty = Area Select). Own file userdata\SkillTarget.ini (O:Save rewrites ClientTweaks.ini);
+-- the exe (per_key_target.py) reads per_key / key1..key8 at most once a second for General Power casts.
+local ST = {DLG = "Win_SettingFightOperation", PER = "Chk_GpPerKey", BAR_LOCKED = "Rdo_EliteMode2",
+    on = false, keys = {false, false, false, false, false, false, false, false}, found = false,
+    wasShown = false, nextRead = 0}
+U.SkillTarget = ST
+
+function ST:Path()
+    local p = O:Path()
+    local dir = p and p:match("^(.*[\\/])")
+    if dir then return dir .. "SkillTarget.ini" end
+end
+
+function ST:Load()
+    if self.loaded then return end
+    self.loaded = true
+    local path = self:Path()
+    if not path or not io or type(io.open) ~= "function" then return end
+    local ok, f = pcall(io.open, path, "rb")
+    if not ok or not f then return end
+    local okR, text = pcall(f.read, f, "*a"); pcall(f.close, f)
+    if not okR or type(text) ~= "string" then return end
+    self.found = true
+    local on = text:match("per_key%s*=%s*(%d+)")
+    if on then self.on = on ~= "0" end
+    for i = 1, 8 do
+        local v = text:match("key" .. i .. "%s*=%s*(%d+)")
+        if v then self.keys[i] = v ~= "0" end
+    end
+end
+
+function ST:Save()
+    local path = self:Path()
+    if not path or not io or type(io.open) ~= "function" then return end
+    local lines = {"[SkillTarget]", "per_key=" .. (self.on and "1" or "0")}
+    for i = 1, 8 do lines[#lines + 1] = "key" .. i .. "=" .. (self.keys[i] and "1" or "0") end
+    local ok, f = pcall(io.open, path, "wb")
+    if not ok or not f then return end
+    pcall(f.write, f, table.concat(lines, "\r\n") .. "\r\n")
+    pcall(f.close, f)
+    self.found = true
+end
+
+function ST:Checked(item)
+    local ok, c = pcall(DlgApi.IsItemChecked, self.DLG, item)
+    if ok then return c == true end
+end
+
+function ST:Paint()
+    pcall(DlgApi.CheckItem, self.DLG, self.PER, self.on)
+    for i = 1, 8 do pcall(DlgApi.CheckItem, self.DLG, "Chk_GpKey" .. i, self.keys[i]) end
+    self:Enable()
+end
+
+-- per key on: the locks work and the bar's Area Select / Locked Target are greyed; off: the other way round
+function ST:Enable()
+    if type(DlgApi.EnableItem) ~= "function" then return end
+    for i = 1, 8 do pcall(DlgApi.EnableItem, self.DLG, "Chk_GpKey" .. i, self.on) end
+    pcall(DlgApi.EnableItem, self.DLG, "Rdo_EliteMode1", not self.on)
+    pcall(DlgApi.EnableItem, self.DLG, self.BAR_LOCKED, not self.on)
+end
+
+-- boxes <-> saved values while the Control Scheme tab is open
+function ST:Tick(now)
+    self:Load()
+    local vis = shown(self.DLG)
+    if vis and not self.wasShown then
+        self:Paint()
+        self.nextRead = now + 250
+    elseif vis and now >= self.nextRead then
+        self.nextRead = now + 250
+        local changed = false
+        local on = self:Checked(self.PER)
+        if on ~= nil and on ~= self.on then
+            self.on, changed = on, true
+            self:Enable()
+            if on and not self.found then
+                -- first use: every key starts from the General Power bar's current choice
+                local locked = self:Checked(self.BAR_LOCKED) == true
+                for i = 1, 8 do self.keys[i] = locked end
+                self:Paint()
+            end
+        end
+        for i = 1, 8 do
+            local c = self:Checked("Chk_GpKey" .. i)
+            if c ~= nil and c ~= self.keys[i] then self.keys[i], changed = c, true end
+        end
+        if changed then self:Save() end
+    end
+    self.wasShown = vis
+end
+
+---------------------------------------------------------------- FPS / ping + cogwheel in the top bar, quick settings
+-- Win_MainInfoLeft (the top bar: map name, PK setting, area icons) holds Txt_PerfInfo (the exe's perf routine writes it
+-- once a second) and Btn_SwcCog (command swc_cog, interfaces/maininfoleft.lua). Both follow the last area icon shown
+-- (Img_1..Img_7, else the Send Position button), so they always sit right next to it, on the map name's line.
+-- The game sizes the bar to 385 px at run time (the XML width is ignored) and clips what lies outside, so the bar is
+-- widened to just past the cogwheel (DlgApi.SetDialogSize) whenever it is narrower.
+-- Win_SwcQuick: Name labels (names_only, enemy_names_red) and Player kill counter (ClientTweaks.ini keys, quick = true:
+-- not in the Client Tweaks window any more), the loot auto-roll and the System mail auto-claim (QuickPanel.ini).
+-- Loot auto-roll: every 0.25 s GameApi.LootAutoRoll(0 Need / 1 Greed) answers the open rolls the way the roll
+-- window's buttons do (the window then drops those rows by itself).
+-- Mail auto-claim: when the System mailbox is at least mail_pct % full (the server's own figure, GameApi.MailInfo),
+-- in a safe area and with the mail window closed: open it on the System tab, press Get All (GameApi.MailGetAll, the
+-- visible page) again and again while mail keeps disappearing, then close it. The server only removes items that fit
+-- in the bag and deletes a System mail once it is empty; mail that cannot be claimed stays (then a 5 minute pause).
+local QP = {BAR = "Win_MainInfoLeft", PANEL = "Win_SwcQuick", MAIL = "Win_MailList",
+    ICONS = {"Btn_SendPos", "Img_1", "Img_2", "Img_3", "Img_4", "Img_5", "Img_6", "Img_7"},
+    GAP = 6, COG = 150, SENDPOS_X = 223,  -- UI pixels (x GetWindowScale): after the icon, text -> cogwheel
+    KEYS = {"names_only", "enemy_names_red", "uf_kill_counter"},
+    mailOn = false, mailPct = 80, lootOn = false, lootMode = "greed", nextLoot = 0,
+    nextTick = 0, nextRead = 0, panelShown = false,
+    mail = {state = "idle", nextCheck = 0}}
+U.Quick = QP
+
+function QP:Path()
+    local p = O:Path()
+    local dir = p and p:match("^(.*[\\/])")
+    if dir then return dir .. "QuickPanel.ini" end
+end
+
+function QP:Load()
+    if self.loaded then return end
+    self.loaded = true
+    local path = self:Path()
+    if not path or not io or type(io.open) ~= "function" then return end
+    local ok, f = pcall(io.open, path, "rb")
+    if not ok or not f then return end
+    local okR, text = pcall(f.read, f, "*a"); pcall(f.close, f)
+    if not okR or type(text) ~= "string" then return end
+    local on = text:match("mail_auto%s*=%s*(%d+)")
+    local pct = tonumber(text:match("mail_pct%s*=%s*(%d+)") or "")
+    if on then self.mailOn = on ~= "0" end
+    if pct then self.mailPct = math.max(1, math.min(100, pct)) end
+    local loot, mode = text:match("loot_auto%s*=%s*(%d+)"), text:match("loot_mode%s*=%s*(%a+)")
+    if loot then self.lootOn = loot ~= "0" end
+    if mode == "need" or mode == "greed" then self.lootMode = mode end
+end
+
+function QP:Save()
+    local path = self:Path()
+    if not path or not io or type(io.open) ~= "function" then return end
+    local lines = {"[QuickPanel]", "mail_auto=" .. (self.mailOn and "1" or "0"), "mail_pct=" .. self.mailPct,
+        "loot_auto=" .. (self.lootOn and "1" or "0"), "loot_mode=" .. self.lootMode}
+    local ok, f = pcall(io.open, path, "wb")
+    if not ok or not f then return end
+    pcall(f.write, f, table.concat(lines, "\r\n") .. "\r\n")
+    pcall(f.close, f)
+end
+
+local function qp_checked(dlg, item)
+    local ok, c = pcall(DlgApi.IsItemChecked, dlg, item)
+    if ok then return c == true end
+end
+
+---------------------------------------------------------------- in the top bar
+function QP:Scale()
+    local ok, s = pcall(DlgApi.GetWindowScale)
+    return (ok and finite(s) and s > 0) and s or 1
+end
+
+-- item rectangle inside the top bar (same units as SetItemPos)
+function QP:Rect(item)
+    local ok, r = pcall(DlgApi.GetItemRect, self.BAR, item, true)
+    if ok and type(r) == "table" and finite(r.x) and finite(r.y) and finite(r.width) and finite(r.height) then return r end
+end
+
+-- right edge of the last icon shown after the map name
+function QP:IconRight()
+    local right
+    for _, item in ipairs(self.ICONS) do
+        local okS, s = pcall(DlgApi.IsItemShow, self.BAR, item)
+        local r = okS and s == true and self:Rect(item)
+        if r and (not right or r.x + r.width > right) then right = r.x + r.width end
+    end
+    return right
+end
+
+function QP:TickBar()
+    if not host_key() or not shown(self.BAR) then self.lastRight = nil; return end
+    local want = O:On("uf_fps_ping")
+    if self.textOn ~= want then
+        pcall(DlgApi.ShowItem, self.BAR, "Txt_PerfInfo", want)
+        self.textOn, self.lastRight = want, nil
+    end
+    local s = self:Scale()
+    local send = self:Rect("Btn_SendPos")
+    -- only trust the rectangles when they are relative to the bar (Send Position sits at x 223)
+    if not send or math.abs(send.x - self.SENDPOS_X * s) > 40 * s then return end
+    local right = self:IconRight()
+    if right and right ~= self.lastRight then
+        local t, c = self:Rect("Txt_PerfInfo"), self:Rect("Btn_SwcCog")
+        if t and c then
+            local x = math.floor(right + self.GAP * s + 0.5)
+            pcall(DlgApi.SetItemPos, self.BAR, "Txt_PerfInfo", x, t.y)
+            pcall(DlgApi.SetItemPos, self.BAR, "Btn_SwcCog", want and math.floor(x + self.COG * s + 0.5) or x, c.y)
+            self.lastRight = right
+        end
+    end
+    self:Fit(s)
+end
+
+-- wide enough to show (and click) everything up to the cogwheel
+function QP:Fit(s)
+    local c = self:Rect("Btn_SwcCog")
+    if not c then return end
+    local ok, w, h = pcall(DlgApi.GetDialogSize, self.BAR)
+    if not ok or not finite(w) or not finite(h) then return end
+    local need = math.ceil(c.x + c.width + 4 * s)
+    if w < need then pcall(DlgApi.SetDialogSize, self.BAR, need, h) end
+end
+
+---------------------------------------------------------------- the panel
+function QP:Toggle()
+    self:Load()
+    if shown(self.PANEL) then show(self.PANEL, false); self.panelShown = false; return true end
+    show(self.PANEL, true)
+    local bx, by = dialog_pos(self.BAR)
+    local c = self:Rect("Btn_SwcCog")
+    if bx and c then
+        pcall(DlgApi.SetDialogPosition, self.PANEL, math.floor(bx + c.x + 0.5), math.floor(by + c.y + c.height + 6 + 0.5))
+    else
+        pcall(DlgApi.SetDialogPosition, self.PANEL, 0, 0, self.BAR, AUIDIALOG_ALIGN_INSIDE, AUIDIALOG_ALIGN_LEFT,
+            AUIDIALOG_ALIGN_OUTSIDE, AUIDIALOG_ALIGN_BOTTOM)
+    end
+    self:Paint()
+    self.panelShown = true
+    return true
+end
+
+function QP:Close() show(self.PANEL, false); self.panelShown = false; return true end
+
+function QP:Paint()
+    O:Load()
+    for _, k in ipairs(self.KEYS) do pcall(DlgApi.CheckItem, self.PANEL, "Chk_" .. k, O.values[k] == true) end
+    pcall(DlgApi.CheckItem, self.PANEL, "Chk_mail_auto", self.mailOn)
+    pcall(DlgApi.CheckItem, self.PANEL, "Chk_loot_auto", self.lootOn)
+    pcall(DlgApi.CheckItem, self.PANEL, "Chk_loot_need", self.lootMode == "need")
+    pcall(DlgApi.CheckItem, self.PANEL, "Chk_loot_greed", self.lootMode == "greed")
+    settext(self.PANEL, "Edt_MailPct", tostring(self.mailPct))
+    self.shownPct = tostring(self.mailPct)
+    self:MailText()
+end
+
+function QP:TickPanel(now)
+    local vis = shown(self.PANEL)
+    if not vis then self.panelShown = false; return end
+    if not self.panelShown then self.panelShown = true; self:Paint() end
+    if now < self.nextRead then return end
+    self.nextRead = now + 250
+    local saveTweaks = false
+    for _, k in ipairs(self.KEYS) do
+        local c = qp_checked(self.PANEL, "Chk_" .. k)
+        if c ~= nil and c ~= (O.values[k] == true) then O.values[k] = c; saveTweaks = true end
+    end
+    if saveTweaks then O:Save() end
+    local changed = false
+    local on = qp_checked(self.PANEL, "Chk_mail_auto")
+    if on ~= nil and on ~= self.mailOn then self.mailOn, changed = on, true end
+    local loot = qp_checked(self.PANEL, "Chk_loot_auto")
+    if loot ~= nil and loot ~= self.lootOn then self.lootOn, changed = loot, true end
+    -- Need / Greed behave like a pair of radio buttons: the one just ticked wins, one is always ticked
+    local need, greed = qp_checked(self.PANEL, "Chk_loot_need"), qp_checked(self.PANEL, "Chk_loot_greed")
+    if need ~= nil and greed ~= nil then
+        local mode = self.lootMode
+        if self.lootMode == "greed" and need then mode = "need" elseif self.lootMode == "need" and greed then mode = "greed" end
+        if mode ~= self.lootMode then self.lootMode, changed = mode, true end
+        if need ~= (mode == "need") then pcall(DlgApi.CheckItem, self.PANEL, "Chk_loot_need", mode == "need") end
+        if greed ~= (mode == "greed") then pcall(DlgApi.CheckItem, self.PANEL, "Chk_loot_greed", mode == "greed") end
+    end
+    local okT, txt = pcall(DlgApi.GetItemText, self.PANEL, "Edt_MailPct")
+    local n = okT and type(txt) == "string" and tonumber(txt) or nil
+    if n and txt ~= self.shownPct then
+        n = math.floor(n)
+        if n > 100 then n = 100; settext(self.PANEL, "Edt_MailPct", "100") end
+        if n >= 1 and n ~= self.mailPct then self.mailPct, changed = n, true end
+        self.shownPct = txt
+    end
+    if changed then self:Save() end
+    self:MailText()
+end
+
+---------------------------------------------------------------- System mail auto-claim
+function QP:MailInfo()
+    if type(GameApi.MailInfo) ~= "function" then return nil end
+    local ok, pct, total, unread, ppct, ptotal, tab, rows, safe = pcall(GameApi.MailInfo)
+    if not ok or not finite(pct) or not finite(total) then return nil end
+    return {pct = pct, total = total, unread = unread, ppct = ppct, ptotal = ptotal, tab = tab, rows = rows or 0,
+        safe = safe == 1}
+end
+
+function QP:MailText()
+    if not shown(self.PANEL) then return end
+    local i = self:MailInfo()
+    local info = i and string.format("System mailbox: %d%% full (%d mails)", i.pct, i.total)
+        or "System mailbox: not known yet"
+    if info ~= self.infoText then settext(self.PANEL, "Txt_MailInfo", info); self.infoText = info end
+    local m = self.mail
+    local st = m.message or (self.mailOn and ("Claims at " .. self.mailPct .. "% in towns and safe zones.") or "Off.")
+    if st ~= self.statusText then settext(self.PANEL, "Txt_MailStatus", st); self.statusText = st end
+end
+
+function QP:MailFinish(message, pause, now)
+    local m = self.mail
+    if m.opened and shown(self.MAIL) then show(self.MAIL, false) end
+    m.state, m.opened, m.message = "idle", false, message
+    m.nextCheck = now + pause
+end
+
+function QP:TickMail(now)
+    local m = self.mail
+    if m.state == "idle" then
+        if now < m.nextCheck then return end
+        m.nextCheck = now + 1000
+        if not self.mailOn or not host_key() then return end
+        local i = self:MailInfo()
+        if not i or i.total <= 0 or i.pct < self.mailPct or not i.safe or shown(self.MAIL) then return end
+        if type(GameApi.MailGetAll) ~= "function" or type(GameApi.MailSystemTab) ~= "function" then return end
+        show(self.MAIL, true)                              -- opening asks the server for the list
+        m.opened, m.state, m.t, m.rounds, m.stalls, m.message = true, "list", now, 0, 0, "Claiming System mail..."
+        if i.tab ~= 1 then pcall(GameApi.MailSystemTab) end
+        return
+    end
+    if not shown(self.MAIL) then self:MailFinish("Stopped: the mail window was closed.", 60000, now); return end
+    local i = self:MailInfo()
+    if not i then self:MailFinish(nil, 60000, now); return end
+    if i.tab ~= 1 then pcall(GameApi.MailSystemTab); m.t = now; return end
+    if m.state == "list" then
+        if i.rows > 0 then
+            m.state, m.t = "claim", now
+        elseif now - m.t > 4000 then
+            self:MailFinish(i.total > 0 and "Stopped: the mail list did not load." or nil, 60000, now)
+        end
+    elseif m.state == "claim" then
+        if not i.safe then self:MailFinish("Stopped: not in a safe area.", 60000, now); return end
+        m.before, m.rowsBefore = i.total, i.rows
+        local ok, r = pcall(GameApi.MailGetAll)
+        if not ok or r ~= 1 then self:MailFinish("Stopped: Get All was refused.", 60000, now); return end
+        m.rounds, m.state, m.t = m.rounds + 1, "wait", now
+    elseif m.state == "wait" then
+        if now - m.t < 1500 then return end
+        if i.total <= 0 then self:MailFinish("Done: the System mailbox is empty.", 30000, now); return end
+        if i.total < m.before or i.rows < m.rowsBefore then
+            m.stalls = 0
+        else
+            m.stalls = m.stalls + 1
+        end
+        if m.stalls >= 2 or m.rounds >= 40 then
+            self:MailFinish(string.format("Paused: %d System mails could not be claimed (bag full?).", i.total),
+                300000, now)
+            return
+        end
+        m.state = "claim"
+    end
+end
+
+function QP:TickLoot(now)
+    if not self.lootOn or now < self.nextLoot then return end
+    self.nextLoot = now + 250
+    if type(GameApi.LootAutoRoll) == "function" and host_key() then
+        pcall(GameApi.LootAutoRoll, self.lootMode == "need" and 0 or 1)
+    end
+end
+
+function QP:Tick(now)
+    self:Load()
+    self:TickLoot(now)
+    if now >= self.nextTick then
+        self.nextTick = now + 500
+        self:TickBar()
+    end
+    self:TickPanel(now)
+    self:TickMail(now)
+end
+
+---------------------------------------------------------------- Alt + right-click: open the whole stack
+-- The exe (altopen_exe.py) notes the bag slot when an item is used (UseItem) while Alt and a mouse button are held,
+-- i.e. Alt + right-click / double-click in a window (selling, storing, compose windows never use the item).
+-- Each time the stack has gone down, the same slot is used again (GameApi.AltOpenUse checks it still holds that
+-- item), until it is empty or holds something else. Nothing for 1.5 s: try again; 3 tries in a row: stop (bag full,
+-- cooldown, ...). Alt + right-click on the same stack again while it runs stops it.
+local AO = {GAP = 60, WAIT = 1500, TRIES = 3}
+U.AltOpen = AO
+
+function AO:Say(text)
+    if GP_CHAT_MISC ~= nil then pcall(GameApi.AddChatMessage, GP_CHAT_MISC, text) end
+end
+
+function AO:Name(tid)
+    local ok, nm = pcall(GameApi.GetItemInfo, tid)
+    if ok and type(nm) == "string" and nm ~= "" then return (nm:gsub("%^%x%x%x%x%x%x", "")) end
+    return "item " .. tostring(tid)
+end
+
+function AO:Finish(left, why)
+    local j = self.job
+    self.job = nil
+    local text = string.format("Opened %d x %s.", j.start - left, j.name)
+    self:Say(why and (text .. " " .. why) or text)
+end
+
+function AO:Tick(now)
+    if type(GameApi.AltOpenPoll) ~= "function" or type(GameApi.AltOpenUse) ~= "function" then return end
+    local ok, seq, pack, slot, tid, count = pcall(GameApi.AltOpenPoll)
+    if not ok or not finite(seq) then return end
+    if self.seq == nil then self.seq = seq end                    -- requests from before a UI reload don't count
+    local j = self.job
+    if seq ~= self.seq then
+        self.seq = seq
+        if j and j.pack == pack and j.slot == slot and j.tid == tid then
+            self:Finish(count - 1, string.format("Stopped with %d left.", count - 1))
+            return
+        end
+        if j then self:Finish(j.last, "Stopped.") end
+        if count <= 1 then
+            self:Say(string.format("Alt + right-click: that was the last %s, nothing more to open.", self:Name(tid)))
+            return
+        end
+        -- the click itself has just used one
+        self.job = {pack = pack, slot = slot, tid = tid, start = count, last = count, sent = now, tries = 1,
+            name = self:Name(tid)}
+        self:Say(string.format("Opening %d x %s... (Alt + right-click it again to stop)", count, self.job.name))
+        return
+    end
+    if not j then return end
+    if not host_key() then self.job = nil; return end
+    local okI, t, n = pcall(GameApi.AltOpenItem, j.pack, j.slot)
+    if not okI or not finite(t) or not finite(n) then self.job = nil; return end
+    if t ~= j.tid or n <= 0 then self:Finish(0); return end
+    if n < j.last then j.last, j.tries = n, 0 end
+    if j.tries > 0 then                                           -- the last use has not shown yet
+        if now - j.sent < self.WAIT then return end
+        if j.tries >= self.TRIES then
+            self:Finish(n, string.format("Stopped with %d left (bag full?).", n))
+            return
+        end
+    end
+    if now - j.sent < self.GAP then return end
+    local okU, r = pcall(GameApi.AltOpenUse, j.pack, j.slot, j.tid)
+    if not okU or r ~= 1 then self:Finish(n, string.format("Stopped with %d left.", n)); return end
+    j.sent, j.tries = now, j.tries + 1
+end
+
+---------------------------------------------------------------- Gem Cleanser helper
+-- Win_GemCleanser docks to the left of the Equipment Service window while its Gem Cleansing page
+-- (Win_EquipServ_StonePurify) is open. Server rules (gs synthetize_manager::StoneClean, produce_svr.lua
+-- StoneCleanConfig, elements.data):
+--   * a gem of level N and quality Q can be cleansed up to min(N, Q) (max 9; level-10 gems have no cost entry);
+--     the client also stops at the stove level. One level at a time: level L costs COST[L] crystals + 5000 coins.
+--   * clean level L multiplies the gem's stat by (100 + pct[L]) / 100 (gem template purify_add_property).
+--   * every cleanse lasts 30 days; then the gem drops one level (and that level runs 30 days, ...).
+--     Clean keeps the level and restarts the 30 days for COST[L] x (time used / 30 days), no coins.
+--     So holding level L costs COST[L] crystals per 30 days.
+--   * crystals: +1 every 2 hours (also offline), up to the stove's cap (no more are made while full).
+-- Plan: the levels for the ticked gems with the most gain whose upkeep fits the budget (default = income, 360 per
+-- 30 days); exact - a knapsack over gem x level. Gain is measured in "level-5 gems of
+-- that stat" (GC.UNIT), so different stats compare. Unticked gems get nothing (they drop a level every 30 days).
+-- "Keep at" (the - / + / A buttons of a row, per gem kind, GemCleanser.ini keep=<kind>|<level>): that kind is held at
+-- exactly that level (0 = let it drop), whatever is ticked; its upkeep is counted first, the planner shares the rest.
+-- Gems: pack 0 = equipped gear, pack 1 = the hidden weapon (GameApi.GemSockets records carry the pack).
+-- Actions: Clean planned gems with less than 5 days left, then the upgrade steps, best first.
+-- "Do next" does the first action with the game's own buttons (Clean shows the game's cost box);
+-- "Auto" does them one after another (Clean without the box) until crystals run out or the plan is done.
+local GC = {DLG = "Win_GemCleanser", HOST = "Win_EquipServ_StonePurify", MAIN = "Win_EquipServ_Main",
+    ROWS = 10, COST = {2, 4, 7, 11, 15, 21, 27, 35, 43}, COINS = 5000, SPAN = 2592000, PERIOD = 7200,
+    CAP = {[0] = 0, 10, 30, 60, 100, 150, 200, 250, 300, 400}, INCOME = 360, REFRESH = 5 * 86400,
+    CATS = {
+        {key = "exo", label = "Exo-Attack", types = {129}, on = true},
+        {key = "endo", label = "Endo-Attack", types = {130}, on = true},
+        {key = "crit", label = "Critical", types = {144}, on = true},
+        {key = "eldmg", label = "Element damage", types = {50, 51, 52, 53}, on = true},
+        {key = "elprof", label = "Element proficiency", types = {149, 150, 151, 152}, on = true},
+        {key = "elpen", label = "Element penetration", types = {157, 158, 159, 160}, on = true},
+        {key = "str", label = "Strength", types = {1}, on = true},
+        {key = "wil", label = "Willpower", types = {5}, on = true},
+        {key = "ref", label = "Reflex", types = {4}},
+        {key = "ten", label = "Tenacity", types = {3}},
+        {key = "con", label = "Constitution", types = {2}},
+        {key = "hp", label = "HP / Chi", types = {9, 10}},
+        {key = "def", label = "Exo / Endo-Defense", types = {30, 41}},
+        {key = "res", label = "Element resist", types = {58, 59, 60, 61}},
+        {key = "mit", label = "Mitigation / Evasion", types = {145, 146}},
+        {key = "other", label = "Other", types = {179}},
+    },
+    SHORT = {[1] = "Str", [2] = "Con", [3] = "Ten", [4] = "Ref", [5] = "Wil", [9] = "HP", [10] = "Chi",
+        [30] = "Exo-Def", [41] = "Endo-Def", [50] = "Ice Dmg", [51] = "Fire Dmg", [52] = "Poison Dmg",
+        [53] = "Earth Dmg", [58] = "Ice Res%", [59] = "Fire Res%", [60] = "Poison Res%", [61] = "Earth Res%",
+        [129] = "Exo-Atk", [130] = "Endo-Atk", [144] = "Crit", [145] = "Evasion", [146] = "Mitigation",
+        [149] = "Ice Prof%", [150] = "Fire Prof%", [151] = "Poison Prof%", [152] = "Earth Prof%",
+        [157] = "Ice Pen%", [158] = "Fire Pen%", [159] = "Poison Pen%", [160] = "Earth Pen%", [179] = "Other"},
+    budget = 360, tick = {}, keep = {}, page = 1, nextRead = 0, socks = {}, names = {}}
+U.GemCleanser = GC
+GC.GEMS = {
+    [56530] = {"Sunstone I", 1, 30, 116, {73}},
+    [56531] = {"Sunstone II", 2, 30, 291, {73, 87}},
+    [56532] = {"Sunstone III", 3, 30, 466, {73, 87, 102}},
+    [56533] = {"Sunstone IV", 4, 30, 1003, {73, 87, 102, 118}},
+    [56534] = {"Sunstone V", 5, 30, 1630, {73, 87, 102, 118, 136}},
+    [56535] = {"Sunstone VI", 6, 30, 2094, {73, 87, 102, 118, 136, 156}},
+    [56536] = {"Sunstone VII", 7, 30, 2828, {73, 87, 102, 118, 136, 156, 178}},
+    [56537] = {"Sunstone VIII", 8, 30, 3461, {73, 87, 102, 118, 136, 156, 178, 201}},
+    [56538] = {"Sunstone IX", 9, 30, 4052, {73, 87, 102, 118, 136, 156, 178, 201, 227}},
+    [56539] = {"Sunstone X", 10, 30, 4963, {73, 87, 102, 118, 136, 156, 178, 201, 227}},
+    [56540] = {"Moonstone I", 1, 41, 116, {73}},
+    [56541] = {"Moonstone II", 2, 41, 291, {73, 87}},
+    [56542] = {"Moonstone III", 3, 41, 466, {73, 87, 102}},
+    [56543] = {"Moonstone IV", 4, 41, 1003, {73, 87, 102, 118}},
+    [56544] = {"Moonstone V", 5, 41, 1630, {73, 87, 102, 118, 136}},
+    [56545] = {"Moonstone VI", 6, 41, 2094, {73, 87, 102, 118, 136, 156}},
+    [56546] = {"Moonstone VII", 7, 41, 2828, {73, 87, 102, 118, 136, 156, 178}},
+    [56547] = {"Moonstone VIII", 8, 41, 3461, {73, 87, 102, 118, 136, 156, 178, 201}},
+    [56548] = {"Moonstone IX", 9, 41, 4052, {73, 87, 102, 118, 136, 156, 178, 201, 227}},
+    [56549] = {"Moonstone X", 10, 41, 4963, {73, 87, 102, 118, 136, 156, 178, 201, 227}},
+    [56550] = {"Ruby I", 1, 129, 118, {8}},
+    [56551] = {"Ruby II", 2, 129, 295, {8, 17}},
+    [56552] = {"Ruby III", 3, 129, 470, {8, 17, 26}},
+    [56553] = {"Ruby IV", 4, 129, 1009, {8, 17, 26, 36}},
+    [56554] = {"Ruby V", 5, 129, 1639, {8, 17, 26, 36, 48}},
+    [56555] = {"Ruby VI", 6, 129, 2108, {8, 17, 26, 36, 48, 60}},
+    [56556] = {"Ruby VII", 7, 129, 2842, {8, 17, 26, 36, 48, 60, 74}},
+    [56557] = {"Ruby VII", 8, 129, 3479, {8, 17, 26, 36, 48, 60, 74, 88}},
+    [56558] = {"Ruby IX", 9, 129, 4073, {8, 17, 26, 36, 48, 60, 74, 88, 105}},
+    [56559] = {"Ruby X", 10, 129, 4984, {8, 17, 26, 36, 48, 60, 74, 88, 105}},
+    [56560] = {"Sapphire I", 1, 130, 118, {8}},
+    [56561] = {"Sapphire II", 2, 130, 295, {8, 17}},
+    [56562] = {"Sapphire III", 3, 130, 470, {8, 17, 26}},
+    [56563] = {"Sapphire IV", 4, 130, 1009, {8, 17, 26, 36}},
+    [56564] = {"Sapphire V", 5, 130, 1639, {8, 17, 26, 36, 48}},
+    [56565] = {"Sapphire VI", 6, 130, 2108, {8, 17, 26, 36, 48, 60}},
+    [56566] = {"Sapphire VII", 7, 130, 2842, {8, 17, 26, 36, 48, 60, 74}},
+    [56567] = {"Sapphire VIII", 8, 130, 3479, {8, 17, 26, 36, 48, 60, 74, 88}},
+    [56568] = {"Sapphire IX", 9, 130, 4073, {8, 17, 26, 36, 48, 60, 74, 88, 105}},
+    [56569] = {"Sapphire X", 10, 130, 4984, {8, 17, 26, 36, 48, 60, 74, 88, 105}},
+    [56570] = {"Rock Crystal I", 1, 50, 45, {62}},
+    [56571] = {"Rock Crystal II", 2, 50, 111, {62, 75}},
+    [56572] = {"Rock Crystal III", 3, 50, 177, {62, 75, 89}},
+    [56573] = {"Rock Crystal IV", 4, 50, 378, {62, 75, 89, 105}},
+    [56574] = {"Rock Crystal V", 5, 50, 615, {62, 75, 89, 105, 122}},
+    [56575] = {"Rock Crystal VI", 6, 50, 791, {62, 75, 89, 105, 122, 140}},
+    [56576] = {"Rock Crystal VII", 7, 50, 1067, {62, 75, 89, 105, 122, 140, 160}},
+    [56577] = {"Rock Crystal VIII", 8, 50, 1305, {62, 75, 89, 105, 122, 140, 160, 183}},
+    [56578] = {"Rock Crystal IX", 9, 50, 1527, {62, 75, 89, 105, 122, 140, 160, 183, 207}},
+    [56579] = {"Rock Crystal X", 10, 50, 1869, {62, 75, 89, 105, 122, 140, 160, 183, 207}},
+    [56580] = {"Garnet I", 1, 51, 45, {62}},
+    [56581] = {"Garnet II", 2, 51, 111, {62, 75}},
+    [56582] = {"Garnet III", 3, 51, 177, {62, 75, 89}},
+    [56583] = {"Garnet IV", 4, 51, 378, {62, 75, 89, 105}},
+    [56584] = {"Garnet V", 5, 51, 615, {62, 75, 89, 105, 122}},
+    [56585] = {"Garnet VI", 6, 51, 791, {62, 75, 89, 105, 122, 140}},
+    [56586] = {"Garnet VII", 7, 51, 1067, {62, 75, 89, 105, 122, 140, 160}},
+    [56587] = {"Garnet VIII", 8, 51, 1305, {62, 75, 89, 105, 122, 140, 160, 183}},
+    [56588] = {"Garnet IX", 9, 51, 1527, {62, 75, 89, 105, 122, 140, 160, 183, 207}},
+    [56589] = {"Garnet X", 10, 51, 1869, {62, 75, 89, 105, 122, 140, 160, 183, 207}},
+    [56590] = {"Citrine I", 1, 53, 45, {62}},
+    [56591] = {"Citrine II", 2, 53, 111, {62, 75}},
+    [56592] = {"Citrine III", 3, 53, 177, {62, 75, 89}},
+    [56593] = {"Citrine IV", 4, 53, 378, {62, 75, 89, 105}},
+    [56594] = {"Citrine V", 5, 53, 615, {62, 75, 89, 105, 122}},
+    [56595] = {"Citrine VI", 6, 53, 791, {62, 75, 89, 105, 122, 140}},
+    [56596] = {"Citrine VII", 7, 53, 1067, {62, 75, 89, 105, 122, 140, 160}},
+    [56597] = {"Citrine VIII", 8, 53, 1305, {62, 75, 89, 105, 122, 140, 160, 183}},
+    [56598] = {"Citrine IX", 9, 53, 1527, {62, 75, 89, 105, 122, 140, 160, 183, 207}},
+    [56599] = {"Citrine X", 10, 53, 1869, {62, 75, 89, 105, 122, 140, 160, 183, 207}},
+    [56600] = {"Amethyst I", 1, 52, 45, {62}},
+    [56601] = {"Amethyst II", 2, 52, 111, {62, 75}},
+    [56602] = {"Amethyst III", 3, 52, 177, {62, 75, 89}},
+    [56603] = {"Amethyst IV", 4, 52, 378, {62, 75, 89, 105}},
+    [56604] = {"Amethyst V", 5, 52, 615, {62, 75, 89, 105, 122}},
+    [56605] = {"Amethyst VI", 6, 52, 791, {62, 75, 89, 105, 122, 140}},
+    [56606] = {"Amethyst VII", 7, 52, 1067, {62, 75, 89, 105, 122, 140, 160}},
+    [56607] = {"Amethyst VIII", 8, 52, 1305, {62, 75, 89, 105, 122, 140, 160, 183}},
+    [56608] = {"Amethyst IX", 9, 52, 1527, {62, 75, 89, 105, 122, 140, 160, 183, 207}},
+    [56609] = {"Amethyst X", 10, 52, 1869, {62, 75, 89, 105, 122, 140, 160, 183, 207}},
+    [56610] = {"White Agate I", 1, 58, 500, {62}},
+    [56611] = {"White Agate II", 2, 58, 1500, {62, 75}},
+    [56612] = {"White Agate III", 3, 58, 2500, {62, 75, 89}},
+    [56613] = {"White Agate IV", 4, 58, 3500, {62, 75, 89, 105}},
+    [56614] = {"White Agate V", 5, 58, 5000, {62, 75, 89, 105, 122}},
+    [56615] = {"White Agate VI", 6, 58, 6500, {62, 75, 89, 105, 122, 140}},
+    [56616] = {"White Agate VII", 7, 58, 8500, {62, 75, 89, 105, 122, 140, 160}},
+    [56617] = {"White Agate VIII", 8, 58, 10500, {62, 75, 89, 105, 122, 140, 160, 183}},
+    [56618] = {"White Agate IX", 9, 58, 13000, {62, 75, 89, 105, 122, 140, 160, 183, 207}},
+    [56619] = {"White Agate X", 10, 58, 16000, {62, 75, 89, 105, 122, 140, 160, 183, 207}},
+    [56636] = {"Red Agate I", 1, 59, 500, {62}},
+    [56637] = {"Red Agate II", 2, 59, 1500, {62, 75}},
+    [56638] = {"Red Agate III", 3, 59, 2500, {62, 75, 89}},
+    [56639] = {"Red Agate IV", 4, 59, 3500, {62, 75, 89, 105}},
+    [56640] = {"Red Agate V", 5, 59, 5000, {62, 75, 89, 105, 122}},
+    [56641] = {"Red Agate VI", 6, 59, 6500, {62, 75, 89, 105, 122, 140}},
+    [56642] = {"Red Agate VII", 7, 59, 8500, {62, 75, 89, 105, 122, 140, 160}},
+    [56643] = {"Red Agate VIII", 8, 59, 10500, {62, 75, 89, 105, 122, 140, 160, 183}},
+    [56644] = {"Red Agate IX", 9, 59, 13000, {62, 75, 89, 105, 122, 140, 160, 183, 207}},
+    [56645] = {"Red Agate X", 10, 59, 16000, {62, 75, 89, 105, 122, 140, 160, 183, 207}},
+    [56646] = {"Yellow Agate I", 1, 61, 500, {62}},
+    [56647] = {"Yellow Agate II", 2, 61, 1500, {62, 75}},
+    [56648] = {"Yellow Agate III", 3, 61, 2500, {62, 75, 89}},
+    [56649] = {"Yellow Agate IV", 4, 61, 3500, {62, 75, 89, 105}},
+    [56650] = {"Yellow Agate V", 5, 61, 5000, {62, 75, 89, 105, 122}},
+    [56651] = {"Yellow Agate VI", 6, 61, 6500, {62, 75, 89, 105, 122, 140}},
+    [56652] = {"Yellow Agate VII", 7, 61, 8500, {62, 75, 89, 105, 122, 140, 160}},
+    [56653] = {"Yellow Agate VIII", 8, 61, 10500, {62, 75, 89, 105, 122, 140, 160, 183}},
+    [56654] = {"Yellow Agate IX", 9, 61, 13000, {62, 75, 89, 105, 122, 140, 160, 183, 207}},
+    [56655] = {"Yellow Agate X", 10, 61, 16000, {62, 75, 89, 105, 122, 140, 160, 183, 207}},
+    [56656] = {"Green Agate I", 1, 60, 500, {62}},
+    [56657] = {"Green Agate II", 2, 60, 1500, {62, 75}},
+    [56658] = {"Green Agate III", 3, 60, 2500, {62, 75, 89}},
+    [56659] = {"Green Agate IV", 4, 60, 3500, {62, 75, 89, 105}},
+    [56660] = {"Green Agate V", 5, 60, 5000, {62, 75, 89, 105, 122}},
+    [56661] = {"Green Agate VI", 6, 60, 6500, {62, 75, 89, 105, 122, 140}},
+    [56662] = {"Green Agate VII", 7, 60, 8500, {62, 75, 89, 105, 122, 140, 160}},
+    [56663] = {"Green Agate VIII", 8, 60, 10500, {62, 75, 89, 105, 122, 140, 160, 183}},
+    [56664] = {"Green Agate IX", 9, 60, 13000, {62, 75, 89, 105, 122, 140, 160, 183, 207}},
+    [56665] = {"Green Agate X", 10, 60, 16000, {62, 75, 89, 105, 122, 140, 160, 183, 207}},
+    [56666] = {"Aventurine I", 1, 145, 103, {30}},
+    [56667] = {"Aventurine II", 2, 145, 259, {30, 40}},
+    [56668] = {"Aventurine III", 3, 145, 413, {30, 40, 51}},
+    [56669] = {"Aventurine IV", 4, 145, 892, {30, 40, 51, 64}},
+    [56670] = {"Aventurine V", 5, 145, 1449, {30, 40, 51, 64, 77}},
+    [56671] = {"Aventurine VI", 6, 145, 1863, {30, 40, 51, 64, 77, 92}},
+    [56672] = {"Aventurine VII", 7, 145, 2523, {30, 40, 51, 64, 77, 92, 108}},
+    [56673] = {"Aventurine VIII", 8, 145, 3087, {30, 40, 51, 64, 77, 92, 108, 126}},
+    [56674] = {"Aventurine IX", 9, 145, 3615, {30, 40, 51, 64, 77, 92, 108, 126, 146}},
+    [56675] = {"Aventurine X", 10, 145, 4434, {30, 40, 51, 64, 77, 92, 108, 126, 146}},
+    [56676] = {"Blue Coral I", 1, 4, 9, {19}},
+    [56677] = {"Blue Coral II", 2, 4, 23, {19, 28}},
+    [56678] = {"Blue Coral III", 3, 4, 36, {19, 28, 39}},
+    [56679] = {"Blue Coral IV", 4, 4, 78, {19, 28, 39, 50}},
+    [56680] = {"Blue Coral V", 5, 4, 126, {19, 28, 39, 50, 63}},
+    [56681] = {"Blue Coral VI", 6, 4, 162, {19, 28, 39, 50, 63, 76}},
+    [56682] = {"Blue Coral VII", 7, 4, 218, {19, 28, 39, 50, 63, 76, 91}},
+    [56683] = {"Blue Coral VIII", 8, 4, 266, {19, 28, 39, 50, 63, 76, 91, 107}},
+    [56684] = {"Blue Coral IX", 9, 4, 311, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56685] = {"Blue Coral X", 10, 4, 382, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56686] = {"Thorn Coral I", 1, 1, 17, {19}},
+    [56687] = {"Thorn Coral II", 2, 1, 42, {19, 28}},
+    [56688] = {"Thorn Coral III", 3, 1, 66, {19, 28, 39}},
+    [56689] = {"Thorn Coral IV", 4, 1, 143, {19, 28, 39, 50}},
+    [56690] = {"Thorn Coral V", 5, 1, 230, {19, 28, 39, 50, 63}},
+    [56691] = {"Thorn Coral VI", 6, 1, 297, {19, 28, 39, 50, 63, 76}},
+    [56692] = {"Thorn Coral VII", 7, 1, 401, {19, 28, 39, 50, 63, 76, 91}},
+    [56693] = {"Thorn Coral VIII", 8, 1, 491, {19, 28, 39, 50, 63, 76, 91, 107}},
+    [56694] = {"Thorn Coral IX", 9, 1, 574, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56695] = {"Thorn Coral X", 10, 1, 704, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56696] = {"Red Coral I", 1, 2, 16, {19}},
+    [56697] = {"Red Coral II", 2, 2, 40, {19, 28}},
+    [56698] = {"Red Coral III", 3, 2, 65, {19, 28, 39}},
+    [56699] = {"Red Coral IV", 4, 2, 141, {19, 28, 39, 50}},
+    [56700] = {"Red Coral V", 5, 2, 229, {19, 28, 39, 50, 63}},
+    [56701] = {"Red Coral VI", 6, 2, 293, {19, 28, 39, 50, 63, 76}},
+    [56702] = {"Red Coral VII", 7, 2, 398, {19, 28, 39, 50, 63, 76, 91}},
+    [56703] = {"Red Coral VIII", 8, 2, 486, {19, 28, 39, 50, 63, 76, 91, 107}},
+    [56704] = {"Red Coral IX", 9, 2, 569, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56705] = {"Red Coral X", 10, 2, 698, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56706] = {"Horn Coral I", 1, 5, 17, {19}},
+    [56707] = {"Horn Coral II", 2, 5, 42, {19, 28}},
+    [56708] = {"Horn Coral III", 3, 5, 66, {19, 28, 39}},
+    [56709] = {"Horn Coral IV", 4, 5, 143, {19, 28, 39, 50}},
+    [56710] = {"Horn Coral V", 5, 5, 230, {19, 28, 39, 50, 63}},
+    [56711] = {"Horn Coral VI", 6, 5, 297, {19, 28, 39, 50, 63, 76}},
+    [56712] = {"Horn Coral VII", 7, 5, 401, {19, 28, 39, 50, 63, 76, 91}},
+    [56713] = {"Horn Coral VIII", 8, 5, 491, {19, 28, 39, 50, 63, 76, 91, 107}},
+    [56714] = {"Horn Coral IX", 9, 5, 574, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56715] = {"Horn Coral X", 10, 5, 704, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56716] = {"Cave Coral I", 1, 3, 16, {19}},
+    [56717] = {"Cave Coral II", 2, 3, 40, {19, 28}},
+    [56718] = {"Cave Coral III", 3, 3, 65, {19, 28, 39}},
+    [56719] = {"Cave Coral IV", 4, 3, 141, {19, 28, 39, 50}},
+    [56720] = {"Cave Coral V", 5, 3, 229, {19, 28, 39, 50, 63}},
+    [56721] = {"Cave Coral VI", 6, 3, 293, {19, 28, 39, 50, 63, 76}},
+    [56722] = {"Cave Coral VII", 7, 3, 398, {19, 28, 39, 50, 63, 76, 91}},
+    [56723] = {"Cave Coral VIII", 8, 3, 486, {19, 28, 39, 50, 63, 76, 91, 107}},
+    [56724] = {"Cave Coral IX", 9, 3, 569, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56725] = {"Cave Coral X", 10, 3, 698, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56726] = {"Alabaster I", 1, 157, 200, {19}},
+    [56727] = {"Alabaster II", 2, 157, 300, {19, 28}},
+    [56728] = {"Alabaster III", 3, 157, 500, {19, 28, 39}},
+    [56729] = {"Alabaster IV", 4, 157, 1000, {19, 28, 39, 50}},
+    [56730] = {"Alabaster V", 5, 157, 1500, {19, 28, 39, 50, 63}},
+    [56731] = {"Alabaster VI", 6, 157, 2500, {19, 28, 39, 50, 63, 76}},
+    [56732] = {"Alabaster VII", 7, 157, 3500, {19, 28, 39, 50, 63, 76, 91}},
+    [56733] = {"Alabaster VIII", 8, 157, 5000, {19, 28, 39, 50, 63, 76, 91, 107}},
+    [56734] = {"Alabaster IX", 9, 157, 7500, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56735] = {"Alabaster X", 10, 157, 10000, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56736] = {"Jasper I", 1, 159, 200, {19}},
+    [56737] = {"Jasper II", 2, 159, 300, {19, 28}},
+    [56738] = {"Jasper III", 3, 159, 500, {19, 28, 39}},
+    [56739] = {"Jasper IV", 4, 159, 1000, {19, 28, 39, 50}},
+    [56740] = {"Jasper V", 5, 159, 1500, {19, 28, 39, 50, 63}},
+    [56741] = {"Jasper VI", 6, 159, 2500, {19, 28, 39, 50, 63, 76}},
+    [56742] = {"Jasper VII", 7, 159, 3500, {19, 28, 39, 50, 63, 76, 91}},
+    [56743] = {"Jasper VIII", 8, 159, 5000, {19, 28, 39, 50, 63, 76, 91, 107}},
+    [56744] = {"Jasper IX", 9, 159, 7500, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56745] = {"Jasper X", 10, 159, 10000, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56746] = {"Red Jade I", 1, 158, 200, {19}},
+    [56747] = {"Red Jade II", 2, 158, 300, {19, 28}},
+    [56748] = {"Red Jade III", 3, 158, 500, {19, 28, 39}},
+    [56749] = {"Red Jade IV", 4, 158, 1000, {19, 28, 39, 50}},
+    [56750] = {"Red Jade V", 5, 158, 1500, {19, 28, 39, 50, 63}},
+    [56751] = {"Red Jade VI", 6, 158, 2500, {19, 28, 39, 50, 63, 76}},
+    [56752] = {"Red Jade VII", 7, 158, 3500, {19, 28, 39, 50, 63, 76, 91}},
+    [56753] = {"Red Jade VIII", 8, 158, 5000, {19, 28, 39, 50, 63, 76, 91, 107}},
+    [56754] = {"Red Jade IX", 9, 158, 7500, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56755] = {"Red Jade X", 10, 158, 10000, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56756] = {"Topaz I", 1, 160, 200, {19}},
+    [56757] = {"Topaz II", 2, 160, 300, {19, 28}},
+    [56758] = {"Topaz III", 3, 160, 500, {19, 28, 39}},
+    [56759] = {"Topaz IV", 4, 160, 1000, {19, 28, 39, 50}},
+    [56760] = {"Topaz V", 5, 160, 1500, {19, 28, 39, 50, 63}},
+    [56761] = {"Topaz VI", 6, 160, 2500, {19, 28, 39, 50, 63, 76}},
+    [56762] = {"Topaz VII", 7, 160, 3500, {19, 28, 39, 50, 63, 76, 91}},
+    [56763] = {"Topaz VIII", 8, 160, 5000, {19, 28, 39, 50, 63, 76, 91, 107}},
+    [56764] = {"Topaz IX", 9, 160, 7500, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56765] = {"Topaz X", 10, 160, 10000, {19, 28, 39, 50, 63, 76, 91, 107, 125}},
+    [56766] = {"Azurestone I", 1, 146, 35, {30}},
+    [56767] = {"Azurestone II", 2, 146, 86, {30, 40}},
+    [56768] = {"Azurestone III", 3, 146, 138, {30, 40, 51}},
+    [56769] = {"Azurestone IV", 4, 146, 297, {30, 40, 51, 64}},
+    [56770] = {"Azurestone V", 5, 146, 483, {30, 40, 51, 64, 77}},
+    [56771] = {"Azurestone VI", 6, 146, 622, {30, 40, 51, 64, 77, 92}},
+    [56772] = {"Azurestone VII", 7, 146, 841, {30, 40, 51, 64, 77, 92, 108}},
+    [56773] = {"Azurestone VIII", 8, 146, 1029, {30, 40, 51, 64, 77, 92, 108, 126}},
+    [56774] = {"Azurestone IX", 9, 146, 1205, {30, 40, 51, 64, 77, 92, 108, 126, 146}},
+    [56775] = {"Azurestone X", 10, 146, 1478, {30, 40, 51, 64, 77, 92, 108, 126, 146}},
+    [56779] = {"Black Pearl I", 1, 144, 22, {30}},
+    [56780] = {"Black Pearl II", 2, 144, 57, {30, 40}},
+    [56781] = {"Black Pearl III", 3, 144, 91, {30, 40, 51}},
+    [56782] = {"Black Pearl IV", 4, 144, 197, {30, 40, 51, 64}},
+    [56783] = {"Black Pearl V", 5, 144, 319, {30, 40, 51, 64, 77}},
+    [56784] = {"Black Pearl VI", 6, 144, 410, {30, 40, 51, 64, 77, 92}},
+    [56785] = {"Black Pearl VII", 7, 144, 554, {30, 40, 51, 64, 77, 92, 108}},
+    [56786] = {"Black Pearl VIII", 8, 144, 678, {30, 40, 51, 64, 77, 92, 108, 126}},
+    [56787] = {"Black Pearl IX", 9, 144, 794, {30, 40, 51, 64, 77, 92, 108, 126, 146}},
+    [56788] = {"Black Pearl X", 10, 144, 973, {30, 40, 51, 64, 77, 92, 108, 126, 146}},
+    [56789] = {"Red Jadeite I", 1, 150, 500, {30}},
+    [56790] = {"Red Jadeite II", 2, 150, 1500, {30, 40}},
+    [56791] = {"Red Jadeite III", 3, 150, 2500, {30, 40, 51}},
+    [56792] = {"Red Jadeite IV", 4, 150, 3500, {30, 40, 51, 64}},
+    [56793] = {"Red Jadeite V", 5, 150, 5000, {30, 40, 51, 64, 77}},
+    [56794] = {"Red Jadeite VI", 6, 150, 6500, {30, 40, 51, 64, 77, 92}},
+    [56795] = {"Red Jadeite VII", 7, 150, 8500, {30, 40, 51, 64, 77, 92, 108}},
+    [56796] = {"Red Jadeite VIII", 8, 150, 10500, {30, 40, 51, 64, 77, 92, 108, 126}},
+    [56797] = {"Red Jadeite IX", 9, 150, 13000, {30, 40, 51, 64, 77, 92, 108, 126, 146}},
+    [56798] = {"Red Jadeite X", 10, 150, 16000, {30, 40, 51, 64, 77, 92, 108, 126, 146}},
+    [56799] = {"Yellow Jadeite I", 1, 152, 500, {30}},
+    [56800] = {"Yellow Jadeite II", 2, 152, 1500, {30, 40}},
+    [56801] = {"Yellow Jadeite III", 3, 152, 2500, {30, 40, 51}},
+    [56802] = {"Yellow Jadeite IV", 4, 152, 3500, {30, 40, 51, 64}},
+    [56803] = {"Yellow Jadeite V", 5, 152, 5000, {30, 40, 51, 64, 77}},
+    [56804] = {"Yellow Jadeite VI", 6, 152, 6500, {30, 40, 51, 64, 77, 92}},
+    [56805] = {"Yellow Jadeite VII", 7, 152, 8500, {30, 40, 51, 64, 77, 92, 108}},
+    [56806] = {"Yellow Jadeite VIII", 8, 152, 10500, {30, 40, 51, 64, 77, 92, 108, 126}},
+    [56807] = {"Yellow Jadeite IX", 9, 152, 13000, {30, 40, 51, 64, 77, 92, 108, 126, 146}},
+    [56808] = {"Yellow Jadeite X", 10, 152, 16000, {30, 40, 51, 64, 77, 92, 108, 126, 146}},
+    [56809] = {"Blue Crystal I", 1, 149, 500, {30}},
+    [56810] = {"Blue Crystal II", 2, 149, 1500, {30, 40}},
+    [56811] = {"Blue Crystal III", 3, 149, 2500, {30, 40, 51}},
+    [56812] = {"Blue Crystal IV", 4, 149, 3500, {30, 40, 51, 64}},
+    [56813] = {"Blue Crystal V", 5, 149, 5000, {30, 40, 51, 64, 77}},
+    [56814] = {"Blue Crystal VI", 6, 149, 6500, {30, 40, 51, 64, 77, 92}},
+    [56815] = {"Blue Crystal VII", 7, 149, 8500, {30, 40, 51, 64, 77, 92, 108}},
+    [56816] = {"Blue Crystal VIII", 8, 149, 10500, {30, 40, 51, 64, 77, 92, 108, 126}},
+    [56817] = {"Blue Crystal IX", 9, 149, 13000, {30, 40, 51, 64, 77, 92, 108, 126, 146}},
+    [56818] = {"Blue Crystal X", 10, 149, 16000, {30, 40, 51, 64, 77, 92, 108, 126, 146}},
+    [56819] = {"Ink Jadeite I", 1, 151, 500, {30}},
+    [56820] = {"Ink Jadeite II", 2, 151, 1500, {30, 40}},
+    [56821] = {"Ink Jadeite III", 3, 151, 2500, {30, 40, 51}},
+    [56822] = {"Ink Jadeite IV", 4, 151, 3500, {30, 40, 51, 64}},
+    [56823] = {"Ink Jadeite V", 5, 151, 5000, {30, 40, 51, 64, 77}},
+    [56824] = {"Ink Jadeite VI", 6, 151, 6500, {30, 40, 51, 64, 77, 92}},
+    [56825] = {"Ink Jadeite VII", 7, 151, 8500, {30, 40, 51, 64, 77, 92, 108}},
+    [56826] = {"Ink Jadeite VIII", 8, 151, 10500, {30, 40, 51, 64, 77, 92, 108, 126}},
+    [56827] = {"Ink Jadeite IX", 9, 151, 13000, {30, 40, 51, 64, 77, 92, 108, 126, 146}},
+    [56828] = {"Ink Jadeite X", 10, 151, 16000, {30, 40, 51, 64, 77, 92, 108, 126, 146}},
+    [75278] = {"Rainbow Stone I", 1, 9, 506, {73}},
+    [75279] = {"Rainbow Stone II", 2, 9, 1253, {73, 87}},
+    [75280] = {"Rainbow Stone III", 3, 9, 1989, {73, 87, 102}},
+    [75281] = {"Rainbow Stone IV", 4, 9, 4266, {73, 87, 102, 118}},
+    [75282] = {"Rainbow Stone V", 5, 9, 6934, {73, 87, 102, 118, 136}},
+    [75283] = {"Rainbow Stone VI", 6, 9, 8912, {73, 87, 102, 118, 136, 156}},
+    [75284] = {"Rainbow Stone VII", 7, 9, 12017, {73, 87, 102, 118, 136, 156, 178}},
+    [75285] = {"Rainbow Stone VIII", 8, 9, 14708, {73, 87, 102, 118, 136, 156, 178, 201}},
+    [75286] = {"Rainbow Stone IX", 9, 9, 17227, {73, 87, 102, 118, 136, 156, 178, 201, 227}},
+    [75287] = {"Rainbow Stone X", 10, 9, 21068, {73, 87, 102, 118, 136, 156, 178, 201, 227}},
+    [75289] = {"Amazon Stone I", 1, 10, 210, {73}},
+    [75290] = {"Amazon Stone II", 2, 10, 510, {73, 87}},
+    [75291] = {"Amazon Stone III", 3, 10, 810, {73, 87, 102}},
+    [75292] = {"Amazon Stone IV", 4, 10, 1730, {73, 87, 102, 118}},
+    [75293] = {"Amazon Stone V", 5, 10, 2800, {73, 87, 102, 118, 136}},
+    [75294] = {"Amazon Stone VI", 6, 10, 3600, {73, 87, 102, 118, 136, 156}},
+    [75295] = {"Amazon Stone VII", 7, 10, 4860, {73, 87, 102, 118, 136, 156, 178}},
+    [75296] = {"Amazon Stone VIII", 8, 10, 5940, {73, 87, 102, 118, 136, 156, 178, 201}},
+    [75297] = {"Amazon Stone IX", 9, 10, 6960, {73, 87, 102, 118, 136, 156, 178, 201, 227}},
+    [75298] = {"Amazon Stone X", 10, 10, 8510, {73, 87, 102, 118, 136, 156, 178, 201, 227}},
+    [93445] = {"Premium Red Jadeite III", 3, 150, 2950, {34, 46, 58}},
+    [93446] = {"Premium Red Jadeite IV", 4, 150, 4175, {34, 46, 58, 73}},
+    [93447] = {"Premium Red Jadeite V", 5, 150, 5675, {34, 46, 58, 73, 88}},
+    [93448] = {"Premium Red Jadeite VI", 6, 150, 8450, {34, 46, 58, 73, 88, 105}},
+    [93449] = {"Premium Yellow Jadeite III", 3, 152, 2950, {34, 46, 58}},
+    [93450] = {"Premium Yellow Jadeite IV", 4, 152, 4175, {34, 46, 58, 73}},
+    [93451] = {"Premium Yellow Jadeite V", 5, 152, 5675, {34, 46, 58, 73, 88}},
+    [93452] = {"Premium Yellow Jadeite VI", 6, 152, 8450, {34, 46, 58, 73, 88, 105}},
+    [93453] = {"Premium Blue Crystal III", 3, 149, 2950, {34, 46, 58}},
+    [93454] = {"Premium Blue Crystal IV", 4, 149, 4175, {34, 46, 58, 73}},
+    [93455] = {"Premium Blue Crystal V", 5, 149, 5675, {34, 46, 58, 73, 88}},
+    [93456] = {"Premium Blue Crystal VI", 6, 149, 8450, {34, 46, 58, 73, 88, 105}},
+    [93457] = {"Premium Ink Jadeite III", 3, 151, 2950, {34, 46, 58}},
+    [93458] = {"Premium Ink Jadeite IV", 4, 151, 4175, {34, 46, 58, 73}},
+    [93459] = {"Premium Ink Jadeite V", 5, 151, 5675, {34, 46, 58, 73, 88}},
+    [93460] = {"Premium Ink Jadeite VI", 6, 151, 8450, {34, 46, 58, 73, 88, 105}},
+    [93461] = {"Premium Ruby III", 3, 129, 712, {12, 26, 39}},
+    [93462] = {"Premium Ruby IV", 4, 129, 1292, {12, 26, 39, 54}},
+    [93463] = {"Premium Ruby V", 5, 129, 1850, {12, 26, 39, 54, 72}},
+    [93464] = {"Premium Ruby VI", 6, 129, 2740, {12, 26, 39, 54, 72, 90}},
+    [93465] = {"Premium Sapphire III", 3, 130, 712, {12, 26, 39}},
+    [93466] = {"Premium Sapphire IV", 4, 130, 1292, {12, 26, 39, 54}},
+    [93467] = {"Premium Sapphire V", 5, 130, 1850, {12, 26, 39, 54, 72}},
+    [93468] = {"Premium Sapphire VI", 6, 130, 2740, {12, 26, 39, 54, 72, 90}},
+    [93469] = {"Premium Rock Crystal III", 3, 50, 267, {71, 86, 102}},
+    [93470] = {"Premium Rock Crystal IV", 4, 50, 484, {71, 86, 102, 120}},
+    [93471] = {"Premium Rock Crystal V", 5, 50, 694, {71, 86, 102, 120, 139}},
+    [93472] = {"Premium Rock Crystal VI", 6, 50, 1028, {71, 86, 102, 120, 139, 160}},
+    [93473] = {"Premium Garnet III", 3, 51, 267, {71, 86, 102}},
+    [93474] = {"Premium Garnet IV", 4, 51, 484, {71, 86, 102, 120}},
+    [93475] = {"Premium Garnet V", 5, 51, 694, {71, 86, 102, 120, 139}},
+    [93476] = {"Premium Garnet VI", 6, 51, 1028, {71, 86, 102, 120, 139, 160}},
+    [93477] = {"Premium Citrine III", 3, 53, 267, {71, 86, 102}},
+    [93478] = {"Premium Citrine IV", 4, 53, 484, {71, 86, 102, 120}},
+    [93479] = {"Premium Citrine V", 5, 53, 694, {71, 86, 102, 120, 139}},
+    [93480] = {"Premium Citrine VI", 6, 53, 1028, {71, 86, 102, 120, 139, 160}},
+    [93481] = {"Premium Amethyst III", 3, 52, 267, {71, 86, 102}},
+    [93482] = {"Premium Amethyst IV", 4, 52, 484, {71, 86, 102, 120}},
+    [93483] = {"Premium Amethyst V", 5, 52, 694, {71, 86, 102, 120, 139}},
+    [93484] = {"Premium Amethyst VI", 6, 52, 1028, {71, 86, 102, 120, 139, 160}},
+    [93485] = {"Premium White Agate III", 3, 58, 2950, {71, 86, 102}},
+    [93486] = {"Premium White Agate IV", 4, 58, 4175, {71, 86, 102, 120}},
+    [93487] = {"Premium White Agate V", 5, 58, 5675, {71, 86, 102, 120, 139}},
+    [93488] = {"Premium White Agate VI", 6, 58, 8450, {71, 86, 102, 120, 139, 160}},
+    [93489] = {"Premium Red Agate III", 3, 59, 2950, {71, 86, 102}},
+    [93490] = {"Premium Red Agarte IV", 4, 59, 4175, {71, 86, 102, 120}},
+    [93491] = {"Premium Red Agarte V", 5, 59, 5675, {71, 86, 102, 120, 139}},
+    [93492] = {"Premium Red Agarte VI", 6, 59, 8450, {71, 86, 102, 120, 139, 160}},
+    [93493] = {"Premium Yellow Agate III", 3, 61, 2950, {71, 86, 102}},
+    [93494] = {"Premium Yellow Agate IV", 4, 61, 4175, {71, 86, 102, 120}},
+    [93495] = {"Premium Yellow Agate V", 5, 61, 5675, {71, 86, 102, 120, 139}},
+    [93496] = {"Premium Yellow Agate VI", 6, 61, 8450, {71, 86, 102, 120, 139, 160}},
+    [93497] = {"Premium Green Agate III", 3, 60, 2950, {71, 86, 102}},
+    [93498] = {"Premium Green Agate IV", 4, 60, 4175, {71, 86, 102, 120}},
+    [93499] = {"Premium Green Agate V", 5, 60, 5675, {71, 86, 102, 120, 139}},
+    [93500] = {"Premium Green Agate VI", 6, 60, 8450, {71, 86, 102, 120, 139, 160}},
+    [93501] = {"Premium Aventurine III", 3, 145, 628, {45, 60, 77}},
+    [93502] = {"Premium Aventurine IV", 4, 145, 1142, {45, 60, 77, 96}},
+    [93503] = {"Premium Aventurine V", 5, 145, 1635, {45, 60, 77, 96, 116}},
+    [93504] = {"Premium Aventurine VI", 6, 145, 2421, {45, 60, 77, 96, 116, 138}},
+    [93505] = {"Premium Blue Coral III", 3, 4, 54, {29, 42, 59}},
+    [93506] = {"Premium Blue Coral IV", 4, 4, 99, {29, 42, 59, 75}},
+    [93507] = {"Premium Blue Coral V", 5, 4, 142, {29, 42, 59, 75, 95}},
+    [93508] = {"Premium Blue Coral VI", 6, 4, 210, {29, 42, 59, 75, 95, 114}},
+    [93509] = {"Premium Thorn Coral III", 3, 1, 100, {29, 42, 59}},
+    [93510] = {"Premium Thorn Coral IV", 4, 1, 182, {29, 42, 59, 75}},
+    [93511] = {"Premium Thorn Coral V", 5, 1, 260, {29, 42, 59, 75, 95}},
+    [93512] = {"Premium Thorn Coral VI", 6, 1, 386, {29, 42, 59, 75, 95, 114}},
+    [93513] = {"Premium Red Coral III", 3, 2, 99, {29, 42, 59}},
+    [93514] = {"Premium Red Coral IV", 4, 2, 180, {29, 42, 59, 75}},
+    [93515] = {"Premium Red Coral V", 5, 2, 257, {29, 42, 59, 75, 95}},
+    [93516] = {"Premium Red Coral VI", 6, 2, 380, {29, 42, 59, 75, 95, 114}},
+    [93517] = {"Premium Horn Coral III", 3, 5, 100, {29, 42, 59}},
+    [93518] = {"Premium Horn Coral IV", 4, 5, 182, {29, 42, 59, 75}},
+    [93519] = {"Premium Horn Coral V", 5, 5, 260, {29, 42, 59, 75, 95}},
+    [93520] = {"Premium Horn Coral VI", 6, 5, 386, {29, 42, 59, 75, 95, 114}},
+    [93521] = {"Premium Cave Coral III", 3, 3, 99, {29, 42, 59}},
+    [93522] = {"Premium Cave Coral IV", 4, 3, 180, {29, 42, 59, 75}},
+    [93523] = {"Premium Cave Coral V", 5, 3, 257, {29, 42, 59, 75, 95}},
+    [93524] = {"Premium Cave Coral VI", 6, 3, 380, {29, 42, 59, 75, 95, 114}},
+    [93525] = {"Premium White Jade III", 3, 157, 725, {19, 28, 39}},
+    [93526] = {"Premium White Jade IV", 4, 157, 1225, {19, 28, 39, 50}},
+    [93527] = {"Premium White Jade V", 5, 157, 1950, {19, 28, 39, 50, 63}},
+    [93528] = {"Premium White Jade VI", 6, 157, 3250, {19, 28, 39, 50, 63, 76}},
+    [93529] = {"Premium Green Jade III", 3, 159, 725, {19, 28, 39}},
+    [93530] = {"Premium Green Jade IV", 4, 159, 1225, {19, 28, 39, 50}},
+    [93531] = {"Premium Green Jade V", 5, 159, 1950, {19, 28, 39, 50, 63}},
+    [93532] = {"Premium Green Jade VI", 6, 159, 3250, {19, 28, 39, 50, 63, 76}},
+    [93533] = {"Premium Red Jade III", 3, 158, 725, {19, 28, 39}},
+    [93534] = {"Premium Red Jade IV", 4, 158, 1225, {19, 28, 39, 50}},
+    [93535] = {"Premium Red Jade V", 5, 158, 1950, {19, 28, 39, 50, 63}},
+    [93536] = {"Premium Red Jade VI", 6, 158, 3250, {19, 28, 39, 50, 63, 76}},
+    [93537] = {"Premium Yellow Jade III", 3, 160, 725, {19, 28, 39}},
+    [93538] = {"Premium Yellow Jade IV", 4, 160, 1225, {19, 28, 39, 50}},
+    [93539] = {"Premium Yellow Jade V", 5, 160, 1950, {19, 28, 39, 50, 63}},
+    [93540] = {"Premium Yellow Jade VI", 6, 160, 3250, {19, 28, 39, 50, 63, 76}},
+    [93541] = {"Premium Rainbow Stone III", 3, 9, 3013, {110, 131, 153}},
+    [93542] = {"Premium Rainbow Stone IV", 4, 9, 5466, {110, 131, 153, 177}},
+    [93543] = {"Premium Rainbow Stone V", 5, 9, 7824, {110, 131, 153, 177, 204}},
+    [93544] = {"Premium Rainbow Stone VI", 6, 9, 11585, {110, 131, 153, 177, 204, 234}},
+    [93545] = {"Premium Sunstone III", 3, 30, 707, {110, 131, 153}},
+    [93546] = {"Premium Sunstone IV", 4, 30, 1285, {110, 131, 153, 177}},
+    [93547] = {"Premium Sunstone V", 5, 30, 1838, {110, 131, 153, 177, 204}},
+    [93548] = {"Premium Sunstone VI", 6, 30, 2722, {110, 131, 153, 177, 204, 234}},
+    [93549] = {"Premium Amazon Stone III", 3, 10, 1224, {110, 131, 153}},
+    [93550] = {"Premium Amazon Stone IV", 4, 10, 2211, {110, 131, 153, 177}},
+    [93551] = {"Premium Amazon Stone V", 5, 10, 3160, {110, 131, 153, 177, 204}},
+    [93552] = {"Premium Amazon Stone VI", 6, 10, 4680, {110, 131, 153, 177, 204, 234}},
+    [93553] = {"Premium Moonstone III", 3, 41, 707, {110, 131, 153}},
+    [93554] = {"Premium Moonstone IV", 4, 41, 1285, {110, 131, 153, 177}},
+    [93555] = {"Premium Moonstone V", 5, 41, 1838, {110, 131, 153, 177, 204}},
+    [93556] = {"Premium Moonstone VI", 6, 41, 2722, {110, 131, 153, 177, 204, 234}},
+    [93557] = {"Premium Azurestone III", 3, 146, 209, {45, 60, 77}},
+    [93558] = {"Premium Azurestone IV", 4, 146, 380, {45, 60, 77, 96}},
+    [93559] = {"Premium Azurestone V", 5, 146, 545, {45, 60, 77, 96, 116}},
+    [93560] = {"Premium Azurestone VI", 6, 146, 808, {45, 60, 77, 96, 116, 138}},
+    [93561] = {"Premium Black Pearl III", 3, 144, 138, {45, 60, 77}},
+    [93562] = {"Premium Black Pearl IV", 4, 144, 251, {45, 60, 77, 96}},
+    [93563] = {"Premium Black Pearl V", 5, 144, 359, {45, 60, 77, 96, 116}},
+    [93564] = {"Premium Black Pearl VI", 6, 144, 533, {45, 60, 77, 96, 116, 138}},
+    [95899] = {"1\188\182\194\204\177\166\202\175", 1, 179, 223, {12}},
+    [95900] = {"2\188\182\194\204\177\166\202\175", 2, 179, 558, {12, 26}},
+    [95901] = {"3\188\182\194\204\177\166\202\175", 3, 179, 888, {12, 26, 39}},
+    [95902] = {"\163\168\211\197\214\202\181\196\163\1693\188\182\194\204\177\166\202\175", 3, 179, 1345, {12, 26, 39}},
+    [95903] = {"4\188\182\194\204\177\166\202\175", 4, 179, 1906, {12, 26, 39, 54}},
+    [95904] = {"\163\168\211\197\214\202\181\196\163\1694\188\182\194\204\177\166\202\175", 4, 179, 2441, {12, 26, 39, 54}},
+    [95905] = {"5\188\182\194\204\177\166\202\175", 5, 179, 3096, {12, 26, 39, 54, 72}},
+    [95906] = {"\163\168\211\197\214\202\181\196\163\1695\188\182\194\204\177\166\202\175", 5, 179, 3494, {12, 26, 39, 54, 72}},
+    [95907] = {"6\188\182\194\204\177\166\202\175", 6, 179, 3982, {12, 26, 39, 54, 72, 90}},
+    [95908] = {"\163\168\211\197\214\202\181\196\163\1696\188\182\194\204\177\166\202\175", 6, 179, 5175, {12, 26, 39, 54, 72, 90}},
+    [102555] = {"Thorn Coral I", 1, 1, 17, {19}},
+    [102556] = {"Thorn Coral II", 2, 1, 42, {19, 28}},
+    [102557] = {"Thorn Coral III", 3, 1, 66, {19, 28, 39}},
+    [102558] = {"Thorn Coral IV", 4, 1, 143, {19, 28, 39, 50}},
+    [102559] = {"Thorn Coral V", 5, 1, 230, {19, 28, 39, 50, 63}},
+    [102560] = {"Thorn Coral VI", 6, 1, 297, {19, 28, 39, 50, 63, 76}},
+    [102561] = {"Premium Thorn Coral III", 3, 1, 100, {19, 28, 39}},
+    [102562] = {"Premium Thorn Coral IV", 4, 1, 182, {19, 28, 39, 50}},
+    [102563] = {"Premium Thorn Coral V", 5, 1, 260, {19, 28, 39, 50, 63}},
+    [102564] = {"Horn Coral I", 1, 5, 17, {19}},
+    [102565] = {"Horn Coral II", 2, 5, 42, {19, 28}},
+    [102566] = {"Horn Coral III", 3, 5, 66, {19, 28, 39}},
+    [102567] = {"Horn Coral IV", 4, 5, 143, {19, 28, 39, 50}},
+    [102568] = {"Horn Coral V", 5, 5, 230, {19, 28, 39, 50, 63}},
+    [102569] = {"Horn Coral VI", 6, 5, 297, {19, 28, 39, 50, 63, 76}},
+    [102570] = {"Premium Horn Coral III", 3, 5, 100, {19, 28, 39}},
+    [102571] = {"Premium Horn Coral IV", 4, 5, 182, {19, 28, 39, 50}},
+    [102572] = {"Premium Horn Coral V", 5, 5, 260, {19, 28, 39, 50, 63}},
+}
+GC.UNIT = {[1] = 245, [2] = 243, [3] = 243, [4] = 134, [5] = 245, [9] = 7379, [10] = 2980, [30] = 1734, [41] = 1734, [50] = 654.5, [51] = 654.5, [52] = 654.5, [53] = 654.5, [58] = 5337.5, [59] = 5337.5, [60] = 5337.5, [61] = 5337.5, [129] = 1744.5, [130] = 1744.5, [144] = 339, [145] = 1542, [146] = 514, [149] = 5337.5, [150] = 5337.5, [151] = 5337.5, [152] = 5337.5, [157] = 1725, [158] = 1725, [159] = 1725, [160] = 1725, [179] = 3295}
+
+local function gc_check(item, on) pcall(DlgApi.CheckItem, GC.DLG, item, on and true or false) end
+local function gc_checked(item) local ok, c = pcall(DlgApi.IsItemChecked, GC.DLG, item); if ok then return c == true end end
+local function gc_pos(name)
+    local ok, p = pcall(DlgApi.GetDialogProp, name)
+    if ok and type(p) == "table" and finite(p.x) and finite(p.y) then return p.x, p.y end
+end
+local function gc_num(n)
+    local s = tostring(math.floor(n + 0.5))
+    while true do
+        local t, k = s:gsub("^(-?%d+)(%d%d%d)", "%1,%2")
+        s = t
+        if k == 0 then return s end
+    end
+end
+local function gc_range(a, b)
+    if a == nil then return "" end
+    return a == b and tostring(a) or (a .. "-" .. b)
+end
+local function gc_span(sec)
+    if sec <= 0 then return "now" end
+    local d, h, m = math.floor(sec / 86400), math.floor(sec % 86400 / 3600), math.floor(sec % 3600 / 60)
+    if d > 0 then return d .. "d " .. h .. "h" end
+    if h > 0 then return h .. "h " .. m .. "m" end
+    return math.max(m, 1) .. "m"
+end
+
+function GC:Set(item, text)
+    self.shownText = self.shownText or {}
+    if self.shownText[item] ~= text then self.shownText[item] = text; settext(self.DLG, item, text) end
+end
+
+---------------------------------------------------------------- settings (GemCleanser.ini next to ClientTweaks.ini)
+function GC:Path()
+    local p = O:Path()
+    local dir = p and p:match("^(.*[\\/])")
+    if dir then return dir .. "GemCleanser.ini" end
+end
+
+function GC:Load()
+    if self.loaded then return end
+    self.loaded = true
+    for _, c in ipairs(self.CATS) do self.tick[c.key] = c.on == true end
+    local path = self:Path()
+    if not path or not io or type(io.open) ~= "function" then return end
+    local ok, f = pcall(io.open, path, "rb")
+    if not ok or not f then return end
+    local okR, text = pcall(f.read, f, "*a"); pcall(f.close, f)
+    if not okR or type(text) ~= "string" then return end
+    for _, c in ipairs(self.CATS) do
+        local v = text:match("\n" .. c.key .. "%s*=%s*(%d)")
+        if v then self.tick[c.key] = v ~= "0" end
+    end
+    local b = tonumber(text:match("budget%s*=%s*(%d+)") or "")
+    if b then self.budget = math.max(0, math.min(9999, b)) end
+    for kind, n in text:gmatch("keep=([^|\r\n]+)|(%d+)") do self.keep[kind] = math.min(9, tonumber(n)) end
+end
+
+function GC:Save()
+    local path = self:Path()
+    if not path or not io or type(io.open) ~= "function" then return end
+    local lines = {"[GemCleanser]", "budget=" .. self.budget}
+    for _, c in ipairs(self.CATS) do table.insert(lines, c.key .. "=" .. (self.tick[c.key] and "1" or "0")) end
+    local kinds = {}
+    for kind in pairs(self.keep) do table.insert(kinds, kind) end
+    table.sort(kinds)
+    for _, kind in ipairs(kinds) do table.insert(lines, "keep=" .. kind .. "|" .. self.keep[kind]) end
+    local ok, f = pcall(io.open, path, "wb")
+    if not ok or not f then return end
+    pcall(f.write, f, table.concat(lines, "\r\n") .. "\r\n")
+    pcall(f.close, f)
+end
+
+---------------------------------------------------------------- reading the game
+local function gc_dword(hex, i)
+    local b1, b2, b3, b4 = tonumber(hex:sub(i, i + 1), 16), tonumber(hex:sub(i + 2, i + 3), 16),
+        tonumber(hex:sub(i + 4, i + 5), 16), tonumber(hex:sub(i + 6, i + 7), 16)
+    if not (b1 and b2 and b3 and b4) then return nil end
+    local v = b1 + b2 * 256 + b3 * 65536 + b4 * 16777216
+    if v >= 2147483648 then v = v - 4294967296 end
+    return v
+end
+
+function GC:Category(t)
+    for _, c in ipairs(self.CATS) do
+        for _, x in ipairs(c.types) do if x == t then return c end end
+    end
+    return self.CATS[#self.CATS]
+end
+
+function GC:GearName(tid)
+    local n = self.names[tid]
+    if n == nil then
+        local ok, nm = pcall(GameApi.GetItemInfo, tid)
+        n = (ok and type(nm) == "string" and nm ~= "") and (nm:gsub("%^%x%x%x%x%x%x", "")) or ("Item " .. tid)
+        self.names[tid] = n
+    end
+    return n
+end
+
+-- equipped gems with their state; false when the natives are missing
+function GC:Read()
+    if type(GameApi.GemSockets) ~= "function" or type(GameApi.GemOven) ~= "function" then return false end
+    local ok, crystals, stove, nextT, srv, mode, sel, pending, t0, l0, t1, l1, t2, l2, inSlot, inPack, fx =
+        pcall(GameApi.GemOven)
+    if not ok or not finite(crystals) then return false end
+    self.oven = {crystals = crystals, stove = stove, next = nextT, now = srv, mode = mode, sel = sel,
+        pending = pending ~= 0, tid = {t0, t1, t2}, lv = {l0, l1, l2}, inSlot = inSlot, inPack = inPack, fx = fx}
+    local okS, hex = pcall(GameApi.GemSockets)
+    if not okS or type(hex) ~= "string" then return false end
+    local socks = {}
+    for i = 1, #hex - 55, 56 do
+        local pack, slot, h, tid, lv, exp, gear = gc_dword(hex, i), gc_dword(hex, i + 8), gc_dword(hex, i + 16),
+            gc_dword(hex, i + 24), gc_dword(hex, i + 32), gc_dword(hex, i + 40), gc_dword(hex, i + 48)
+        if slot and tid and tid > 0 then
+            local gem = self.GEMS[tid]
+            table.insert(socks, {pack = pack, slot = slot, h = h, tid = tid, lv = lv, exp = exp, gear = gear, gem = gem,
+                kind = gem and self:Kind(gem[1])})
+        end
+    end
+    self.socks = socks
+    return true
+end
+
+---------------------------------------------------------------- the plan
+function GC:Pct(g, L) return L > 0 and (g[5][L] or 0) or 0 end
+function GC:Stat(g, L) return math.floor(g[4] * (100 + self:Pct(g, L)) / 100) end
+function GC:MaxLevel(g)
+    if not g or g[2] > 9 then return 0 end
+    return math.min(g[2], #g[5], 9, math.max(self.oven and self.oven.stove or 0, 0))
+end
+function GC:Value(g, L) return g[4] * self:Pct(g, L) / 100 / (self.UNIT[g[3]] or g[4]) end
+
+-- the gem kind a "keep at" level belongs to: the name without its level ("Garnet VI" -> "Garnet")
+function GC:Kind(name)
+    local k = name:gsub("%s+[IVX]+$", ""):gsub("%s+LV%d+$", ""):gsub("%s+%d+$", "")
+    return k
+end
+
+-- gems with a "keep at" level get exactly that (up to their max) and their upkeep first; the planner shares the rest
+-- of the budget among the ticked gems that have no fixed level
+function GC:Plan()
+    local used = 0
+    for _, s in ipairs(self.socks) do
+        s.target = 0
+        s.max = self:MaxLevel(s.gem)
+        local keep = s.kind and self.keep[s.kind]
+        s.fixed = keep ~= nil
+        s.wanted = s.gem ~= nil and (s.fixed or self.tick[self:Category(s.gem[3]).key] == true)
+        if s.fixed then
+            s.target = math.min(keep, s.max)
+            if s.target > 0 then used = used + self.COST[s.target] end
+        end
+    end
+    self.fixedUpkeep = used
+    -- the rest: an exact knapsack over (gem, level) - upkeep COST[level], value Value(level) - so the most gain that
+    -- fits, not just the cheapest steps first
+    local free, top = {}, 0
+    for _, s in ipairs(self.socks) do
+        if s.wanted and not s.fixed and s.max > 0 then
+            local vals = {}
+            for L = 1, s.max do vals[L] = self:Value(s.gem, L) end
+            table.insert(free, {s = s, vals = vals})
+            top = top + self.COST[s.max]
+        end
+    end
+    local cap = math.min(math.max(0, self.budget - used), top)
+    local best, picks = {}, {}
+    for c = 0, cap do best[c] = 0 end
+    for k, f in ipairs(free) do
+        local nb, pick = {}, {}
+        for c = 0, cap do
+            local bv, bl = best[c], 0
+            for L = 1, f.s.max do
+                local cost = self.COST[L]
+                if cost > c then break end
+                local v = best[c - cost] + f.vals[L]
+                if v > bv + 1e-9 then bv, bl = v, L end
+            end
+            nb[c], pick[c] = bv, bl
+        end
+        best, picks[k] = nb, pick
+    end
+    local c = cap
+    for k = #free, 1, -1 do
+        local L = picks[k][c]
+        free[k].s.target = L
+        if L > 0 then c, used = c - self.COST[L], used + self.COST[L] end
+    end
+    local crystals, coins, gain = 0, 0, {}
+    for _, s in ipairs(self.socks) do
+        if s.wanted and s.target > s.lv then
+            for L = s.lv + 1, s.target do crystals, coins = crystals + self.COST[L], coins + self.COINS end
+            local t = s.gem[3]
+            gain[t] = (gain[t] or 0) + self:Stat(s.gem, s.target) - self:Stat(s.gem, s.lv)
+        end
+    end
+    self.upkeep, self.needCrystals, self.needCoins, self.gain = used, crystals, coins, gain
+end
+
+-- cost of Clean now (server: COST[L] - int(time left x COST[L] / 30 days))
+function GC:CleanCost(s)
+    local left = s.exp - (self.oven.now or 0)
+    if s.lv <= 0 or left <= 0 then return nil end
+    local c = self.COST[s.lv]
+    return math.max(0, c - math.floor(left * c / self.SPAN))
+end
+
+-- gems that expire within 5 days come first: an upgrade when it is planned and affordable (it restarts the 30 days
+-- too), else a Clean; then the other upgrades, most gain per crystal first
+function GC:Actions()
+    local list = {}
+    local have = self.oven and self.oven.crystals or 0
+    for _, s in ipairs(self.socks) do
+        local left = s.exp - (self.oven.now or 0)
+        local urgent = s.wanted and s.lv > 0 and s.target >= s.lv and left < self.REFRESH
+        if s.wanted and s.target > s.lv and s.lv < s.max then
+            local L = s.lv + 1
+            local score = (self:Value(s.gem, L) - self:Value(s.gem, s.lv)) / self.COST[L]
+            local key = (urgent and self.COST[L] <= have) and (-1e9 + left) or -score
+            table.insert(list, {sock = s, kind = "up", level = L, cost = self.COST[L], key = key})
+            if key < -1e8 then urgent = false end
+        end
+        local cost = urgent and self:CleanCost(s)
+        if cost then table.insert(list, {sock = s, kind = "clean", cost = cost, key = -1e9 + left}) end
+    end
+    table.sort(list, function(a, b) return a.key < b.key end)
+    return list
+end
+
+-- what (one line) and the gain / cost (second line)
+function GC:Describe(a)
+    local s = a.sock
+    if a.kind == "clean" then
+        return string.format("Clean %s (%s, socket %d), level %d", s.gem[1], self:GearName(s.gear), s.h + 1, s.lv),
+            string.format("keeps level %d for 30 more days (%s left now)  |  costs %d crystals", s.lv,
+                gc_span(s.exp - (self.oven.now or 0)), a.cost)
+    end
+    return string.format("Cleanse %s (%s, socket %d) to level %d", s.gem[1], self:GearName(s.gear), s.h + 1, a.level),
+        string.format("%s %+d  |  costs %d crystals + %s (Notes first, then Coins)", self.SHORT[s.gem[3]] or "",
+            self:Stat(s.gem, a.level) - self:Stat(s.gem, s.lv), a.cost, gc_num(self.COINS))
+end
+
+---------------------------------------------------------------- window
+function GC:Dock()
+    local anchor = shown(self.MAIN) and self.MAIN or self.HOST
+    pcall(DlgApi.SetDialogPosition, self.DLG, 0, 0, anchor, AUIDIALOG_ALIGN_OUTSIDE, AUIDIALOG_ALIGN_LEFT,
+        AUIDIALOG_ALIGN_INSIDE, AUIDIALOG_ALIGN_TOP)
+    self.anchorX, self.anchorY = gc_pos(anchor)
+end
+
+function GC:PaintTicks()
+    for i, c in ipairs(self.CATS) do gc_check("Chk_Cat" .. i, self.tick[c.key]) end
+    gc_check("Chk_NotesFirst", true)                        -- the game always takes Notes first for cleansing
+    pcall(DlgApi.EnableItem, self.DLG, "Chk_NotesFirst", false)
+    settext(self.DLG, "Edt_Budget", tostring(self.budget))
+    self.shownBudget = tostring(self.budget)
+end
+
+function GC:ReadControls()
+    local changed = false
+    for i, c in ipairs(self.CATS) do
+        local v = gc_checked("Chk_Cat" .. i)
+        if v ~= nil and v ~= self.tick[c.key] then self.tick[c.key], changed = v, true end
+    end
+    local ok, txt = pcall(DlgApi.GetItemText, self.DLG, "Edt_Budget")
+    if ok and type(txt) == "string" and txt ~= self.shownBudget then
+        local n = tonumber(txt)
+        if n then
+            n = math.max(0, math.min(9999, math.floor(n)))
+            if n ~= self.budget then self.budget, changed = n, true end
+        end
+        self.shownBudget = txt
+    end
+    if changed then self:Save() end
+end
+
+-- the gem kinds over all the gear: count, levels now / planned, the max any of them can reach, levels still to
+-- cleanse, the earliest expiry of a kept level (dueLeft) and whether one is due for a Clean (urgent)
+function GC:Kinds()
+    local list, by = {}, {}
+    local now = self.oven and self.oven.now or 0
+    for _, s in ipairs(self.socks) do
+        local k = s.kind or ("Gem " .. s.tid)
+        local e = by[k]
+        if not e then
+            e = {kind = k, gem = s.gem, n = 0, top = 0, steps = 0, wanted = false, drop = false, urgent = false,
+                fixed = self.keep[k] ~= nil}
+            by[k] = e
+            table.insert(list, e)
+        end
+        e.n = e.n + 1
+        e.top = math.max(e.top, s.max or 0)
+        e.lvMin, e.lvMax = math.min(e.lvMin or s.lv, s.lv), math.max(e.lvMax or s.lv, s.lv)
+        if s.wanted then
+            e.wanted = true
+            e.tMin, e.tMax = math.min(e.tMin or s.target, s.target), math.max(e.tMax or s.target, s.target)
+            if s.target > s.lv then e.steps = e.steps + s.target - s.lv end
+            if s.target < s.lv then e.drop = true end
+            if s.lv > 0 and s.target >= s.lv then
+                local left = s.exp - now
+                if not e.dueLeft or left < e.dueLeft then e.dueLeft = left end
+                if left < self.REFRESH then e.urgent = true end
+            end
+        end
+    end
+    table.sort(list, function(a, b)
+        if a.wanted ~= b.wanted then return a.wanted end
+        return a.kind < b.kind
+    end)
+    return list
+end
+
+function GC:Paint()
+    local o = self.oven
+    local cap = self.CAP[o.stove] or 0
+    local nextIn = (o.next or 0) - (o.now or 0)
+    local line = string.format("Crystals %d / %d", o.crystals, cap)
+    if o.stove <= 0 then
+        line = line .. "  |  the stove makes none yet"
+    elseif o.crystals >= cap then
+        line = line .. "  |  FULL: none are made until you spend some"
+    else
+        line = line .. "  |  next in " .. gc_span(nextIn) .. " (+12 a day)"
+    end
+    line = line .. string.format("  |  Stove %d: cleanse up to level %d", o.stove, math.min(o.stove, 9))
+    self:Set("Txt_Crystals", line)
+    self:Set("Txt_Plan", string.format("Plan upkeep %d / %d crystals per 30 days%s  |  to finish: %d crystals + %s (Notes first)",
+        self.upkeep, self.budget, self.upkeep > self.budget and " (kept levels: over budget)" or "", self.needCrystals,
+        gc_num(self.needCoins)))
+    local parts = {}
+    for t, v in pairs(self.gain) do if v ~= 0 then table.insert(parts, {t, v}) end end
+    table.sort(parts, function(a, b) return a[1] < b[1] end)
+    local g = {}
+    for _, p in ipairs(parts) do table.insert(g, (self.SHORT[p[1]] or "?") .. " " .. string.format("%+d", p[2])) end
+    self:Set("Txt_Gain", #g > 0 and ("Plan gain: " .. table.concat(g, "   ")) or
+        (#self.socks == 0 and "No gems on your equipped gear." or "Plan gain: nothing more for the ticked gems."))
+    -- rows: one per gem kind over all the gear, ticked / kept kinds first
+    local rows = self:Kinds()
+    local pages = math.max(1, math.ceil(#rows / self.ROWS))
+    if self.page > pages then self.page = pages end
+    self:Set("Txt_Page", self.page .. " / " .. pages)
+    self.rowKinds = {}
+    for i = 1, self.ROWS do
+        local e = rows[(self.page - 1) * self.ROWS + i]
+        local name, stat, now, keep, plan, act = "", "", "", "", "", ""
+        local adjustable = e ~= nil and e.top > 0
+        self.rowKinds[i] = adjustable and e.kind or nil
+        for _, b in ipairs({"Btn_Dn", "Btn_Up", "Btn_Au"}) do pcall(DlgApi.ShowItem, self.DLG, b .. i, adjustable) end
+        if e then
+            name = e.kind .. (e.n > 1 and ("  x" .. e.n) or "")
+            stat = e.gem and (self.SHORT[e.gem[3]] or "") or ""
+            now = gc_range(e.lvMin, e.lvMax)
+            if not e.gem then
+                act = "cannot cleanse"
+            elseif e.top <= 0 then
+                act = e.gem[2] > 9 and "lv 10: no cleanse" or "stove too low"
+            else
+                keep = e.fixed and (self.keep[e.kind] .. "*") or "auto"
+                plan = e.wanted and (gc_range(e.tMin, e.tMax) .. " (" .. e.top .. ")") or ("- (" .. e.top .. ")")
+                local due = e.dueLeft and gc_span(e.dueLeft)
+                if e.steps > 0 then
+                    act = "+" .. e.steps .. (e.steps == 1 and " level" or " levels") .. (e.urgent and (", " .. due) or "")
+                elseif e.fixed and self.keep[e.kind] == 0 then
+                    act = e.lvMax > 0 and "let drop" or "kept at 0"
+                elseif not e.wanted then
+                    act = "not ticked"
+                elseif e.drop then
+                    act = "let drop"
+                elseif e.urgent then
+                    act = "clean, " .. due
+                elseif e.lvMax > 0 then
+                    act = "ok, " .. (due or "")
+                else
+                    act = "over budget"
+                end
+            end
+        end
+        self:Set("Txt_N" .. i, name); self:Set("Txt_S" .. i, stat); self:Set("Txt_L" .. i, now)
+        self:Set("Txt_K" .. i, keep); self:Set("Txt_P" .. i, plan); self:Set("Txt_A" .. i, act)
+    end
+    local acts = self:Actions()
+    self.actions = acts
+    local first = acts[1]
+    local what, detail = "nothing to do - every ticked gem is at its planned level.", ""
+    if first then what, detail = self:Describe(first) end
+    self:Set("Txt_Next", "Next: " .. what)
+    self:Set("Txt_Next2", detail)
+    pcall(DlgApi.EnableItem, self.DLG, "Btn_DoNext", first ~= nil and not self.run)
+    self:Set("Btn_Auto", self.run and self.run.auto and "Stop" or "Auto")
+end
+
+function GC:Status(text) self:Set("Txt_Status", text or "") end
+
+function GC:Refresh()
+    if not self:Read() then
+        self:Status("The Gem Cleanser needs the updated xajh.exe (GameApi.GemSockets).")
+        return false
+    end
+    self:Plan()
+    self:Paint()
+    return true
+end
+
+---------------------------------------------------------------- doing it
+function GC:Sock(pack, slot, h)
+    for _, s in ipairs(self.socks) do if s.pack == pack and s.slot == slot and s.h == h then return s end end
+end
+
+-- the "keep at" buttons of row i (a gem kind): -1 / +1 from the level shown (kept, else the highest planned), capped
+-- at the highest level any gem of the kind can reach; "A" hands the kind back to the planner
+function GC:KeepStep(i, d)
+    local kind = self.rowKinds and self.rowKinds[i]
+    if not kind then return end
+    local top, planned = 0, 0
+    for _, s in ipairs(self.socks) do
+        if s.kind == kind then
+            top = math.max(top, s.max or 0)
+            planned = math.max(planned, s.wanted and s.target or s.lv)
+        end
+    end
+    local now = self.keep[kind] or planned
+    self.keep[kind] = math.max(0, math.min(top, now + d))
+    self:Save()
+    if shown(self.DLG) then self:Refresh() end
+end
+
+function GC:KeepAuto(i)
+    local kind = self.rowKinds and self.rowKinds[i]
+    if not kind or self.keep[kind] == nil then return end
+    self.keep[kind] = nil
+    self:Save()
+    if shown(self.DLG) then self:Refresh() end
+end
+
+-- the dialog shows this gear: its pack / slot (two pieces can carry identical gems), and its sockets show the gear's
+-- current gems
+function GC:DialogHolds(pack, slot)
+    local o = self.oven
+    if o.mode ~= 2 then return false end
+    if finite(o.inSlot) and (o.inSlot ~= slot or o.inPack ~= pack) then return false end
+    for h = 0, 2 do
+        local s = self:Sock(pack, slot, h)
+        local want = s and s.tid or 0
+        if (o.tid[h + 1] or 0) ~= want then return false end
+        if s and (o.lv[h + 1] or 0) ~= s.lv then return false end
+    end
+    return true
+end
+
+function GC:Start(auto)
+    if self.run then return end
+    self:Refresh()
+    local a = self:Pick()
+    if not a then self:Status(auto and "Nothing to do that your crystals can pay for." or "Nothing to do."); return end
+    self.run = {auto = auto, count = 0}
+    self:Begin(a, 0)
+end
+
+-- the first action the crystals can pay for
+function GC:Pick()
+    for _, a in ipairs(self:Actions()) do
+        if a.cost <= (self.oven and self.oven.crystals or 0) then return a end
+    end
+end
+
+function GC:Begin(a, now)
+    local r = self.run
+    r.act, r.phase, r.t, r.tries, r.retries = a, "put", now, 0, 0
+    r.pack, r.slot, r.h, r.lv0, r.exp0 = a.sock.pack, a.sock.slot, a.sock.h, a.sock.lv, a.sock.exp
+    self:Status((r.auto and "Auto: " or "") .. (self:Describe(a)))
+end
+
+function GC:Stop(msg)
+    self.run = nil
+    if msg then self:Status(msg) end
+    if shown(self.DLG) then self:Refresh() end
+end
+
+function GC:Step(now)
+    local r = self.run
+    if not shown(self.HOST) then self:Stop("Stopped: the Gem Cleansing page was closed."); return end
+    if not self:Read() then self:Stop("Stopped: could not read the gems."); return end
+    local a = r.act
+    if r.phase == "put" then
+        if self:DialogHolds(r.pack, r.slot) then r.phase, r.tries = "select", 0; return end
+        if now - r.t < 400 and r.tries > 0 then return end
+        if r.tries >= 3 then self:Stop("Stopped: the gear did not go into the Gem Cleansing window."); return end
+        pcall(GameApi.GemPurifyPut, r.pack, r.slot)
+        r.tries, r.t = r.tries + 1, now
+    elseif r.phase == "select" then
+        local ok, v = pcall(GameApi.GemPurifySelect, r.h)
+        if not ok or v ~= 1 then self:Stop("Stopped: could not pick socket " .. (r.h + 1) .. "."); return end
+        r.phase, r.t = "press", now
+    elseif r.phase == "press" then
+        if a.cost > self.oven.crystals then self:Stop("Stopped: not enough crystals."); return end
+        -- the game sends a press only after the effect of the last cleanse has stopped, and drops it 1 s after the
+        -- press if the effect still plays - so wait for it first
+        if finite(self.oven.fx) and self.oven.fx > 0 then
+            if now - r.t > 10000 then self:Stop("Stopped: the Gem Cleansing effect did not finish.") end
+            return
+        end
+        local kind = a.kind == "up" and 0 or (r.auto and 2 or 1)
+        local ok, v = pcall(GameApi.GemPurifyPress, kind)
+        if ok and v == 1 then
+            r.phase, r.t, r.kind, r.sent, r.idle = "wait", now, kind, false, nil
+        elseif now - r.t > 3000 then
+            self:Stop("Stopped: the Gem Cleansing window stayed busy.")
+        end
+    elseif r.phase == "wait" then
+        local s = self:Sock(r.pack, r.slot, r.h)
+        local done = s and ((a.kind == "up" and s.lv == a.level) or (a.kind == "clean" and s.exp > r.exp0))
+        local o = self.oven
+        -- sending starts the effect; no effect, no pending request and no change = the game dropped the press (or
+        -- refused it with a message): press again, at most 3 times
+        if finite(o.fx) and o.fx > 0 then r.sent = true end
+        local dropped = not done and not r.sent and r.kind ~= 1 and finite(o.fx) and o.fx == 0 and not o.pending
+        if dropped then r.idle = r.idle or now else r.idle = nil end
+        if dropped and now - r.idle > 1500 then
+            r.retries = (r.retries or 0) + 1
+            if r.retries > 3 then
+                self:Stop("Stopped: the game did not take the press 3 times (see its message?).")
+                return
+            end
+            r.phase, r.t = "select", now
+            return
+        end
+        if done then
+            r.count = r.count + 1
+            self:Plan()
+            if not r.auto then self:Stop("Done: " .. (self:Describe(a))); return end
+            r.phase, r.t = "gap", now
+        elseif now - r.t > (r.kind == 1 and 30000 or 6000) then
+            self:Stop(r.kind == 1 and "Clean was not confirmed." or
+                "Stopped: nothing changed (not enough crystals or coins?).")
+        end
+    elseif r.phase == "gap" then
+        if now - r.t < 400 then return end
+        self:Plan()
+        local nxt = self:Pick()
+        if not nxt then
+            self:Stop(string.format("Auto finished: %d done. %s", r.count,
+                #self:Actions() > 0 and "Waiting for more crystals." or "Every ticked gem is at its planned level."))
+            return
+        end
+        self:Begin(nxt, now)
+    end
+end
+
+function GC:DoNext() if self.run then return end; self:Start(false) end
+function GC:Auto() if self.run then self:Stop("Stopped.") else self:Start(true) end end
+function GC:PageBy(d) self.page = math.max(1, self.page + d); if shown(self.DLG) then self:Refresh() end end
+function GC:Close() if self.run then self:Stop("Stopped.") end; self.userClosed = true; show(self.DLG, false) end
+
+function GC:Tick(now)
+    local open = shown(self.HOST)
+    if not open then
+        if self.run then self:Stop("Stopped: the Gem Cleansing page was closed.") end
+        if self.hostOpen then
+            self.hostOpen, self.userClosed = false, false
+            if shown(self.DLG) then show(self.DLG, false) end
+        end
+        return
+    end
+    self:Load()
+    if not self.hostOpen then
+        self.hostOpen = true
+        if self.userClosed then return end
+        show(self.DLG, true)
+        self.shownText = {}
+        self:Dock()
+        self:PaintTicks()
+        self:Refresh()
+        return
+    end
+    if not shown(self.DLG) then return end
+    local ax, ay = gc_pos(shown(self.MAIN) and self.MAIN or self.HOST)
+    if ax and (ax ~= self.anchorX or ay ~= self.anchorY) then self:Dock() end
+    if self.run then
+        if now >= self.nextRead then self.nextRead = now + 150; self:Step(now) end
+        return
+    end
+    if now < self.nextRead then return end
+    self.nextRead = now + 500
+    self:ReadControls()
+    self:Refresh()
+end
+
+---------------------------------------------------------------- Multi Disassembly
+-- Win_GearSplit docks to the left of the Equipment Service window while its Disassemble page (Win_EquipServ_Seperate)
+-- is open. It lists every piece of gear in the bag (packs 2-4) that the game would accept for disassembly
+-- (GameApi.GearScan: the page's own controller check + the gear's EQUIP_DECOMPOSE_CONFIG: charm, coins, reward).
+-- Tick the gear, Disassemble (twice: the second click confirms), and it does them one by one with the page itself:
+-- GearPut(gear) -> GearPut(a Disassembly Charm stack with enough charms: for bound gear bound charms first, for unbound
+-- gear unbound charms first, only the kinds that are ticked) -> GearPress (the game's Disassemble, without its "will be
+-- bound" box) -> waits until the gear has left the bag. Stops when charms run out, the game refuses (coins), the
+-- server does not answer for 15 s, the page is closed or Stop is pressed.
+local GS = {DLG = "Win_GearSplit", HOST = "Win_EquipServ_Seperate", MAIN = "Win_EquipServ_Main",
+    PACKS = {2, 3, 4}, ROWS = 12, WAIT = 15000, GAP = 500, CONFIRM = 4000,
+    useUnbound = true, useBound = true, pick = {}, page = 1, nextRead = 0, names = {}}
+U.GearSplit = GS
+
+local function gs_checked(item) local ok, c = pcall(DlgApi.IsItemChecked, GS.DLG, item); if ok then return c == true end end
+local function gs_pos(name)
+    local ok, p = pcall(DlgApi.GetDialogProp, name)
+    if ok and type(p) == "table" and finite(p.x) and finite(p.y) then return p.x, p.y end
+end
+local function gs_num(n)
+    local s = tostring(math.floor(n + 0.5))
+    while true do
+        local t, k = s:gsub("^(-?%d+)(%d%d%d)", "%1,%2")
+        s = t
+        if k == 0 then return s end
+    end
+end
+local function gs_dword(hex, i)
+    local b1, b2, b3, b4 = tonumber(hex:sub(i, i + 1), 16), tonumber(hex:sub(i + 2, i + 3), 16),
+        tonumber(hex:sub(i + 4, i + 5), 16), tonumber(hex:sub(i + 6, i + 7), 16)
+    if not (b1 and b2 and b3 and b4) then return nil end
+    return b1 + b2 * 256 + b3 * 65536 + b4 * 16777216
+end
+-- IEEE single from its 32 bits
+local function gs_float(u)
+    if not u or u == 0 then return 0 end
+    local sign = u >= 2147483648 and -1 or 1
+    local e = math.floor(u / 8388608) % 256
+    local m = u % 8388608
+    if e == 0 then return sign * m * 2 ^ -149 end
+    return sign * (1 + m / 8388608) * 2 ^ (e - 127)
+end
+
+function GS:Set(item, text)
+    self.shownText = self.shownText or {}
+    if self.shownText[item] ~= text then self.shownText[item] = text; settext(self.DLG, item, text) end
+end
+function GS:Status(text) self:Set("Txt_Status", text or "") end
+
+function GS:Name(tid)
+    local n = self.names[tid]
+    if n == nil then
+        local ok, nm = pcall(GameApi.GetItemInfo, tid)
+        n = (ok and type(nm) == "string" and nm ~= "") and (nm:gsub("%^%x%x%x%x%x%x", "")) or ("Item " .. tid)
+        self.names[tid] = n
+    end
+    return n
+end
+
+---------------------------------------------------------------- settings (GearSplit.ini next to ClientTweaks.ini)
+function GS:Path()
+    local p = O:Path()
+    local dir = p and p:match("^(.*[\\/])")
+    if dir then return dir .. "GearSplit.ini" end
+end
+
+function GS:Load()
+    if self.loaded then return end
+    self.loaded = true
+    local path = self:Path()
+    if not path or not io or type(io.open) ~= "function" then return end
+    local ok, f = pcall(io.open, path, "rb")
+    if not ok or not f then return end
+    local okR, text = pcall(f.read, f, "*a"); pcall(f.close, f)
+    if not okR or type(text) ~= "string" then return end
+    local u, b = text:match("unbound%s*=%s*(%d)"), text:match("\nbound%s*=%s*(%d)")
+    if u then self.useUnbound = u ~= "0" end
+    if b then self.useBound = b ~= "0" end
+end
+
+function GS:Save()
+    local path = self:Path()
+    if not path or not io or type(io.open) ~= "function" then return end
+    local ok, f = pcall(io.open, path, "wb")
+    if not ok or not f then return end
+    pcall(f.write, f, "[GearSplit]\r\nunbound=" .. (self.useUnbound and "1" or "0") .. "\r\nbound=" ..
+        (self.useBound and "1" or "0") .. "\r\n")
+    pcall(f.close, f)
+end
+
+---------------------------------------------------------------- reading the bag
+function GS:Read()
+    if type(GameApi.GearScan) ~= "function" then return false end
+    local items = {}
+    for _, pack in ipairs(self.PACKS) do
+        local ok, hex = pcall(GameApi.GearScan, pack)
+        if ok and type(hex) == "string" then
+            for i = 1, #hex - 95, 96 do
+                local d = {}
+                for k = 0, 11 do d[k] = gs_dword(hex, i + k * 8) end
+                if d[0] and d[1] and d[1] > 0 then
+                    local bound = d[3] % 2 == 1
+                    -- the server's currency (gs EquipDecompose): recipe type 1 Notes, 2 Coins, 0 by the gear's binding
+                    local notes = d[6] == 1 or (d[6] == 0 and bound)
+                    table.insert(items, {pack = pack, slot = d[0], tid = d[1], count = d[2], bound = bound,
+                        can = math.floor(d[3] / 2) % 2 == 1, charm = d[4], need = d[5], coinType = d[6], coins = d[7],
+                        notes = notes, reward = d[8], chance = gs_float(d[9]), rewardCoins = d[10],
+                        key = pack .. ":" .. d[0] .. ":" .. d[1]})
+                end
+            end
+        end
+    end
+    self.items = items
+    local gear = {}
+    for _, it in ipairs(items) do if it.can then table.insert(gear, it) end end
+    self.gear = gear
+    return true
+end
+
+-- charm stacks of tid in the bag: unbound and bound totals
+function GS:CharmTotals(tid)
+    local u, b = 0, 0
+    for _, it in ipairs(self.items) do
+        if it.tid == tid then if it.bound then b = b + it.count else u = u + it.count end end
+    end
+    return u, b
+end
+
+-- a stack with at least need charms of tid, in the order the gear wants (bound gear: bound first)
+function GS:PickCharm(g)
+    local order = g.bound and {true, false} or {false, true}
+    for _, wantBound in ipairs(order) do
+        if (wantBound and self.useBound) or (not wantBound and self.useUnbound) then
+            local best
+            for _, it in ipairs(self.items) do
+                if it.tid == g.charm and it.bound == wantBound and it.count >= g.need and
+                    (not best or it.count < best.count) then best = it end
+            end
+            if best then return best end
+        end
+    end
+end
+
+function GS:Selected()
+    local list = {}
+    for _, g in ipairs(self.gear) do if self.pick[g.key] then table.insert(list, g) end end
+    return list
+end
+
+---------------------------------------------------------------- window
+function GS:Dock()
+    local anchor = shown(self.MAIN) and self.MAIN or self.HOST
+    pcall(DlgApi.SetDialogPosition, self.DLG, 0, 0, anchor, AUIDIALOG_ALIGN_OUTSIDE, AUIDIALOG_ALIGN_LEFT,
+        AUIDIALOG_ALIGN_INSIDE, AUIDIALOG_ALIGN_TOP)
+    self.anchorX, self.anchorY = gs_pos(anchor)
+end
+
+function GS:PageRows()
+    local first = (self.page - 1) * self.ROWS
+    local rows = {}
+    for i = 1, self.ROWS do rows[i] = self.gear[first + i] end
+    return rows
+end
+
+-- row ticks -> pick (only for the rows that were painted with that gear)
+function GS:ReadControls()
+    if self.rowKeys then
+        for i = 1, self.ROWS do
+            local key = self.rowKeys[i]
+            if key then
+                local c = gs_checked("Chk_R" .. i)
+                if c ~= nil then self.pick[key] = c or nil end
+            end
+        end
+    end
+    local changed = false
+    local u, b = gs_checked("Chk_Unbound"), gs_checked("Chk_Bound")
+    if u ~= nil and u ~= self.useUnbound then self.useUnbound, changed = u, true end
+    if b ~= nil and b ~= self.useBound then self.useBound, changed = b, true end
+    if changed then self:Save() end
+end
+
+function GS:Paint()
+    local pages = math.max(1, math.ceil(#self.gear / self.ROWS))
+    if self.page > pages then self.page = pages end
+    self:Set("Txt_Page", self.page .. " / " .. pages)
+    -- forget picks of gear that is gone
+    local present = {}
+    for _, g in ipairs(self.gear) do present[g.key] = true end
+    for k in pairs(self.pick) do if not present[k] then self.pick[k] = nil end end
+    local rows = self:PageRows()
+    self.rowKeys = {}
+    for i = 1, self.ROWS do
+        local g = rows[i]
+        local on = g ~= nil
+        pcall(DlgApi.ShowItem, self.DLG, "Chk_R" .. i, on)
+        if g then
+            self.rowKeys[i] = g.key
+            local name = self:Name(g.tid)
+            if #name > 30 then name = name:sub(1, 29) .. "." end
+            self:Set("Chk_R" .. i, name)
+            pcall(DlgApi.CheckItem, self.DLG, "Chk_R" .. i, self.pick[g.key] == true)
+            self:Set("Txt_B" .. i, g.bound and "bound" or "")
+            self:Set("Txt_C" .. i, g.charm > 0 and (g.need .. " x charm") or "-")
+            self:Set("Txt_W" .. i, gs_num(g.coins) .. (g.notes and " Notes" or " Coins"))
+            local give = g.reward > 0 and string.format("%s %d%%", self:Name(g.reward), math.floor(g.chance * 100 + 0.5)) or ""
+            if g.rewardCoins > 0 then give = give .. (give ~= "" and " + " or "") .. gs_num(g.rewardCoins) .. " coins" end
+            if #give > 34 then give = give:sub(1, 33) .. "." end
+            self:Set("Txt_G" .. i, give)
+        else
+            for _, k in ipairs({"Txt_B", "Txt_C", "Txt_W", "Txt_G"}) do self:Set(k .. i, "") end
+        end
+    end
+    local sel = self:Selected()
+    self:Set("Txt_Info", #self.gear == 0 and "No gear in your bag can be disassembled here." or
+        string.format("%d gear in your bag can be disassembled here.  %d ticked.", #self.gear, #sel))
+    -- charms and coins for the ticked gear
+    local need, notes, coins = {}, 0, 0
+    for _, g in ipairs(sel) do
+        if g.charm > 0 then need[g.charm] = (need[g.charm] or 0) + g.need end
+        if g.notes then notes = notes + g.coins else coins = coins + g.coins end
+    end
+    local parts = {}
+    for tid, n in pairs(need) do
+        local u, b = self:CharmTotals(tid)
+        table.insert(parts, string.format("%s: need %d, in bag %d unbound + %d bound", self:Name(tid), n, u, b))
+    end
+    if #parts == 0 then
+        local u, b, any = 0, 0, nil
+        for _, g in ipairs(self.gear) do if g.charm > 0 then any = g.charm; break end end
+        if any then u, b = self:CharmTotals(any) end
+        parts[1] = any and string.format("%s in bag: %d unbound + %d bound", self:Name(any), u, b) or ""
+    end
+    self:Set("Txt_Charms", table.concat(parts, "   "))
+    self:Set("Txt_Cost", #sel > 0 and string.format("Cost of the ticked gear: %s Notes + %s Coins  "
+        .. "(the server takes Notes for bound gear, Coins for unbound)", gs_num(notes), gs_num(coins)) or "")
+    if not self.run then
+        local armed = self.armedAt and (self.now or 0) - self.armedAt < self.CONFIRM
+        self:Set("Btn_Start", armed and "Click to confirm" or ("Disassemble " .. #sel))
+        pcall(DlgApi.EnableItem, self.DLG, "Btn_Start", #sel > 0)
+    else
+        self:Set("Btn_Start", "Working...")
+        pcall(DlgApi.EnableItem, self.DLG, "Btn_Start", false)
+    end
+end
+
+function GS:PaintTicks()
+    pcall(DlgApi.CheckItem, self.DLG, "Chk_Unbound", self.useUnbound)
+    pcall(DlgApi.CheckItem, self.DLG, "Chk_Bound", self.useBound)
+    -- disassembly cannot pay Notes first: the server takes Notes for bound gear and Coins for unbound gear
+    pcall(DlgApi.CheckItem, self.DLG, "Chk_NotesFirst", false)
+    pcall(DlgApi.EnableItem, self.DLG, "Chk_NotesFirst", false)
+end
+
+function GS:Refresh()
+    if not self:Read() then
+        self:Status("Multi Disassembly needs the updated xajh.exe (GameApi.GearScan).")
+        return false
+    end
+    self:Paint()
+    return true
+end
+
+function GS:SelectAll(on)
+    for _, g in ipairs(self.gear or {}) do self.pick[g.key] = on or nil end
+    self.armedAt = nil
+    if shown(self.DLG) then self:Paint() end
+end
+
+function GS:PageBy(d)
+    self:ReadControls()
+    self.page = math.max(1, self.page + d)
+    if shown(self.DLG) then self:Paint() end
+end
+
+---------------------------------------------------------------- doing it
+function GS:StartClick()
+    if self.run then return end
+    self:ReadControls()
+    self:Refresh()
+    local sel = self:Selected()
+    if #sel == 0 then self:Status("Tick the gear to disassemble first."); return end
+    local now = self.now or 0
+    if not self.armedAt or now - self.armedAt > self.CONFIRM then
+        self.armedAt = now
+        self:Status(string.format("Disassembling destroys the %d ticked gear. Click again to start.", #sel))
+        self:Paint()
+        return
+    end
+    self.armedAt = nil
+    local queue = {}
+    for _, g in ipairs(sel) do table.insert(queue, {pack = g.pack, slot = g.slot, tid = g.tid}) end
+    self.run = {queue = queue, i = 0, done = 0, total = #queue}
+    self:Next(now)
+end
+
+function GS:Find(q)
+    for _, g in ipairs(self.gear) do
+        if g.pack == q.pack and g.slot == q.slot and g.tid == q.tid then return g end
+    end
+end
+
+function GS:Next(now)
+    local r = self.run
+    r.i = r.i + 1
+    local q = r.queue[r.i]
+    if not q then self:Stop(string.format("Done: %d of %d disassembled.", r.done, r.total)); return end
+    self:Read()
+    local g = self:Find(q)
+    if not g then r.skipped = (r.skipped or 0) + 1; return self:Next(now) end
+    r.g, r.phase, r.t, r.tries = g, "put", now, 0
+    self:Status(string.format("%d / %d: %s", r.i, r.total, self:Name(g.tid)))
+end
+
+function GS:Stop(msg)
+    self.run = nil
+    if msg then self:Status(msg) end
+    if shown(self.DLG) then self:Refresh() end
+end
+
+local function gs_state()
+    if type(GameApi.GearState) ~= "function" then return nil end
+    local ok, gp, gsl, mf, mp, ms, mc = pcall(GameApi.GearState)
+    if ok and finite(gp) then return {gp = gp, gs = gsl, mf = mf, mp = mp, ms = ms, mc = mc} end
+end
+
+function GS:Step(now)
+    local r = self.run
+    if not shown(self.HOST) then self:Stop("Stopped: the Disassemble page was closed."); return end
+    local g = r.g
+    if r.phase == "put" then
+        local s = gs_state()
+        if s and s.gp == g.pack and s.gs == g.slot then r.phase, r.tries, r.t = "charm", 0, now; return end
+        if r.tries > 0 and now - r.t < 300 then return end
+        if r.tries >= 3 then self:Stop("Stopped: " .. self:Name(g.tid) .. " did not go into the Disassemble window."); return end
+        pcall(GameApi.GearPut, g.pack, g.slot)
+        r.tries, r.t = r.tries + 1, now
+    elseif r.phase == "charm" then
+        if g.charm <= 0 or g.need <= 0 then r.phase = "press"; return end
+        local s = gs_state()
+        if s and s.mf == 1 and r.charm and s.mp == r.charm.pack and s.ms == r.charm.slot then
+            r.phase = "press"; return
+        end
+        if r.tries > 0 and now - r.t < 300 then return end
+        if r.tries >= 3 then self:Stop("Stopped: the Disassembly Charm did not go into the window."); return end
+        self:Read()
+        local c = self:PickCharm(g)
+        if not c then
+            local u, b = self:CharmTotals(g.charm)
+            local kinds = (self.useUnbound and self.useBound) and "" or (self.useUnbound and " unbound" or " bound")
+            self:Stop(string.format("Stopped after %d: no stack of %d%s %s left (bag: %d unbound, %d bound).",
+                r.done, g.need, kinds, self:Name(g.charm), u, b))
+            return
+        end
+        r.charm = c
+        pcall(GameApi.GearPut, c.pack, c.slot)
+        r.tries, r.t = r.tries + 1, now
+    elseif r.phase == "press" then
+        local ok, v = pcall(GameApi.GearPress)
+        if not ok or v ~= 1 then self:Stop("Stopped: the Disassemble window is gone."); return end
+        local s = gs_state()
+        if s and s.gp == g.pack and s.gs == g.slot then
+            self:Stop(string.format("Stopped: the game did not disassemble %s (%s %s needed?).", self:Name(g.tid),
+                gs_num(g.coins), g.notes and "Notes" or "Coins"))
+            return
+        end
+        r.phase, r.t = "wait", now
+    elseif r.phase == "wait" then
+        local ok, tid = pcall(GameApi.AltOpenItem, g.pack, g.slot)
+        if ok and finite(tid) and tid ~= g.tid then
+            r.done = r.done + 1
+            r.phase, r.t = "gap", now
+        elseif now - r.t > self.WAIT then
+            self:Stop(string.format("Stopped after %d: no answer from the server for %s.", r.done, self:Name(g.tid)))
+        end
+    elseif r.phase == "gap" then
+        if now - r.t >= self.GAP then self:Next(now) end
+    end
+end
+
+function GS:Close() if self.run then self:Stop("Stopped.") end; self.userClosed = true; show(self.DLG, false) end
+
+function GS:Tick(now)
+    self.now = now
+    local open = shown(self.HOST)
+    if not open then
+        if self.run then self:Stop("Stopped: the Disassemble page was closed.") end
+        if self.hostOpen then
+            self.hostOpen, self.userClosed = false, false
+            if shown(self.DLG) then show(self.DLG, false) end
+        end
+        return
+    end
+    self:Load()
+    if not self.hostOpen then
+        self.hostOpen = true
+        if self.userClosed then return end
+        show(self.DLG, true)
+        self.shownText, self.rowKeys = {}, nil
+        self:Dock()
+        self:PaintTicks()
+        self:Refresh()
+        return
+    end
+    if not shown(self.DLG) then return end
+    local ax, ay = gs_pos(shown(self.MAIN) and self.MAIN or self.HOST)
+    if ax and (ax ~= self.anchorX or ay ~= self.anchorY) then self:Dock() end
+    if self.run then
+        if now >= self.nextRead then self.nextRead = now + 150; self:Step(now) end
+        if self.run and now >= (self.nextPaint or 0) then self.nextPaint = now + 1000; self:Paint() end
+        return
+    end
+    if now < self.nextRead then return end
+    self.nextRead = now + 500
+    self:ReadControls()
+    self:Refresh()
+end
+
+---------------------------------------------------------------- Currency preference (shared by the gear tools)
+-- One setting for every gear tool: pay with Notes (bound currency) first and with Coins (unbound) only for the rest,
+-- or Coins only. What the server does (gs synthetize_manager, player GetMixMoney / DecMixMoney = Notes first):
+--   * Celestial / Legendary Reforge: the page's own "Only Use Coin" box (Chk_UseUnbind) is sent with every Reforge;
+--     unticked = Notes first, then Coins (Notes used on an unbound item bind it). The reroll tool keeps that box in
+--     line with this setting (U.Money:Apply) while it is open and before every press.
+--   * Gem cleansing: always Notes first, then Coins (the client never asks for Coins only).
+--   * Disassembly: not selectable - the recipe / the gear decide (bound gear pays Notes, unbound gear pays Coins).
+-- New gear tools: read U.Money.notesFirst, call U.Money:Apply(page) before pressing a page that has Chk_UseUnbind.
+local MONEY = {notesFirst = true}
+U.Money = MONEY
+
+function MONEY:Path()
+    local p = O:Path()
+    local dir = p and p:match("^(.*[\\/])")
+    if dir then return dir .. "CurrencyPref.ini" end
+end
+
+function MONEY:Load()
+    if self.loaded then return end
+    self.loaded = true
+    local path = self:Path()
+    if not path or not io or type(io.open) ~= "function" then return end
+    local ok, f = pcall(io.open, path, "rb")
+    if not ok or not f then return end
+    local okR, text = pcall(f.read, f, "*a"); pcall(f.close, f)
+    if not okR or type(text) ~= "string" then return end
+    local v = text:match("notes_first%s*=%s*(%d)")
+    if v then self.notesFirst = v ~= "0" end
+end
+
+function MONEY:Save()
+    local path = self:Path()
+    if not path or not io or type(io.open) ~= "function" then return end
+    local ok, f = pcall(io.open, path, "wb")
+    if not ok or not f then return end
+    pcall(f.write, f, "[Currency]\r\nnotes_first=" .. (self.notesFirst and "1" or "0") .. "\r\n")
+    pcall(f.close, f)
+end
+
+function MONEY:Set(on)
+    self:Load()
+    on = on and true or false
+    if on ~= self.notesFirst then self.notesFirst = on; self:Save() end
+end
+
+-- a page's "Only Use Coin" box: unticked = Notes first, ticked = Coins only
+function MONEY:Apply(page)
+    self:Load()
+    local want = not self.notesFirst
+    local ok, c = pcall(DlgApi.IsItemChecked, page, "Chk_UseUnbind")
+    if ok and c ~= want then pcall(DlgApi.CheckItem, page, "Chk_UseUnbind", want) end
+end
+
+---------------------------------------------------------------- Gem Auto-Combine
+-- Win_GemCombine docks to the left of the Equipment Service window while its Gem Combination page
+-- (Win_EquipServ_StoneCompose) is open. It lists every gem in the bag (packs 2-4, GameApi.GearScan) that has a
+-- combine recipe (server produce_svr.lua StoneList: CB.REC[gem] = {product, gems needed, charm, coins}). Tick the gems,
+-- Combine: each round empties the page (CombClear), puts the gems one by one (CombPutGem) and a Gem Combination Charm
+-- stack (CombPutCharm), checks the page holds exactly that (CombState), sends with the game's own send (CombSend:
+-- flag 0 = Notes first, 1 = Coins only, from the shared U.Money setting) and waits until the gems have left the bag.
+-- Bound gems go first (with bound charms first), then unbound gems (unbound charms first), then a bound/unbound mix;
+-- a bound gem or charm makes the result bound. "Keep combining" also combines what it makes, up to the top recipe.
+-- Stops when no allowed charm is left, nothing changes for 8 s (coins?), the page is closed or Stop is pressed.
+local CB = {DLG = "Win_GemCombine", HOST = "Win_EquipServ_StoneCompose", MAIN = "Win_EquipServ_Main",
+    PACKS = {2, 3, 4}, ROWS = 12, WAIT = 8000, GAP = 300,
+    useUnbound = true, useBound = true, chain = false, pick = {}, page = 1, nextRead = 0, names = {}}
+U.GemCombine = CB
+CB.CHARMS = {[56490] = true, [56491] = true}
+CB.REC = {
+    [13374] = {13375, 2, 56490, 40},
+    [13375] = {13376, 2, 56490, 80},
+    [56530] = {56531, 5, 56490, 500},
+    [56531] = {56532, 5, 56490, 1000},
+    [56532] = {56533, 5, 56490, 2000},
+    [56533] = {56534, 5, 56490, 4000},
+    [56534] = {56535, 5, 56491, 8000},
+    [56540] = {56541, 5, 56490, 500},
+    [56541] = {56542, 5, 56490, 1000},
+    [56542] = {56543, 5, 56490, 2000},
+    [56543] = {56544, 5, 56490, 4000},
+    [56544] = {56545, 5, 56491, 8000},
+    [56550] = {56551, 5, 56490, 500},
+    [56551] = {56552, 5, 56490, 1000},
+    [56552] = {56553, 5, 56490, 2000},
+    [56553] = {56554, 5, 56490, 4000},
+    [56554] = {56555, 5, 56491, 8000},
+    [56560] = {56561, 5, 56490, 500},
+    [56561] = {56562, 5, 56490, 1000},
+    [56562] = {56563, 5, 56490, 2000},
+    [56563] = {56564, 5, 56490, 4000},
+    [56564] = {56565, 5, 56491, 8000},
+    [56570] = {56571, 5, 56490, 500},
+    [56571] = {56572, 5, 56490, 1000},
+    [56572] = {56573, 5, 56490, 2000},
+    [56573] = {56574, 5, 56490, 4000},
+    [56574] = {56575, 5, 56491, 8000},
+    [56580] = {56581, 5, 56490, 500},
+    [56581] = {56582, 5, 56490, 1000},
+    [56582] = {56583, 5, 56490, 2000},
+    [56583] = {56584, 5, 56490, 4000},
+    [56584] = {56585, 5, 56491, 8000},
+    [56590] = {56591, 5, 56490, 500},
+    [56591] = {56592, 5, 56490, 1000},
+    [56592] = {56593, 5, 56490, 2000},
+    [56593] = {56594, 5, 56490, 4000},
+    [56594] = {56595, 5, 56491, 8000},
+    [56600] = {56601, 5, 56490, 500},
+    [56601] = {56602, 5, 56490, 1000},
+    [56602] = {56603, 5, 56490, 2000},
+    [56603] = {56604, 5, 56490, 4000},
+    [56604] = {56605, 5, 56491, 8000},
+    [56610] = {56611, 5, 56490, 500},
+    [56611] = {56612, 5, 56490, 1000},
+    [56612] = {56613, 5, 56490, 2000},
+    [56613] = {56614, 5, 56490, 4000},
+    [56614] = {56615, 5, 56491, 8000},
+    [56636] = {56637, 5, 56490, 500},
+    [56637] = {56638, 5, 56490, 1000},
+    [56638] = {56639, 5, 56490, 2000},
+    [56639] = {56640, 5, 56490, 4000},
+    [56640] = {56641, 5, 56491, 8000},
+    [56646] = {56647, 5, 56490, 500},
+    [56647] = {56648, 5, 56490, 1000},
+    [56648] = {56649, 5, 56490, 2000},
+    [56649] = {56650, 5, 56490, 4000},
+    [56650] = {56651, 5, 56491, 8000},
+    [56656] = {56657, 5, 56490, 500},
+    [56657] = {56658, 5, 56490, 1000},
+    [56658] = {56659, 5, 56490, 2000},
+    [56659] = {56660, 5, 56490, 4000},
+    [56660] = {56661, 5, 56491, 8000},
+    [56666] = {56667, 5, 56490, 500},
+    [56667] = {56668, 5, 56490, 1000},
+    [56668] = {56669, 5, 56490, 2000},
+    [56669] = {56670, 5, 56490, 4000},
+    [56670] = {56671, 5, 56491, 8000},
+    [56676] = {56677, 5, 56490, 500},
+    [56677] = {56678, 5, 56490, 1000},
+    [56678] = {56679, 5, 56490, 2000},
+    [56679] = {56680, 5, 56490, 4000},
+    [56680] = {56681, 5, 56491, 8000},
+    [56686] = {56687, 5, 56490, 500},
+    [56687] = {56688, 5, 56490, 1000},
+    [56688] = {56689, 5, 56490, 2000},
+    [56689] = {56690, 5, 56490, 4000},
+    [56690] = {56691, 5, 56491, 8000},
+    [56696] = {56697, 5, 56490, 500},
+    [56697] = {56698, 5, 56490, 1000},
+    [56698] = {56699, 5, 56490, 2000},
+    [56699] = {56700, 5, 56490, 4000},
+    [56700] = {56701, 5, 56491, 8000},
+    [56706] = {56707, 5, 56490, 500},
+    [56707] = {56708, 5, 56490, 1000},
+    [56708] = {56709, 5, 56490, 2000},
+    [56709] = {56710, 5, 56490, 4000},
+    [56710] = {56711, 5, 56491, 8000},
+    [56716] = {56717, 5, 56490, 500},
+    [56717] = {56718, 5, 56490, 1000},
+    [56718] = {56719, 5, 56490, 2000},
+    [56719] = {56720, 5, 56490, 4000},
+    [56720] = {56721, 5, 56491, 8000},
+    [56726] = {56727, 5, 56490, 500},
+    [56727] = {56728, 5, 56490, 1000},
+    [56728] = {56729, 5, 56490, 2000},
+    [56729] = {56730, 5, 56490, 4000},
+    [56730] = {56731, 5, 56491, 8000},
+    [56736] = {56737, 5, 56490, 500},
+    [56737] = {56738, 5, 56490, 1000},
+    [56738] = {56739, 5, 56490, 2000},
+    [56739] = {56740, 5, 56490, 4000},
+    [56740] = {56741, 5, 56491, 8000},
+    [56746] = {56747, 5, 56490, 500},
+    [56747] = {56748, 5, 56490, 1000},
+    [56748] = {56749, 5, 56490, 2000},
+    [56749] = {56750, 5, 56490, 4000},
+    [56750] = {56751, 5, 56491, 8000},
+    [56756] = {56757, 5, 56490, 500},
+    [56757] = {56758, 5, 56490, 1000},
+    [56758] = {56759, 5, 56490, 2000},
+    [56759] = {56760, 5, 56490, 4000},
+    [56760] = {56761, 5, 56491, 8000},
+    [56766] = {56767, 5, 56490, 500},
+    [56767] = {56768, 5, 56490, 1000},
+    [56768] = {56769, 5, 56490, 2000},
+    [56769] = {56770, 5, 56490, 4000},
+    [56770] = {56771, 5, 56491, 8000},
+    [56779] = {56780, 5, 56490, 500},
+    [56780] = {56781, 5, 56490, 1000},
+    [56781] = {56782, 5, 56490, 2000},
+    [56782] = {56783, 5, 56490, 4000},
+    [56783] = {56784, 5, 56491, 8000},
+    [56789] = {56790, 5, 56490, 500},
+    [56790] = {56791, 5, 56490, 1000},
+    [56791] = {56792, 5, 56490, 2000},
+    [56792] = {56793, 5, 56490, 4000},
+    [56793] = {56794, 5, 56491, 8000},
+    [56799] = {56800, 5, 56490, 500},
+    [56800] = {56801, 5, 56490, 1000},
+    [56801] = {56802, 5, 56490, 2000},
+    [56802] = {56803, 5, 56490, 4000},
+    [56803] = {56804, 5, 56491, 8000},
+    [56809] = {56810, 5, 56490, 500},
+    [56810] = {56811, 5, 56490, 1000},
+    [56811] = {56812, 5, 56490, 2000},
+    [56812] = {56813, 5, 56490, 4000},
+    [56813] = {56814, 5, 56491, 8000},
+    [56819] = {56820, 5, 56490, 500},
+    [56820] = {56821, 5, 56490, 1000},
+    [56821] = {56822, 5, 56490, 2000},
+    [56822] = {56823, 5, 56490, 4000},
+    [56823] = {56824, 5, 56491, 8000},
+    [75278] = {75279, 5, 56490, 500},
+    [75279] = {75280, 5, 56490, 1000},
+    [75280] = {75281, 5, 56490, 2000},
+    [75281] = {75282, 5, 56490, 4000},
+    [75282] = {75283, 5, 56491, 8000},
+    [75289] = {75290, 5, 56490, 500},
+    [75290] = {75291, 5, 56490, 1000},
+    [75291] = {75292, 5, 56490, 2000},
+    [75292] = {75293, 5, 56490, 4000},
+    [75293] = {75294, 5, 56491, 8000},
+}
+
+local function cb_checked(item) local ok, c = pcall(DlgApi.IsItemChecked, CB.DLG, item); if ok then return c == true end end
+local function cb_pos(name)
+    local ok, p = pcall(DlgApi.GetDialogProp, name)
+    if ok and type(p) == "table" and finite(p.x) and finite(p.y) then return p.x, p.y end
+end
+local function cb_num(n)
+    local s = tostring(math.floor(n + 0.5))
+    while true do
+        local t, k = s:gsub("^(-?%d+)(%d%d%d)", "%1,%2")
+        s = t
+        if k == 0 then return s end
+    end
+end
+local function cb_dword(hex, i)
+    local b1, b2, b3, b4 = tonumber(hex:sub(i, i + 1), 16), tonumber(hex:sub(i + 2, i + 3), 16),
+        tonumber(hex:sub(i + 4, i + 5), 16), tonumber(hex:sub(i + 6, i + 7), 16)
+    if not (b1 and b2 and b3 and b4) then return nil end
+    return b1 + b2 * 256 + b3 * 65536 + b4 * 16777216
+end
+
+function CB:Set(item, text)
+    self.shownText = self.shownText or {}
+    if self.shownText[item] ~= text then self.shownText[item] = text; settext(self.DLG, item, text) end
+end
+function CB:Status(text) self:Set("Txt_Status", text or "") end
+
+function CB:Name(tid)
+    local n = self.names[tid]
+    if n == nil then
+        local ok, nm = pcall(GameApi.GetItemInfo, tid)
+        n = (ok and type(nm) == "string" and nm ~= "") and (nm:gsub("%^%x%x%x%x%x%x", "")) or ("Item " .. tid)
+        self.names[tid] = n
+    end
+    return n
+end
+
+---------------------------------------------------------------- settings (GemCombine.ini next to ClientTweaks.ini)
+function CB:Path()
+    local p = O:Path()
+    local dir = p and p:match("^(.*[\\/])")
+    if dir then return dir .. "GemCombine.ini" end
+end
+
+function CB:Load()
+    if self.loaded then return end
+    self.loaded = true
+    local path = self:Path()
+    if not path or not io or type(io.open) ~= "function" then return end
+    local ok, f = pcall(io.open, path, "rb")
+    if not ok or not f then return end
+    local okR, text = pcall(f.read, f, "*a"); pcall(f.close, f)
+    if not okR or type(text) ~= "string" then return end
+    local u, b, c = text:match("unbound%s*=%s*(%d)"), text:match("\nbound%s*=%s*(%d)"), text:match("chain%s*=%s*(%d)")
+    if u then self.useUnbound = u ~= "0" end
+    if b then self.useBound = b ~= "0" end
+    if c then self.chain = c ~= "0" end
+end
+
+function CB:Save()
+    local path = self:Path()
+    if not path or not io or type(io.open) ~= "function" then return end
+    local ok, f = pcall(io.open, path, "wb")
+    if not ok or not f then return end
+    pcall(f.write, f, "[GemCombine]\r\nunbound=" .. (self.useUnbound and "1" or "0") .. "\r\nbound=" ..
+        (self.useBound and "1" or "0") .. "\r\nchain=" .. (self.chain and "1" or "0") .. "\r\n")
+    pcall(f.close, f)
+end
+
+---------------------------------------------------------------- reading the bag
+function CB:Read()
+    if type(GameApi.GearScan) ~= "function" or type(GameApi.CombSend) ~= "function" then return false end
+    local stacks, groups = {}, {}
+    for _, pack in ipairs(self.PACKS) do
+        local ok, hex = pcall(GameApi.GearScan, pack)
+        if ok and type(hex) == "string" then
+            for i = 1, #hex - 95, 96 do
+                local slot, tid, count, flags = cb_dword(hex, i), cb_dword(hex, i + 8), cb_dword(hex, i + 16),
+                    cb_dword(hex, i + 24)
+                if slot and tid and tid > 0 and (self.REC[tid] or self.CHARMS[tid]) then
+                    table.insert(stacks, {pack = pack, slot = slot, tid = tid, count = count, bound = flags % 2 == 1})
+                end
+            end
+        end
+    end
+    for _, s in ipairs(stacks) do
+        local r = self.REC[s.tid]
+        if r then
+            local g = groups[s.tid]
+            if not g then
+                g = {tid = s.tid, product = r[1], need = r[2], charm = r[3], coins = r[4], total = 0, bound = 0}
+                groups[s.tid] = g
+            end
+            g.total = g.total + s.count
+            if s.bound then g.bound = g.bound + s.count end
+        end
+    end
+    local list = {}
+    for _, g in pairs(groups) do table.insert(list, g) end
+    table.sort(list, function(a, b)
+        local na, nb = self:Name(a.tid), self:Name(b.tid)
+        if na ~= nb then return na < nb end
+        return a.tid < b.tid
+    end)
+    self.stacks, self.groups, self.list = stacks, groups, list
+    return true
+end
+
+function CB:CharmTotals(tid)
+    local u, b = 0, 0
+    for _, s in ipairs(self.stacks) do
+        if s.tid == tid then if s.bound then b = b + s.count else u = u + s.count end end
+    end
+    return u, b
+end
+
+-- ticked gems, plus (Keep combining) what they make, as long as there is a recipe for it
+function CB:Wanted()
+    local want = {}
+    for tid in pairs(self.pick) do want[tid] = true end
+    if self.chain then
+        local grew = true
+        while grew do
+            grew = false
+            for tid in pairs(want) do
+                local r = self.REC[tid]
+                if r and self.REC[r[1]] and not want[r[1]] then want[r[1]] = true; grew = true end
+            end
+        end
+    end
+    return want
+end
+
+-- the next round: {gem, units = {stack, ...} (need entries, a stack may repeat), charm = stack} or nil, reason
+function CB:NextRound()
+    local want = self:Wanted()
+    local order = {}
+    for _, g in ipairs(self.list) do if want[g.tid] and g.total >= g.need then table.insert(order, g) end end
+    for _, g in ipairs(order) do
+        for _, mode in ipairs({"bound", "unbound", "mixed"}) do
+            local units = {}
+            local function take(wantBound)
+                for _, s in ipairs(self.stacks) do
+                    if s.tid == g.tid and (wantBound == nil or s.bound == wantBound) then
+                        for _ = 1, s.count do
+                            if #units >= g.need then return end
+                            table.insert(units, s)
+                        end
+                    end
+                end
+            end
+            if mode == "bound" then take(true) elseif mode == "unbound" then take(false) else take(true); take(false) end
+            if #units >= g.need then
+                local charm = self:PickCharm(g.charm, mode ~= "unbound")
+                if not charm then
+                    local u, b = self:CharmTotals(g.charm)
+                    return nil, string.format("no %s%s left for %s (bag: %d unbound, %d bound).",
+                        (self.useUnbound and self.useBound) and "" or (self.useUnbound and "unbound " or "bound "),
+                        self:Name(g.charm), self:Name(g.tid), u, b)
+                end
+                return {gem = g, units = units, charm = charm, bound = mode ~= "unbound" or charm.bound}
+            end
+        end
+    end
+end
+
+function CB:PickCharm(tid, boundFirst)
+    for _, wantBound in ipairs(boundFirst and {true, false} or {false, true}) do
+        if (wantBound and self.useBound) or (not wantBound and self.useUnbound) then
+            for _, s in ipairs(self.stacks) do
+                if s.tid == tid and s.bound == wantBound and s.count > 0 then return s end
+            end
+        end
+    end
+end
+
+---------------------------------------------------------------- window
+function CB:Dock()
+    local anchor = shown(self.MAIN) and self.MAIN or self.HOST
+    pcall(DlgApi.SetDialogPosition, self.DLG, 0, 0, anchor, AUIDIALOG_ALIGN_OUTSIDE, AUIDIALOG_ALIGN_LEFT,
+        AUIDIALOG_ALIGN_INSIDE, AUIDIALOG_ALIGN_TOP)
+    self.anchorX, self.anchorY = cb_pos(anchor)
+end
+
+function CB:ReadControls()
+    if self.rowTids then
+        for i = 1, self.ROWS do
+            local tid = self.rowTids[i]
+            if tid then
+                local c = cb_checked("Chk_R" .. i)
+                if c ~= nil then self.pick[tid] = c or nil end
+            end
+        end
+    end
+    local changed = false
+    local u, b, c = cb_checked("Chk_Unbound"), cb_checked("Chk_Bound"), cb_checked("Chk_Chain")
+    if u ~= nil and u ~= self.useUnbound then self.useUnbound, changed = u, true end
+    if b ~= nil and b ~= self.useBound then self.useBound, changed = b, true end
+    if c ~= nil and c ~= self.chain then self.chain, changed = c, true end
+    if changed then self:Save() end
+    local M = U.Money
+    if M then
+        M:Load()
+        local n = cb_checked("Chk_NotesFirst")
+        if self.moneyShown ~= nil and n ~= nil and n ~= self.moneyShown then
+            M:Set(n); self.moneyShown = n
+        elseif self.moneyShown ~= M.notesFirst then
+            pcall(DlgApi.CheckItem, self.DLG, "Chk_NotesFirst", M.notesFirst); self.moneyShown = M.notesFirst
+        end
+    end
+end
+
+function CB:PaintTicks()
+    pcall(DlgApi.CheckItem, self.DLG, "Chk_Unbound", self.useUnbound)
+    pcall(DlgApi.CheckItem, self.DLG, "Chk_Bound", self.useBound)
+    pcall(DlgApi.CheckItem, self.DLG, "Chk_Chain", self.chain)
+    self.moneyShown = nil
+end
+
+function CB:Paint()
+    local pages = math.max(1, math.ceil(#self.list / self.ROWS))
+    if self.page > pages then self.page = pages end
+    self:Set("Txt_Page", self.page .. " / " .. pages)
+    local want = self:Wanted()
+    self.rowTids = {}
+    for i = 1, self.ROWS do
+        local g = self.list[(self.page - 1) * self.ROWS + i]
+        pcall(DlgApi.ShowItem, self.DLG, "Chk_R" .. i, g ~= nil)
+        if g then
+            self.rowTids[i] = g.tid
+            local name = self:Name(g.tid)
+            if #name > 28 then name = name:sub(1, 27) .. "." end
+            self:Set("Chk_R" .. i, name)
+            pcall(DlgApi.CheckItem, self.DLG, "Chk_R" .. i, self.pick[g.tid] == true)
+            self:Set("Txt_H" .. i, g.bound > 0 and string.format("%d (%d bound)", g.total, g.bound) or tostring(g.total))
+            local n = math.floor(g.total / g.need)
+            local make = string.format("%d x %s", n, self:Name(g.product))
+            if #make > 30 then make = make:sub(1, 29) .. "." end
+            self:Set("Txt_M" .. i, make)
+            self:Set("Txt_K" .. i, (g.charm == 56491) and "Charm II" or "Charm I")
+            self:Set("Txt_W" .. i, cb_num(g.coins) .. (want[g.tid] and not self.pick[g.tid] and "  (kept on)" or ""))
+        else
+            for _, k in ipairs({"Txt_H", "Txt_M", "Txt_K", "Txt_W"}) do self:Set(k .. i, "") end
+        end
+    end
+    -- what the ticked gems need right now (one level; Keep combining adds more later)
+    local charms, coins, rounds = {}, 0, 0
+    for _, g in ipairs(self.list) do
+        if want[g.tid] then
+            local n = math.floor(g.total / g.need)
+            rounds = rounds + n
+            coins = coins + n * g.coins
+            charms[g.charm] = (charms[g.charm] or 0) + n
+        end
+    end
+    local parts = {}
+    for tid, n in pairs(charms) do
+        if n > 0 then
+            local u, b = self:CharmTotals(tid)
+            table.insert(parts, string.format("%s: need %d, bag %d unbound + %d bound", self:Name(tid), n, u, b))
+        end
+    end
+    table.sort(parts)
+    self:Set("Txt_Info", #self.list == 0 and "No gems in your bag can be combined." or
+        string.format("%d kinds of gems in your bag can be combined.  Ticked: %d combines now (%s coins, %s).", #self.list,
+            rounds, cb_num(coins), (U.Money and not U.Money.notesFirst) and "Coins only" or "Notes first"))
+    self:Set("Txt_Charms", table.concat(parts, "   "))
+    if not self.run then
+        self:Set("Btn_Start", "Combine")
+        pcall(DlgApi.EnableItem, self.DLG, "Btn_Start", rounds > 0)
+    else
+        self:Set("Btn_Start", "Working...")
+        pcall(DlgApi.EnableItem, self.DLG, "Btn_Start", false)
+    end
+end
+
+function CB:Refresh()
+    if not self:Read() then
+        self:Status("Gem Auto-Combine needs the updated xajh.exe (GameApi.CombSend).")
+        return false
+    end
+    self:Paint()
+    return true
+end
+
+function CB:SelectAll(on)
+    self.pick = {}
+    if on then for _, g in ipairs(self.list or {}) do if g.total >= g.need then self.pick[g.tid] = true end end end
+    if shown(self.DLG) then self:Paint() end
+end
+
+function CB:PageBy(d)
+    self:ReadControls()
+    self.page = math.max(1, self.page + d)
+    if shown(self.DLG) then self:Paint() end
+end
+
+---------------------------------------------------------------- doing it
+local function cb_state()
+    if type(GameApi.CombState) ~= "function" then return nil end
+    local r = {pcall(GameApi.CombState)}
+    if not r[1] or not finite(r[2]) then return nil end
+    local ents = {}
+    for i = 0, r[2] - 1 do
+        ents[i] = {slot = r[3 + i * 3], pack = r[4 + i * 3], tid = r[5 + i * 3]}
+    end
+    return ents, r[2]
+end
+
+function CB:Start()
+    if self.run then return end
+    self:ReadControls()
+    if not self:Refresh() then return end
+    self.run = {done = 0, made = {}}
+    self:Begin(0)
+end
+
+function CB:Begin(now)
+    local r = self.run
+    self:Read()
+    local round, why = self:NextRound()
+    if not round then
+        self:Stop(why and string.format("Stopped after %d: %s", r.done, why) or
+            string.format("Done: %d %s.", r.done, r.done == 1 and "combine" or "combines"))
+        return
+    end
+    r.round, r.phase, r.t, r.tries = round, "put", now, 0
+    r.before = round.gem.total
+    self:Status(string.format("%d done - combining %d x %s...", r.done, round.gem.need, self:Name(round.gem.tid)))
+end
+
+function CB:Stop(msg)
+    self.run = nil
+    pcall(GameApi.CombClear)
+    if msg then self:Status(msg) end
+    if shown(self.DLG) then self:Refresh() end
+end
+
+-- the page holds exactly this round's gems and charm
+function CB:Holds(round)
+    local ents, n = cb_state()
+    if not ents or n < 6 then return false end
+    local gems = 0
+    for i = 0, n - 2 do
+        local e = ents[i]
+        if e.tid and e.tid > 0 then
+            if e.tid ~= round.gem.tid then return false end
+            gems = gems + 1
+        end
+    end
+    local c = ents[n - 1]
+    return gems == round.gem.need and c.tid == round.charm.tid and c.pack == round.charm.pack and
+        c.slot == round.charm.slot
+end
+
+function CB:Step(now)
+    local r = self.run
+    if not shown(self.HOST) then self:Stop("Stopped: the Gem Combination page was closed."); return end
+    local round = r.round
+    if r.phase == "put" then
+        if r.tries >= 2 then self:Stop("Stopped: the gems did not go into the Gem Combination window."); return end
+        pcall(GameApi.CombClear)
+        for _, s in ipairs(round.units) do pcall(GameApi.CombPutGem, s.pack, s.slot) end
+        pcall(GameApi.CombPutCharm, round.charm.pack, round.charm.slot)
+        r.tries, r.phase, r.t = r.tries + 1, "check", now
+    elseif r.phase == "check" then
+        if self:Holds(round) then
+            local flag = (U.Money and not U.Money.notesFirst) and 1 or 0
+            local ok, n = pcall(GameApi.CombSend, flag)
+            if not ok or not n or n < 1 then self:Stop("Stopped: the Gem Combination window is gone."); return end
+            r.phase, r.t = "wait", now
+        elseif now - r.t > 300 then
+            r.phase = "put"
+        end
+    elseif r.phase == "wait" then
+        if now - r.t < 150 then return end
+        self:Read()
+        local g = self.groups[round.gem.tid]
+        local left = g and g.total or 0
+        if left <= r.before - round.gem.need then
+            r.done = r.done + 1
+            r.phase, r.t = "gap", now
+        elseif now - r.t > self.WAIT then
+            self:Stop(string.format("Stopped after %d: nothing changed for %s (coins?).", r.done, self:Name(round.gem.tid)))
+        end
+    elseif r.phase == "gap" then
+        if now - r.t >= self.GAP then self:Begin(now) end
+    end
+end
+
+function CB:Close() if self.run then self:Stop("Stopped.") end; self.userClosed = true; show(self.DLG, false) end
+
+function CB:Tick(now)
+    local open = shown(self.HOST)
+    if not open then
+        if self.run then self:Stop("Stopped: the Gem Combination page was closed.") end
+        if self.hostOpen then
+            self.hostOpen, self.userClosed = false, false
+            if shown(self.DLG) then show(self.DLG, false) end
+        end
+        return
+    end
+    self:Load()
+    if not self.hostOpen then
+        self.hostOpen = true
+        if self.userClosed then return end
+        show(self.DLG, true)
+        self.shownText, self.rowTids = {}, nil
+        self:Dock()
+        self:PaintTicks()
+        self:Refresh()
+        return
+    end
+    if not shown(self.DLG) then return end
+    local ax, ay = cb_pos(shown(self.MAIN) and self.MAIN or self.HOST)
+    if ax and (ax ~= self.anchorX or ay ~= self.anchorY) then self:Dock() end
+    if self.run then
+        if now >= self.nextRead then self.nextRead = now + 100; self:Step(now) end
+        if self.run and now >= (self.nextPaint or 0) then self.nextPaint = now + 1000; self:Paint() end
+        return
+    end
+    if now < self.nextRead then return end
+    self.nextRead = now + 500
+    self:ReadControls()
+    self:Refresh()
 end
 
 ---------------------------------------------------------------- one shared per-frame hook
@@ -3410,8 +6084,15 @@ function U.Tick()
     if U.MarketSearch then pcall(U.MarketSearch.Tick, U.MarketSearch) end
     pcall(EnergyUI.Tick, EnergyUI)
     pcall(AE.Tick, AE, now)
+    pcall(QP.Tick, QP, now)
+    pcall(AO.Tick, AO, now)
+    pcall(GC.Tick, GC, now)
+    pcall(GS.Tick, GS, now)
+    pcall(CB.Tick, CB, now)
+    pcall(ST.Tick, ST, now)
     pcall(MM.Tick, MM, now)
     pcall(RR.Tick, RR, now)
+    if type(GameApi.MirageStep) == "function" and O:On("mirage_arrows") then pcall(GameApi.MirageStep) end
     if type(GameApi.TickClientTweaks) == "function" then pcall(GameApi.TickClientTweaks) end
     if type(EXPReplacementWarningTick) == "function" then pcall(EXPReplacementWarningTick) end
 end

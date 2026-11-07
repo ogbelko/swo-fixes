@@ -1032,3 +1032,7 @@ exp_replacement_warning.xml 0 0 0 Win_EXPReplacementWarning
 QolMarketFind.xml					-1			-2			0				Win_QolMarketFind
 minimal_custom.xml -1 -1 0 Win_MinimalCustom
 reroll_tool.xml -1 -1 0 Win_RerollTool
+swc_quick.xml -1 -1 0 Win_SwcQuick
+gem_cleanser.xml -1 -1 0 Win_GemCleanser
+gear_split.xml -1 -1 0 Win_GearSplit
+gem_combine.xml -1 -1 0 Win_GemCombine

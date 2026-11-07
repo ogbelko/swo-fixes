@@ -1,11 +1,11 @@
 {
   "name": "Swordsman Classic client fixes",
-  "version": 11,
+  "version": 12,
   "files": [
     {
       "path": "bin/xajh.exe",
-      "md5": "08504e9b0843ee51fbce84915908cd6a",
-      "desc": "Game exe with all code changes, including the Client Tweaks window (ESC > Settings > System > Client Tweaks) where each fix can be switched on or off: borderless window, Night/Day only, FPS + Ping (every 3 s), health bars, bar numbers, Player Kills counter, chat keeps focus when you get hit, bigger world map (right-click = Back, opens zoomed out), short logo screen, skip server list, centred Action camera, Locked Target, Forced Move blocked, Tab ignore fix, mail Get All, Max Zoom, Zoom Speed, Display Mode, Compatibility mode, Minimal Mode fog, bag fix and search, stash and marketplace search, EXP warnings, boss tooltips, custom Minimal Mode (draw distances, grass / far terrain / ground paint, background FPS limit, players drawn, players without costumes, effect distance), the Celestial Reforge auto-reforge tool, and skills facing the camera while you hold the right mouse button. The windows and buttons come from the interface files below. Also fixes the random crash after leaving an instance / changing map (two loading threads rebuilding the same shader at once).",
+      "md5": "ecf0f6d2adec5b9fc5d229785541ec02",
+      "desc": "Game exe with all code changes, including the Client Tweaks window (ESC > Settings > System > Client Tweaks) where each fix can be switched on or off: borderless window, Night/Day only, FPS + Ping (every 3 s), health bars, bar numbers, Player Kills counter, chat keeps focus when you get hit, bigger world map (right-click = Back, opens zoomed out), short logo screen, skip server list, centred Action camera, Locked Target, Forced Move blocked, Tab ignore fix, mail Get All, Max Zoom, Zoom Speed, Display Mode, Compatibility mode, Minimal Mode fog, bag fix and search, stash and marketplace search, EXP warnings, boss tooltips, custom Minimal Mode (draw distances, grass / far terrain / ground paint, background FPS limit, players drawn, players without costumes, effect distance), the Celestial Reforge auto-reforge tool, and skills facing the camera while you hold the right mouse button. The windows and buttons come from the interface files below. New in v12: higher in-world FPS cap and background-window FPS limit (Client Tweaks > Performance), Mirage Cavern minimap arrows that walk you through each doorway (Client Tweaks > Mirage Cavern), General Power target mode per skill key, Alt + right-click opens a whole stack, loot auto-roll and System mail auto-claim (Quick Settings), FPS / ping and a Quick Settings cogwheel in the top bar, and the game-side parts of the Gem Cleanser, Multi Disassembly and Gem Auto-Combine tools. Also fixes the random crash after leaving an instance / changing map (two loading threads rebuilding the same shader at once).",
       "packed": "zlib",
       "url": "dl/bin/xajh.exe.z"
     },
@@ -42,8 +42,8 @@
     },
     {
       "path": "package/interfaces/client_tweaks_settings.xml",
-      "md5": "7ee68b19d51aa958cbaaedeb50b6333b",
-      "desc": "The Client Tweaks window: on/off switches for every client fix.",
+      "md5": "8c096a5c5e0bf50d20d464b2f0932168",
+      "desc": "The Client Tweaks window: on/off switches for every client fix, including the new Performance (FPS cap, background FPS) and Mirage Cavern sections.",
       "url": "dl/package/interfaces/client_tweaks_settings.xml"
     },
     {
@@ -72,8 +72,8 @@
     },
     {
       "path": "package/interfaces/gameui.dcf",
-      "md5": "248036964f1f276dff68f501f3222d4d",
-      "desc": "Game window list: adds the Player Kills counter and the new Client Tweaks, search, EXP warning, Minimal Settings and Reforge tool windows.",
+      "md5": "ff74ced24ec92f39eed8321ac958e789",
+      "desc": "Game window list: adds the Player Kills counter and the new Client Tweaks, search, EXP warning, Minimal Settings, Reforge tool, Quick Settings, Gem Cleanser, Multi Disassembly and Gem Auto-Combine windows.",
       "url": "dl/package/interfaces/gameui.dcf"
     },
     {
@@ -82,6 +82,24 @@
       "desc": "Text fix: the chat cooldown message now names the Alliance Channel instead of Dragon's Roar.",
       "packed": "zlib",
       "url": "dl/package/interfaces/gameui.stf.z"
+    },
+    {
+      "path": "package/interfaces/gear_split.xml",
+      "md5": "453ca50448b6278e82254c86f16f8e83",
+      "desc": "Multi Disassembly, docks left of the Disassemble page: tick gear and it disassembles it piece by piece with your Disassembly Charms.",
+      "url": "dl/package/interfaces/gear_split.xml"
+    },
+    {
+      "path": "package/interfaces/gem_cleanser.xml",
+      "md5": "0054016cb84aecc009151dcb3c661629",
+      "desc": "Gem Cleanser helper, docks left of the Gem Cleansing page: plans which gems to cleanse with your crystal income and does the next step with the game's own buttons.",
+      "url": "dl/package/interfaces/gem_cleanser.xml"
+    },
+    {
+      "path": "package/interfaces/gem_combine.xml",
+      "md5": "5456e2cd46b16a23a52be75160853bf5",
+      "desc": "Gem Auto-Combine, docks left of the Gem Combination page: tick gems and it combines them with your Gem Combination Charms (optionally keeps combining what it makes).",
+      "url": "dl/package/interfaces/gem_combine.xml"
     },
     {
       "path": "package/interfaces/inventory.xml",
@@ -121,9 +139,15 @@
     },
     {
       "path": "package/interfaces/maininfoframe.xml",
-      "md5": "c7f997a901c916c785cf7a13803ac844",
-      "desc": "Hides the Chinese Minimal Mode banner.",
+      "md5": "c762f25777e0787da833286e304ddd0a",
+      "desc": "Hides the Chinese Minimal Mode banner; wider top bar so the FPS / ping text and the Quick Settings cogwheel fit.",
       "url": "dl/package/interfaces/maininfoframe.xml"
+    },
+    {
+      "path": "package/interfaces/maininfoleft.xml",
+      "md5": "491312bb469544cc9c7e730a4baddb3c",
+      "desc": "Top bar (map name row): FPS / ping text and the Quick Settings cogwheel next to the area icons.",
+      "url": "dl/package/interfaces/maininfoleft.xml"
     },
     {
       "path": "package/interfaces/minimal_custom.xml",
@@ -133,8 +157,8 @@
     },
     {
       "path": "package/interfaces/minimap.xml",
-      "md5": "5d8b6f82abef30ee5fb0abb8eb3685b2",
-      "desc": "Adds the FPS + Ping line under the minimap (works with the game exe).",
+      "md5": "7c2925fa5000c7c2626f35949018fcad",
+      "desc": "Minimap without the old FPS + Ping line (it moved to the top bar, next to the map name).",
       "url": "dl/package/interfaces/minimap.xml"
     },
     {
@@ -169,14 +193,14 @@
     },
     {
       "path": "package/interfaces/reroll_tool.xml",
-      "md5": "df5b1783032a54663d0a0d86fb11ed90",
-      "desc": "The Celestial Reforge auto-reforge window, opens on the left of the Reforge window: tick the stats / skills you want and it reforges until it gets them.",
+      "md5": "05c19f8cc0676a267fefb8e8c3be6f5d",
+      "desc": "The Celestial Reforge auto-reforge window, opens on the left of the Reforge window: tick the stats / skills you want and it reforges until it gets them. New: \"Pay with Notes first, then Coins\".",
       "url": "dl/package/interfaces/reroll_tool.xml"
     },
     {
       "path": "package/interfaces/setting_fightoperation.xml",
-      "md5": "df1005f103879f9c3c509922d3332588",
-      "desc": "Settings > Control Scheme: rows and columns aligned, two label fixes.",
+      "md5": "8257b92c4883c3d8989b8ecbb26d8cd0",
+      "desc": "Settings > Control Scheme redone: \"Set per key\" with padlocks under keys 1-8 (Locked Target / Area Select per key for General Power).",
       "url": "dl/package/interfaces/setting_fightoperation.xml"
     },
     {
@@ -210,6 +234,12 @@
       "url": "dl/package/interfaces/storage.xml"
     },
     {
+      "path": "package/interfaces/swc_quick.xml",
+      "md5": "6906e55a729383534978260b9bcb6c2f",
+      "desc": "Quick Settings panel: name labels (names only, other guilds in red), Player kill counter, loot auto-roll, System mail auto-claim.",
+      "url": "dl/package/interfaces/swc_quick.xml"
+    },
+    {
       "path": "package/interfaces/worldmap.xml",
       "md5": "c14050d32152ddd38a710253e65d8266",
       "desc": "Smaller map name labels on the world map.",
@@ -217,8 +247,8 @@
     },
     {
       "path": "package/interfaceso/maininfoframe.xml",
-      "md5": "c7f997a901c916c785cf7a13803ac844",
-      "desc": "Hides the Chinese Minimal Mode banner (second interface archive).",
+      "md5": "c762f25777e0787da833286e304ddd0a",
+      "desc": "Hides the Chinese Minimal Mode banner; wider top bar (second interface archive).",
       "url": "dl/package/interfaceso/maininfoframe.xml"
     },
     {
@@ -242,9 +272,33 @@
     },
     {
       "path": "package/script/interfaces/gameui.lua",
-      "md5": "99b92f9a75efd72f21504e05725f89d0",
-      "desc": "Registers the new windows and runs the World Energy auto-use (userdata\\AutoEnergy.ini), the Minimal Settings logic (userdata\\MinimalMode.ini) and the Celestial Reforge auto-reforge tool.",
+      "md5": "15f3671f27e226b86c739b4f086e5221",
+      "desc": "Registers the new windows and runs the World Energy auto-use, Minimal Settings, the Celestial Reforge tool, General Power per-key target mode, Quick Settings (name labels, kill counter, loot auto-roll, System mail auto-claim), Alt + right-click stack opening, Gem Cleanser, Multi Disassembly, Gem Auto-Combine and the Mirage arrow step.",
       "url": "dl/package/script/interfaces/gameui.lua"
+    },
+    {
+      "path": "package/script/interfaces/gear_split.lua",
+      "md5": "a3c1e23ba79689ff7c9e125fc05e636a",
+      "desc": "Multi Disassembly window script.",
+      "url": "dl/package/script/interfaces/gear_split.lua"
+    },
+    {
+      "path": "package/script/interfaces/gem_cleanser.lua",
+      "md5": "a9d148fcedd0b93449867f2f9b12e1c2",
+      "desc": "Gem Cleanser window script.",
+      "url": "dl/package/script/interfaces/gem_cleanser.lua"
+    },
+    {
+      "path": "package/script/interfaces/gem_combine.lua",
+      "md5": "1e0db2e3c8a19a9230cf9041b102e5ee",
+      "desc": "Gem Auto-Combine window script.",
+      "url": "dl/package/script/interfaces/gem_combine.lua"
+    },
+    {
+      "path": "package/script/interfaces/maininfoleft.lua",
+      "md5": "f7f97d6c5aa40f575094ccb361de10a6",
+      "desc": "Top bar script: the cogwheel opens Quick Settings.",
+      "url": "dl/package/script/interfaces/maininfoleft.lua"
     },
     {
       "path": "package/script/interfaces/minimal_custom.lua",
@@ -283,10 +337,41 @@
       "url": "dl/package/script/interfaces/setting_system.lua"
     },
     {
+      "path": "package/script/interfaces/swc_quick.lua",
+      "md5": "231708b445832f978944777d78f3b20e",
+      "desc": "Quick Settings panel script.",
+      "url": "dl/package/script/interfaces/swc_quick.lua"
+    },
+    {
       "path": "package/script/monstervisual.lua",
       "md5": "759eb2119b83f2b3b836ec176aa6f70a",
       "desc": "Rare Animal Island boss tooltips (direction, spawn coordinates, trophy) and Jade Sung boss names.",
       "url": "dl/package/script/monstervisual.lua"
+    },
+    {
+      "path": "package/surfaces/xajh/swc/perf_bg.tga",
+      "md5": "f8b7125d93d14c45d3d7adf9aa9f74b0",
+      "desc": "Background of the FPS / ping text in the top bar.",
+      "url": "dl/package/surfaces/xajh/swc/perf_bg.tga"
+    },
+    {
+      "path": "package/surfaces/xajh/swc/小按钮_不可用.tga",
+      "md5": "84377bc3513fcc742fb2b039c564d192",
+      "desc": "Greyed-out small button on the Control Scheme page.",
+      "url": "dl/package/surfaces/xajh/swc/小按钮_不可用.tga"
+    },
+    {
+      "path": "package/surfaces/xajh/swc/操作设置底板_新.tga",
+      "md5": "c3e4d06c343db3fb3aa44a1ab934e2f3",
+      "desc": "Background of the redone Settings > Control Scheme page.",
+      "packed": "zlib",
+      "url": "dl/package/surfaces/xajh/swc/操作设置底板_新.tga.z"
+    },
+    {
+      "path": "package/surfaces/xajh/swc/锁定_不可用.tga",
+      "md5": "0ebc9899bff70d0672f88f79889c411c",
+      "desc": "Greyed-out padlock for the per-key target mode on the Control Scheme page.",
+      "url": "dl/package/surfaces/xajh/swc/锁定_不可用.tga"
     },
     {
       "path": "package/surfaces/xajh/主界面/精简模式提示文字.tga",

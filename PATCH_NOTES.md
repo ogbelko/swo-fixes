@@ -1,5 +1,28 @@
 # Swordsman Classic — Client Patch Notes
 
+## New in v12
+**Performance** (*Client Tweaks → Performance*)
+- **Higher FPS cap in the world**: the game held itself to about 77 FPS (13 ms physics step); now your graphics card or DXVK sets the limit, and the CPU rests while it waits
+- **Limit FPS of background windows**: game windows that are not in front run at the Background FPS from Minimal Settings (10 if not set), also with Minimal Mode off
+
+**Mirage Cavern** (*Client Tweaks → Mirage Cavern*)
+- Minimap arrows walk you through each doorway (6 m into the next room), also where the game's own route fails or stops short
+- The entrance room's arrow is left alone; each click is logged to `bin\Logs\MirageArrow.log` when that folder exists
+
+**Top bar and Quick Settings**
+- FPS / ping now sit in the top bar next to the map name, with a cogwheel that opens **Quick Settings**
+- Quick Settings: name labels (names only, other guilds in red), Player kill counter, loot auto-roll, System mail auto-claim
+
+**Gear tools** (dock to the left of the Equipment Service pages)
+- **Gem Cleanser**: plans which gems to cleanse with your crystal income and does the next step with the game's own buttons
+- **Multi Disassembly**: tick gear and it is disassembled piece by piece with your Disassembly Charms
+- **Gem Auto-Combine**: tick gems and they are combined with your Gem Combination Charms; can keep combining what it makes
+- One currency choice for all of them and the Reforge tool: **Pay with Notes first, then Coins**
+
+**Combat and items**
+- *ESC → Settings → Control Scheme* redone: **Set per key** with padlocks under keys 1–8 (Locked Target or Area Select per key)
+- **Alt + right-click** an item stack to open / use the whole stack
+
 ## New Features
 **Client Tweaks Window**
 - *ESC → Settings → System → Client Tweaks* (button at the bottom, next to Default)
